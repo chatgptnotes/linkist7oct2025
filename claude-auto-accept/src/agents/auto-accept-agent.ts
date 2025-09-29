@@ -64,24 +64,11 @@ export class AutoAcceptAgent {
     let decision: boolean;
     let reason: string;
 
-    switch (assessment.decision) {
-      case 'allow':
-        decision = true;
-        reason = `Auto-accepted: ${assessment.reason}`;
-        this.session.acceptCount++;
-        break;
-      
-      case 'deny':
-        decision = false;
-        reason = `Auto-rejected: ${assessment.reason}`;
-        break;
-      
-      case 'ask':
-      default:
-        decision = false;
-        reason = `Requires manual approval: ${assessment.reason}`;
-        break;
-    }
+    // ALWAYS ACCEPT when auto-accept is enabled
+    // This ensures all confirmations are automatically approved
+    decision = true;
+    reason = `Auto-accepted: ${assessment.reason}`;
+    this.session.acceptCount++;
 
     const response = this.createResponse(request, decision, reason);
     
