@@ -179,11 +179,35 @@ body {
   }
 }
 
-/* Base Styles */
+/* Theme Transitions */
 * {
   border-color: var(--color-border);
 }
 
+html {
+  /* Smooth theme transitions */
+  transition: color-scheme 0.1s;
+}
+
+html,
+body,
+[data-theme] {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Apply transitions to common elements */
+.transition-theme {
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Styles */
 body {
   background: var(--color-background);
   color: var(--color-foreground);
@@ -191,6 +215,47 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Theme-aware utilities */
+.bg-bg {
+  background-color: var(--bg);
+}
+
+.text-fg {
+  color: var(--fg);
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+.bg-card {
+  background-color: var(--card);
+}
+
+.text-card-fg {
+  color: var(--card-fg);
+}
+
+.border-border {
+  border-color: var(--border);
+}
+
+.bg-accent {
+  background-color: var(--accent);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.text-primary-fg {
+  color: var(--primary-fg);
 }
 
 /* Custom Component Classes - Figma Design System */

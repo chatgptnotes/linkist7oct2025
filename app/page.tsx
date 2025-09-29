@@ -8,6 +8,7 @@ import ZoomCard from '@/components/ZoomCard';
 import FeaturesGrid from '@/components/landing/FeaturesGrid';
 import PricingSection from '@/components/landing/PricingSection';
 import NewHowItWorksSection from '@/components/landing/HowItWorksSection';
+import FooterSection from '@/components/landing/FooterSection';
 
 // Types and Interfaces
 interface SearchOverlayProps {
@@ -4406,6 +4407,9 @@ export default function HomePage() {
 
       {/* New Pricing Section */}
       <PricingSection />
+
+      {/* Footer Section */}
+      <FooterSection />
 
       <style jsx global>{`
         /* Linkist Design System Variables */

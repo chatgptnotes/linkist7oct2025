@@ -1,32 +1,144 @@
 'use client';
 
-import { useTheme } from './ThemeProvider';
+import React from 'react';
+import { Sun, Moon, Monitor } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
 
-export function ThemeToggle() {
-  const { theme, toggle } = useTheme();
+interface ThemeToggleProps {
+  className?: string;
+  variant?: 'button' | 'icon' | 'dropdown';
+  position?: 'fixed' | 'relative';
+}
 
-  // Only show in development
-  if (process.env.NODE_ENV === 'production') {
+export function ThemeToggle({
+  className = '',
+  variant = 'button',
+  position = 'relative'
+}: ThemeToggleProps) {
+  const { theme, actualTheme, setTheme, toggleTheme } = useTheme();
+
+  if (variant === 'dropdown') {
+    return (
+      <div className={`relative ${className}`}>
+        <select
+          value={theme}
+          onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'system')}
+          className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-card-fg focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
+        >
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="system">System</option>
+        </select>
+      </div>
+    );
+  }
+
+  const getIcon = () => {
+    if (theme === 'system') {
+      return (
+        <Monitor
+          size={18}
+          className="transition-all duration-300 ease-in-out transform group-hover:scale-110"
+        />
+      );
+    }
+
+    return actualTheme === 'dark' ? (
+      <Moon
+        size={18}
+        className="transition-all duration-300 ease-in-out transform rotate-0 group-hover:scale-110 group-hover:-rotate-12"
+        fill="currentColor"
+      />
+    ) : (
+      <Sun
+        size={18}
+        className="transition-all duration-300 ease-in-out transform rotate-0 group-hover:scale-110 group-hover:rotate-12"
+        fill="currentColor"
+      />
+    );
+  };
+
+  const getTooltipText = () => {
+    if (theme === 'system') return 'System theme';
+    return actualTheme === 'dark' ? 'Dark mode' : 'Light mode';
+  };
+
+  const baseClasses = `
+    group relative inline-flex items-center justify-center
+    transition-all duration-200 ease-in-out
+    hover:bg-accent/50 active:scale-95
+    focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-bg
+  `;
+
+  if (variant === 'icon') {
+    return (
+      <button
+        onClick={toggleTheme}
+        className={`
+          ${baseClasses}
+          w-9 h-9 rounded-full
+          text-muted hover:text-fg
+          ${position === 'fixed' ? 'fixed top-4 right-4 z-50' : ''}
+          ${className}
+        `}
+        aria-label={`Switch to ${theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'} theme`}
+        title={getTooltipText()}
+      >
+        {getIcon()}
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className={`
+        ${baseClasses}
+        px-3 py-2 rounded-lg border border-border
+        text-sm font-medium text-card-fg
+        bg-card hover:bg-accent/30
+        ${position === 'fixed' ? 'fixed top-4 right-4 z-50' : ''}
+        ${className}
+      `}
+      aria-label={`Switch to ${theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'} theme`}
+      title={getTooltipText()}
+    >
+      <span className="flex items-center gap-2">
+        {getIcon()}
+        <span className="capitalize">
+          {theme === 'system' ? 'Auto' : theme}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+// Fixed position theme toggle for easy access
+export function FixedThemeToggle({ className = '' }: { className?: string }) {
+  return (
+    <ThemeToggle
+      variant="icon"
+      position="fixed"
+      className={`
+        backdrop-blur-sm bg-card/80 border border-border/50
+        shadow-lg hover:shadow-xl
+        ${className}
+      `}
+    />
+  );
+}
+
+// Theme status indicator (useful for debugging)
+export function ThemeStatus() {
+  const { theme, actualTheme } = useTheme();
+
+  if (process.env.NODE_ENV !== 'development') {
     return null;
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <button
-        onClick={toggle}
-        className="p-3 rounded-full bg-primary-var text-primary-fg-var shadow-lg hover:shadow-xl transition-all duration-200 border border-var"
-        title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
-      >
-        {theme === 'light' ? (
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-          </svg>
-        ) : (
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-        )}
-      </button>
+    <div className="fixed bottom-4 left-4 bg-card border border-border rounded-lg px-3 py-2 text-xs font-mono text-muted z-50">
+      Theme: {theme} | Actual: {actualTheme}
     </div>
   );
 }

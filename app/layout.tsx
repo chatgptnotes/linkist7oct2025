@@ -5,6 +5,8 @@ import GDPRConsentBanner from '@/components/gdpr-consent-banner';
 import { ToastProvider } from '@/components/ToastProvider';
 import AdminInitializer from '@/components/AdminInitializer';
 import ConditionalLayout from '@/components/ConditionalLayout';
+import { ThemeProvider } from '@/providers/ThemeProvider';
+import { FixedThemeToggle, ThemeStatus } from '@/components/ThemeToggle';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -41,21 +43,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </head>
-      <body className={`${inter.className} antialiased bg-black min-h-screen flex flex-col`}>
-        <AdminInitializer />
-        <ToastProvider>
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
-          <GDPRConsentBanner />
-        </ToastProvider>
+      <body className={`${inter.className} antialiased bg-bg text-fg min-h-screen flex flex-col transition-colors duration-300`}>
+        <ThemeProvider defaultTheme="system" storageKey="linkist-theme">
+          <AdminInitializer />
+          <ToastProvider>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+            <GDPRConsentBanner />
+            <FixedThemeToggle />
+            <ThemeStatus />
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

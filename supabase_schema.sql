@@ -79,6 +79,23 @@ CREATE TABLE gdpr_consents (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
+-- Newsletter subscribers table
+CREATE TABLE newsletter_subscribers (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'unsubscribed', 'bounced')),
+  source VARCHAR(50) DEFAULT 'unknown', -- Where they signed up from
+  subscribed_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  unsubscribed_at TIMESTAMP WITH TIME ZONE NULL,
+  consent_given BOOLEAN DEFAULT TRUE,
+  ip_address INET,
+  user_agent TEXT,
+  tags TEXT[] DEFAULT '{}', -- Array of tags for segmentation
+  preferences JSONB DEFAULT '{}', -- Email preferences
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 -- Indexes for better performance
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_email_otps_email ON email_otps(email);
@@ -90,6 +107,10 @@ CREATE INDEX idx_orders_email ON orders(email);
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_orders_created_at ON orders(created_at DESC);
 CREATE INDEX idx_gdpr_consents_email ON gdpr_consents(email);
+CREATE INDEX idx_newsletter_subscribers_email ON newsletter_subscribers(email);
+CREATE INDEX idx_newsletter_subscribers_status ON newsletter_subscribers(status);
+CREATE INDEX idx_newsletter_subscribers_source ON newsletter_subscribers(source);
+CREATE INDEX idx_newsletter_subscribers_subscribed_at ON newsletter_subscribers(subscribed_at DESC);
 
 -- Row Level Security (RLS) policies
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
@@ -97,6 +118,7 @@ ALTER TABLE email_otps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE mobile_otps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE gdpr_consents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE newsletter_subscribers ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for users table
 CREATE POLICY "Users can view their own data" ON users
@@ -120,11 +142,25 @@ CREATE POLICY "Allow anonymous access to mobile OTPs" ON mobile_otps
 CREATE POLICY "Allow anonymous order creation" ON orders
   FOR INSERT WITH CHECK (true);
 
+-- Allow anonymous newsletter signups
+CREATE POLICY "Allow anonymous newsletter signups" ON newsletter_subscribers
+  FOR INSERT WITH CHECK (true);
+
+-- Allow newsletter subscribers to view/update their own subscription
+CREATE POLICY "Subscribers can view their own data" ON newsletter_subscribers
+  FOR SELECT USING (email = auth.jwt() ->> 'email');
+
+CREATE POLICY "Subscribers can update their own data" ON newsletter_subscribers
+  FOR UPDATE USING (email = auth.jwt() ->> 'email');
+
 -- Allow service role to manage all data (for admin functions)
 CREATE POLICY "Service role can manage all users" ON users
   FOR ALL USING (auth.jwt() ->> 'role' = 'service_role');
 
 CREATE POLICY "Service role can manage all orders" ON orders
+  FOR ALL USING (auth.jwt() ->> 'role' = 'service_role');
+
+CREATE POLICY "Service role can manage newsletter subscribers" ON newsletter_subscribers
   FOR ALL USING (auth.jwt() ->> 'role' = 'service_role');
 
 -- Functions to automatically update updated_at timestamp
@@ -141,6 +177,9 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_newsletter_subscribers_updated_at BEFORE UPDATE ON newsletter_subscribers
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Function to clean expired OTPs (run periodically)

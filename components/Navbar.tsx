@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 h-16 w-full shadow-sm">
+    <nav className="fixed top-0 left-0 right-0 bg-card border-b border-border z-50 h-16 w-full shadow-sm transition-theme">
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-full flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
@@ -15,30 +16,31 @@ export default function Navbar() {
             <div className="w-8 h-8 bg-red-500 rounded flex items-center justify-center">
               <span className="text-white font-bold text-sm">L</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">Linkist</span>
+            <span className="text-xl font-bold text-card-fg">Linkist</span>
           </Link>
         </div>
 
         {/* Desktop Navigation Items */}
         <div className="hidden md:flex items-center gap-8">
-          <Link 
-            href="#" 
-            className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+          <Link
+            href="#"
+            className="text-card-fg text-base font-medium hover:text-muted transition-colors duration-300"
           >
             About
           </Link>
-          <Link 
-            href="#" 
-            className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+          <Link
+            href="#"
+            className="text-card-fg text-base font-medium hover:text-muted transition-colors duration-300"
           >
             Support
           </Link>
-          <Link 
-            href="/admin-login" 
-            className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+          <Link
+            href="/admin-login"
+            className="text-card-fg text-base font-medium hover:text-muted transition-colors duration-300"
           >
             Login
           </Link>
+          <ThemeToggle variant="icon" className="ml-2" />
           <Link
             href="/nfc/configure"
             className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-base font-semibold transition-colors duration-300"
@@ -47,48 +49,51 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors duration-300"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle mobile menu"
-        >
-          <svg
-            className="w-6 h-6 text-gray-700"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        {/* Mobile Menu Button and Theme Toggle */}
+        <div className="md:hidden flex items-center gap-2">
+          <ThemeToggle variant="icon" />
+          <button
+            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-accent/50 transition-colors duration-300"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle mobile menu"
           >
-            {isMobileMenuOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
+            <svg
+              className="w-6 h-6 text-card-fg"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {isMobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-40">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-card border-b border-border shadow-lg z-40 transition-theme">
           <div className="px-4 py-4 space-y-4">
-            <Link 
-              href="#" 
-              className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+            <Link
+              href="#"
+              className="block text-card-fg text-base font-medium hover:text-muted transition-colors duration-300 py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               About
             </Link>
-            <Link 
-              href="#" 
-              className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+            <Link
+              href="#"
+              className="block text-card-fg text-base font-medium hover:text-muted transition-colors duration-300 py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Support
             </Link>
-            <Link 
-              href="/admin-login" 
-              className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+            <Link
+              href="/admin-login"
+              className="block text-card-fg text-base font-medium hover:text-muted transition-colors duration-300 py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Login
