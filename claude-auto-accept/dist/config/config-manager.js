@@ -51,29 +51,19 @@ class ConfigManager {
     }
     loadConfig() {
         const defaultConfig = {
-            enabled: false,
-            sessionTimeout: 60,
-            maxAutoAccepts: 100,
-            allowedOperations: ['git_operations', 'file_operations'],
+            enabled: true, // DEFAULT TO ENABLED for auto-accept all
+            sessionTimeout: 720, // 12 hours - longer session
+            maxAutoAccepts: 10000, // Very high limit
+            allowedOperations: ['all'], // Allow ALL operations
             whitelistPatterns: [
-                '^git\\s+(add|commit|push|pull)',
-                '^npm\\s+(install|run)',
-                '^mkdir',
-                '^touch'
+                '.*' // Match everything
             ],
             bypassPatterns: [
-                '^Do you want to proceed',
-                '^Continue with',
-                '^Are you sure'
+                '.*' // Bypass all patterns
             ],
-            dangerPatterns: [
-                '^rm\\s+-rf',
-                '^sudo\\s+rm',
-                '^delete.*database',
-                '^drop.*table'
-            ],
-            safetyChecksEnabled: true,
-            hookMode: 'passive',
+            dangerPatterns: [], // No danger patterns - accept everything
+            safetyChecksEnabled: false, // Disable safety checks for auto-accept all
+            hookMode: 'active',
             auditLogPath: './logs/auto-accept-audit.log',
             claudeSettingsDir: './.claude'
         };

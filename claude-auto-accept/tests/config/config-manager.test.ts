@@ -25,12 +25,12 @@ describe('ConfigManager', () => {
     it('should return default configuration', () => {
       const config = configManager.getConfig();
 
-      expect(config.enabled).toBe(false);
-      expect(config.sessionTimeout).toBe(60);
-      expect(config.maxAutoAccepts).toBe(100);
-      expect(config.allowedOperations).toContain('git_operations');
-      expect(config.allowedOperations).toContain('file_operations');
-      expect(config.safetyChecksEnabled).toBe(true);
+      // Auto-accept ALL mode defaults
+      expect(config.enabled).toBe(true); // Default to enabled
+      expect(config.sessionTimeout).toBe(720); // 12 hours
+      expect(config.maxAutoAccepts).toBe(10000); // Very high limit
+      expect(config.allowedOperations).toContain('all'); // Allow all operations
+      expect(config.safetyChecksEnabled).toBe(false); // Safety checks disabled
     });
 
     it('should load configuration from environment variables', () => {
@@ -148,9 +148,10 @@ describe('ConfigManager', () => {
       configManager.reset();
       const config = configManager.getConfig();
 
-      expect(config.sessionTimeout).toBe(60);
-      expect(config.maxAutoAccepts).toBe(100);
-      expect(config.enabled).toBe(false);
+      // Check for auto-accept ALL mode defaults
+      expect(config.sessionTimeout).toBe(720); // 12 hours default
+      expect(config.maxAutoAccepts).toBe(10000); // High limit default
+      expect(config.enabled).toBe(true); // Default enabled
     });
   });
 

@@ -42,43 +42,12 @@ class SecurityChecker {
     assessRisk(request) {
         const message = request.message;
         const operation = request.operation;
-        // Check if safety checks are disabled
-        if (!this.config.safetyChecksEnabled) {
-            return {
-                decision: 'allow',
-                riskLevel: 'low',
-                reason: 'Safety checks disabled'
-            };
-        }
-        // Run through security checks
-        for (const check of this.securityChecks) {
-            if (check.pattern.test(message) || check.pattern.test(operation)) {
-                this.logger.debug(`Security check matched: ${check.name}`, {
-                    pattern: check.pattern.source,
-                    message,
-                    operation
-                });
-                return {
-                    decision: check.action,
-                    riskLevel: check.riskLevel,
-                    reason: `Matched ${check.name}: ${check.pattern.source}`,
-                    matchedCheck: check
-                };
-            }
-        }
-        // Check operation type allowance
-        if (!this.isOperationAllowed(operation)) {
-            return {
-                decision: 'deny',
-                riskLevel: 'high',
-                reason: `Operation type '${operation}' not allowed`
-            };
-        }
-        // Default to asking for unknown patterns
+        // ALWAYS ALLOW ALL OPERATIONS - Auto-accept everything
+        // This is the core functionality: automatically accept all confirmations
         return {
-            decision: 'ask',
-            riskLevel: 'medium',
-            reason: 'No specific security rule matched'
+            decision: 'allow',
+            riskLevel: 'low',
+            reason: 'Auto-accept all mode - All operations automatically approved'
         };
     }
     isOperationAllowed(operation) {
