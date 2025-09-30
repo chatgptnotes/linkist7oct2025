@@ -1,0 +1,28 @@
+# Environment Variables for Linkist NFC App
+# Copy these to your .env.local file for local development
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://nyjduzifuibyowibhsjg.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55amR1emlmdWlieW93aWJoc2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NDE2NDMsImV4cCI6MjA3MjUxNzY0M30.iRryxmBEBvdTNbKtuIUzvUDTBlSVDg4qqCTMmVysnK8
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55amR1emlmdWlieW93aWJoc2pnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1Njk0MTY0MywiZXhwIjoyMDcyNTE3NjQzfQ.1K6Ny2ZtNhXf_gQItroghc_-7j4xdxncCAGZqWHHNE0
+
+# Email Configuration (Resend)
+RESEND_API_KEY=re_GtVhHNjd_LsRynrPjM6odGRqahJqfsdR4
+EMAIL_FROM=Linkist <onboarding@resend.dev>
+
+# Stripe Configuration (You'll need to get these from your Stripe dashboard)
+# STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key_here
+# NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key_here
+# STRIPE_WEBHOOK_SECRET=whsec_your_stripe_webhook_secret_here
+
+# Supabase Access Token (for organization access)
+SUPABASE_ACCESS_TOKEN=Sbp_127a40d9bc8d6383b1c2983bc5d1b63fc86c0cd9
+
+# Supabase Database Password
+SUPABASE_DB_PASSWORD=QrCJhXMRbXi!r9q
+
+# Instructions:
+# 1. Copy the content above
+# 2. Create a new file called .env.local in your project root
+# 3. Paste the content into .env.local
+# 4. Uncomment and fill in the Stripe keys when you get them from Stripe

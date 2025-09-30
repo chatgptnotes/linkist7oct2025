@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Color System - Figma Red Theme */
+  --color-primary-50: #fef2f2;
+  --color-primary-100: #fee2e2;
+  --color-primary-200: #fecaca;
+  --color-primary-300: #fca5a5;
+  --color-primary-400: #f87171;
+  --color-primary-500: #e53e3e;
+  --color-primary-600: #dc2626;
+  --color-primary-700: #b91c1c;
+  --color-primary-800: #991b1b;
+  --color-primary-900: #7f1d1d;
+  
+  --color-secondary-50: #f8fafc;
+  --color-secondary-100: #f1f5f9;
+  --color-secondary-200: #e2e8f0;
+  --color-secondary-300: #cbd5e1;
+  --color-secondary-400: #94a3b8;
+  --color-secondary-500: #64748b;
+  --color-secondary-600: #475569;
+  --color-secondary-700: #334155;
+  --color-secondary-800: #1e293b;
+  --color-secondary-900: #0f172a;
+
+  /* Semantic Colors */
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-border: #e2e8f0;
+  --color-input: #ffffff;
+  --color-muted: #f8fafc;
+  --color-muted-foreground: #64748b;
+  --color-accent: #f1f5f9;
+  --color-accent-foreground: #0f172a;
+
+  /* Theme System - Base (Light) */
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --primary-fg: #ffffff;
+  --card: #ffffff;
+  --card-fg: #0a0a0a;
+  --border: #e5e7eb;
+  --accent: #111827;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Poppins', system-ui, -apple-system, sans-serif;
+
+  /* Spacing System */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  /* Border Radius */
+  --radius: 0.5rem;
+  --radius-sm: 0.25rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+@theme inline {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  
+  /* Theme Variables for Tailwind */
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-card: var(--card);
+  --color-card-fg: var(--card-fg);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+}
+
+/* Layout & Responsive Fixes */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Navbar & Footer Optimizations */
+.navbar-mobile-menu {
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.navbar-mobile-menu.open {
+  transform: translateY(0);
+}
+
+/* Scroll Progress Bar */
+.scroll-progress {
+  background: linear-gradient(90deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .mobile-padding {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .mobile-text-small {
+    font-size: 0.875rem;
+  }
+}
+
+/* Dark Theme */
+:root[data-theme="dark"] {
+  --bg: #0b0b0b;
+  --fg: #f5f5f5;
+  --muted: #9ca3af;
+  --primary: #60a5fa;
+  --primary-fg: #0a0a0a;
+  --card: #111111;
+  --card-fg: #f5f5f5;
+  --border: #1f2937;
+  --accent: #fafafa;
+}
+
+/* Section-level theme overrides */
+[data-section-theme="light"] {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #6b7280;
+  --card: #ffffff;
+  --card-fg: #0a0a0a;
+  --border: #e5e7eb;
+  --accent: #111827;
+}
+
+[data-section-theme="dark"] {
+  --bg: #0b0b0b;
+  --fg: #f5f5f5;
+  --muted: #9ca3af;
+  --card: #111111;
+  --card-fg: #f5f5f5;
+  --border: #1f2937;
+  --accent: #fafafa;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #0a0a0a;
+    --color-foreground: #f8fafc;
+    --color-card: #1e293b;
+    --color-card-foreground: #f8fafc;
+    --color-border: #334155;
+    --color-input: #1e293b;
+    --color-muted: #1e293b;
+    --color-muted-foreground: #94a3b8;
+    --color-accent: #334155;
+    --color-accent-foreground: #f8fafc;
+  }
+}
+
+/* Base Styles */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Component Classes - Figma Design System */
+.btn-primary {
+  @apply bg-red-500 text-white font-medium rounded-lg px-6 py-2.5 transition-all duration-200 hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply bg-white border border-gray-200 text-gray-700 font-medium rounded-lg transition-all duration-200 hover:bg-gray-50 hover:border-gray-300 focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+}
+
+.btn-coral {
+  @apply bg-red-400 text-white font-medium rounded-lg px-6 py-3 transition-all duration-200 hover:bg-red-500 focus:ring-2 focus:ring-red-400 focus:ring-offset-2;
+}
+
+.card {
+  @apply bg-white rounded-xl border border-gray-100 shadow-sm transition-shadow duration-200 hover:shadow-md;
+}
+
+.input {
+  @apply w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200;
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-700) 100%);
+}
+
+.gradient-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #3730a3 100%);
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Theme Utility Classes */
+.bg-var     { background-color: var(--bg); }
+.text-var   { color: var(--fg); }
+.text-muted-var { color: var(--muted); }
+.bg-card    { background-color: var(--card); }
+.text-card  { color: var(--card-fg); }
+.border-var { border-color: var(--border); }
+.bg-primary-var { background-color: var(--primary); }
+.text-primary-var { color: var(--primary); }
+.bg-primary-fg-var { background-color: var(--primary-fg); }
+.text-primary-fg-var { color: var(--primary-fg); }
+.bg-accent-var { background-color: var(--accent); }
+.text-accent-var { color: var(--accent); }
+
+
+/* Progress bar animation */
+@keyframes progress {
+  0% {
+    width: 0%;
+    background-color: #f87171;
+  }
+  50% {
+    width: 70%;
+    background-color: #e53e3e;
+  }
+  100% {
+    width: 100%;
+    background-color: #dc2626;
+  }
+}

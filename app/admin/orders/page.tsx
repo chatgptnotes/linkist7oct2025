@@ -1,0 +1,562 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import AdminLayout from '../components/AdminLayout';
+import { 
+  Search, 
+  Filter,
+  Eye,
+  Mail,
+  Truck,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  RefreshCw,
+  Download,
+  Edit,
+  MoreHorizontal,
+  Package,
+  User,
+  Calendar,
+  DollarSign
+} from 'lucide-react';
+
+interface Order {
+  id: string;
+  orderNumber: string;
+  status: string;
+  customerName: string;
+  email: string;
+  phoneNumber: string;
+  cardConfig: {
+    firstName: string;
+    lastName: string;
+    title?: string;
+    quantity?: number;
+  };
+  shipping: {
+    fullName: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+  };
+  pricing: {
+    subtotal: number;
+    shipping: number;
+    tax: number;
+    total: number;
+  };
+  createdAt: number;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  estimatedDelivery?: string;
+  emailsSent: any;
+  proofImages?: string[];
+  notes?: string;
+}
+
+export default function OrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [showProofModal, setShowProofModal] = useState(false);
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      console.log('🔍 Frontend: Fetching orders from API...');
+      const response = await fetch('/api/admin/orders');
+      console.log('📡 Frontend: API response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📋 Frontend: Received API data:', data);
+        console.log(`📊 Frontend: Setting ${data.orders?.length || 0} orders`);
+        
+        // Debug: Log the first order's structure
+        if (data.orders && data.orders.length > 0) {
+          console.log('🔍 Frontend: First order structure:', data.orders[0]);
+          console.log('👤 Frontend: Customer name:', data.orders[0].customerName);
+          console.log('📧 Frontend: Email:', data.orders[0].email);
+          console.log('🆔 Frontend: Order number:', data.orders[0].orderNumber);
+        }
+        
+        setOrders(data.orders || []);
+      } else {
+        console.error('❌ Frontend: API response not ok:', response.status);
+      }
+    } catch (error) {
+      console.error('❌ Frontend: Failed to fetch orders:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'confirmed': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'production': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'shipped': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'delivered': return 'bg-green-100 text-green-800 border-green-200';
+      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'pending': return <Clock className="h-4 w-4" />;
+      case 'confirmed': return <CheckCircle className="h-4 w-4" />;
+      case 'production': return <Package className="h-4 w-4" />;
+      case 'shipped': return <Truck className="h-4 w-4" />;
+      case 'delivered': return <CheckCircle className="h-4 w-4" />;
+      case 'cancelled': return <AlertCircle className="h-4 w-4" />;
+      default: return <Package className="h-4 w-4" />;
+    }
+  };
+
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/admin/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        fetchOrders();
+        if (selectedOrder && selectedOrder.id === orderId) {
+          setSelectedOrder({...selectedOrder, status: newStatus});
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update status:', error);
+    }
+  };
+
+  const resendEmail = async (orderId: string, emailType: string) => {
+    try {
+      const response = await fetch(`/api/admin/orders/${orderId}/resend-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emailType })
+      });
+
+      if (response.ok) {
+        alert('Email sent successfully!');
+        fetchOrders();
+      } else {
+        alert('Failed to send email');
+      }
+    } catch (error) {
+      console.error('Failed to resend email:', error);
+      alert('Failed to send email');
+    }
+  };
+
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         order.email.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <p>Loading orders...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      <div className="p-6">
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Management</h1>
+          <p className="text-gray-600">Manage all customer orders, track status, and handle fulfillment</p>
+        </div>
+
+        {/* Filters and Actions */}
+        <div className="bg-white rounded-lg border border-gray-200 mb-6">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search orders, customers..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-4 py-3 w-80 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500"
+                  />
+                </div>
+
+                {/* Status Filter */}
+                <div className="relative">
+                  <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="pl-10 pr-8 py-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 appearance-none bg-white min-w-40"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="production">Production</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex space-x-3">
+                <button 
+                  onClick={async () => {
+                    try {
+                      // Clear existing mock data
+                      await fetch('/api/admin/test-real-order', { method: 'DELETE' });
+                      // Create real test order
+                      await fetch('/api/admin/test-real-order', { method: 'POST' });
+                      // Refresh orders
+                      fetchOrders();
+                      alert('Real test data created! Mock data removed.');
+                    } catch (error) {
+                      console.error('Error:', error);
+                      alert('Failed to create test data');
+                    }
+                  }}
+                  className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  <span>Add Real Test Data</span>
+                </button>
+                <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                  <Download className="h-4 w-4" />
+                  <span>Export</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Orders Table */}
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Order Details
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Card Config
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center">
+                            <span className="text-red-500 text-xs font-bold">L</span>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {order.orderNumber}
+                          </div>
+                          <div className="text-sm text-gray-500 flex items-center space-x-1">
+                            <Package className="h-3 w-3" />
+                            <span>Qty: {order.cardConfig.quantity || 1}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <User className="h-4 w-4 text-blue-600" />
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {order.customerName}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {order.email}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {order.cardConfig.firstName} {order.cardConfig.lastName}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {order.cardConfig.title || 'Professional'}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-medium border ${getStatusBadgeColor(order.status)}`}>
+                        {getStatusIcon(order.status)}
+                        <span className="capitalize">{order.status}</span>
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-1">
+                        <DollarSign className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm font-medium text-gray-900">
+                          {order.pricing.total.toFixed(2)}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-1 text-sm text-gray-500">
+                        <Calendar className="h-4 w-4" />
+                        <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setShowOrderModal(true);
+                          }}
+                          className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg"
+                          title="View Details"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => resendEmail(order.id, 'confirmation')}
+                          className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg"
+                          title="Resend Email"
+                        >
+                          <Mail className="h-4 w-4" />
+                        </button>
+                        <button
+                          className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg"
+                          title="More Actions"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {filteredOrders.length === 0 && (
+              <div className="text-center py-12">
+                <Package className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
+                <p className="text-gray-500">
+                  {searchQuery || statusFilter !== 'all' 
+                    ? 'Try adjusting your search or filter to find what you\'re looking for.'
+                    : 'Orders will appear here once customers start placing them.'}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Order Details Modal */}
+      {showOrderModal && selectedOrder && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 shadow-lg rounded-lg bg-white max-h-screen overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold text-gray-900">
+                Order Details - {selectedOrder.orderNumber}
+              </h3>
+              <button
+                onClick={() => setShowOrderModal(false)}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Status and Tracking */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Order Status</label>
+                  <select
+                    value={selectedOrder.status}
+                    onChange={(e) => {
+                      updateOrderStatus(selectedOrder.id, e.target.value);
+                      setSelectedOrder({...selectedOrder, status: e.target.value});
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-red-500 focus:border-red-500"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="production">In Production</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tracking Number</label>
+                  <input
+                    type="text"
+                    value={selectedOrder.trackingNumber || ''}
+                    onChange={(e) => {
+                      if (selectedOrder) {
+                        setSelectedOrder({
+                          ...selectedOrder,
+                          trackingNumber: e.target.value
+                        });
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-red-500 focus:border-red-500"
+                    placeholder="Enter tracking number"
+                  />
+                </div>
+              </div>
+
+              {/* Customer & Shipping Info */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3">Customer Information</h4>
+                  <div className="space-y-2 text-sm">
+                    <p><span className="text-gray-500">Name:</span> {selectedOrder.customerName}</p>
+                    <p><span className="text-gray-500">Email:</span> {selectedOrder.email}</p>
+                    <p><span className="text-gray-500">Phone:</span> {selectedOrder.phoneNumber || 'Not provided'}</p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h4 className="font-medium text-gray-900 mb-3">Shipping Address</h4>
+                  <div className="text-sm text-gray-700">
+                    <p>{selectedOrder.shipping.fullName}</p>
+                    <p>{selectedOrder.shipping.addressLine1}</p>
+                    {selectedOrder.shipping.addressLine2 && <p>{selectedOrder.shipping.addressLine2}</p>}
+                    <p>{selectedOrder.shipping.city}, {selectedOrder.shipping.state} {selectedOrder.shipping.postalCode}</p>
+                    <p>{selectedOrder.shipping.country}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card Configuration */}
+              <div className="bg-blue-50 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3">Card Configuration</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <p><span className="text-gray-500">Name on Card:</span> {selectedOrder.cardConfig.firstName} {selectedOrder.cardConfig.lastName}</p>
+                  <p><span className="text-gray-500">Title:</span> {selectedOrder.cardConfig.title || 'Professional'}</p>
+                  <p><span className="text-gray-500">Quantity:</span> {selectedOrder.cardConfig.quantity || 1}</p>
+                </div>
+              </div>
+
+              {/* Order Total */}
+              <div className="bg-green-50 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3">Order Total</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Subtotal:</span>
+                    <span>${selectedOrder.pricing.subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Shipping:</span>
+                    <span>${selectedOrder.pricing.shipping.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Tax:</span>
+                    <span>${selectedOrder.pricing.tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold text-base border-t pt-2">
+                    <span>Total:</span>
+                    <span>${selectedOrder.pricing.total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Email Actions */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">Email Actions</h4>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => resendEmail(selectedOrder.id, 'confirmation')}
+                    className="px-3 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600"
+                  >
+                    Resend Confirmation
+                  </button>
+                  <button
+                    onClick={() => resendEmail(selectedOrder.id, 'receipt')}
+                    className="px-3 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600"
+                  >
+                    Resend Receipt
+                  </button>
+                  <button
+                    onClick={() => resendEmail(selectedOrder.id, 'production')}
+                    className="px-3 py-2 bg-purple-500 text-white text-sm rounded-lg hover:bg-purple-600"
+                  >
+                    Send Production Update
+                  </button>
+                  <button
+                    onClick={() => resendEmail(selectedOrder.id, 'shipped')}
+                    className="px-3 py-2 bg-orange-500 text-white text-sm rounded-lg hover:bg-orange-600"
+                  >
+                    Send Shipped Notification
+                  </button>
+                  <button
+                    onClick={() => resendEmail(selectedOrder.id, 'delivered')}
+                    className="px-3 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600"
+                  >
+                    Send Delivered Confirmation
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </AdminLayout>
+  );
+}
