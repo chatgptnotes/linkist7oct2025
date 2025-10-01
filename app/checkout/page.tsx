@@ -851,7 +851,7 @@ export default function CheckoutPage() {
                         ? 'bg-gray-400 text-white cursor-not-allowed'
                         : !addressEditable
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-blue-500 text-white hover:bg-blue-600'
+                        : 'bg-red-600 text-white hover:bg-red-700'
                     }`}
                   >
                     {savingAddress ? (

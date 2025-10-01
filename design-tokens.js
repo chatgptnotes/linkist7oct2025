@@ -3,56 +3,109 @@
 // based on Figma design requirements
 
 export const designTokens = {
-  // Color Palette - Update these with exact Figma colors
+  // Color Palette - Extracted from Figma Design
   colors: {
+    // Primary Button Colors (RED from Figma)
     primary: {
-      50: '#eff6ff',
-      100: '#dbeafe', 
-      200: '#bfdbfe',
-      300: '#93c5fd',
-      400: '#60a5fa',
-      500: '#3b82f6', // Main brand blue
-      600: '#2563eb',
-      700: '#1d4ed8',
-      800: '#1e40af',
+      50: '#fef2f2',
+      100: '#fee2e2',
+      200: '#fecaca',
+      300: '#fca5a5',
+      400: '#f87171',
+      500: '#ff0000', // Main brand red - PRIMARY BUTTON COLOR
+      600: '#dc2626',
+      700: '#ce394d',
+      800: '#991b1b',
+      900: '#7f1d1d'
+    },
+    // Dark Blue/Navy for backgrounds and UI elements
+    secondary: {
+      50: '#677aa6',
+      100: '#4b5563',
+      200: '#374151',
+      300: '#2f416b',
+      400: '#263252',
+      500: '#1f2937', // Dark navy
+      600: '#14172c',
+      700: '#0e1116',
+      800: '#0a0c12',
+      900: '#000000'
+    },
+    // Accent colors for interactive elements
+    accent: {
+      50: '#dbeafe',
+      100: '#bfdbfe',
+      200: '#93c5fd',
+      300: '#60a5fa',
+      400: '#3b82f6',
+      500: '#2563eb',
+      600: '#1d4ed8',
+      700: '#1e40af',
+      800: '#1a56db',
       900: '#1e3a8a'
     },
-    secondary: {
-      50: '#f8fafc',
-      100: '#f1f5f9',
-      200: '#e2e8f0', 
-      300: '#cbd5e1',
-      400: '#94a3b8',
-      500: '#64748b',
-      600: '#475569',
-      700: '#334155',
-      800: '#1e293b',
-      900: '#0f172a'
+    // Status colors
+    success: {
+      50: '#dcfce7',
+      100: '#bbf7d0',
+      200: '#86efac',
+      300: '#4ade80',
+      400: '#22c55e',
+      500: '#16a34a',
+      600: '#15803d',
+      700: '#166534',
+      800: '#14532d',
+      900: '#052e16'
     },
-    accent: {
-      50: '#f0f9ff',
-      100: '#e0f2fe',
-      200: '#bae6fd',
-      300: '#7dd3fc',
-      400: '#38bdf8',
-      500: '#0ea5e9',
-      600: '#0284c7',
-      700: '#0369a1',
-      800: '#075985',
-      900: '#0c4a6e'
+    warning: {
+      50: '#fef3c7',
+      100: '#fde68a',
+      200: '#fcd34d',
+      300: '#fbbf24',
+      400: '#f59e0b',
+      500: '#ca8d00', // Gold color from Figma
+      600: '#9d7414',
+      700: '#854d0e',
+      800: '#713f12',
+      900: '#422006'
     },
-    success: '#10b981',
-    warning: '#f59e0b',
-    error: '#ef4444',
+    error: {
+      50: '#fee2e2',
+      100: '#fecaca',
+      200: '#fca5a5',
+      300: '#f87171',
+      400: '#ef4444',
+      500: '#dc2626',
+      600: '#991b1b',
+      700: '#7f1d1d',
+      800: '#450a0a',
+      900: '#1c0000'
+    },
+    // Social media colors from Figma
+    social: {
+      linkedin: '#0a66c2',
+      facebook: '#1877f2',
+      whatsapp: '#25d366',
+      twitter: '#0075ff'
+    },
+    // Card material colors
+    cardColors: {
+      black: '#000000',
+      white: '#ffffff',
+      gold: '#ca8d00', // Updated gold color (not brown)
+      steel: '#8a8888',
+      brushedSteel: '#6a6868'
+    },
     white: '#ffffff',
     black: '#000000'
   },
 
-  // Typography - Update with exact Figma fonts
+  // Typography - Extracted from Figma Design
   typography: {
     fontFamily: {
-      sans: ['Inter', 'system-ui', 'sans-serif'],
-      display: ['Poppins', 'system-ui', 'sans-serif'],
+      sans: ['Inter', 'system-ui', 'sans-serif'], // Primary font from Figma
+      body: ['DM Sans', 'Inter', 'system-ui', 'sans-serif'], // Body text from Figma
+      display: ['Inter', 'system-ui', 'sans-serif'], // Headings
       mono: ['JetBrains Mono', 'monospace']
     },
     fontSize: {

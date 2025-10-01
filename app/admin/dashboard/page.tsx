@@ -131,7 +131,7 @@ export default function AdminDashboard() {
             </select>
             <button
               onClick={fetchDashboardData}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="flex items-center space-x-2 px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800"
             >
               <RefreshCw className="h-4 w-4" />
               <span>Refresh</span>
@@ -141,7 +141,7 @@ export default function AdminDashboard() {
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-700"></div>
           </div>
         ) : (
           <>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -8,22 +8,23 @@
   --color-primary-200: #fecaca;
   --color-primary-300: #fca5a5;
   --color-primary-400: #f87171;
-  --color-primary-500: #e53e3e;
+  --color-primary-500: #ff0000; /* PRIMARY RED from Figma */
   --color-primary-600: #dc2626;
-  --color-primary-700: #b91c1c;
+  --color-primary-700: #ce394d;
   --color-primary-800: #991b1b;
   --color-primary-900: #7f1d1d;
   
-  --color-secondary-50: #f8fafc;
-  --color-secondary-100: #f1f5f9;
-  --color-secondary-200: #e2e8f0;
-  --color-secondary-300: #cbd5e1;
-  --color-secondary-400: #94a3b8;
-  --color-secondary-500: #64748b;
-  --color-secondary-600: #475569;
-  --color-secondary-700: #334155;
-  --color-secondary-800: #1e293b;
-  --color-secondary-900: #0f172a;
+  /* Dark Blue/Navy backgrounds from Figma */
+  --color-secondary-50: #677aa6;
+  --color-secondary-100: #4b5563;
+  --color-secondary-200: #374151;
+  --color-secondary-300: #2f416b;
+  --color-secondary-400: #263252;
+  --color-secondary-500: #1f2937; /* Dark navy */
+  --color-secondary-600: #14172c;
+  --color-secondary-700: #0e1116;
+  --color-secondary-800: #0a0c12;
+  --color-secondary-900: #000000;
 
   /* Semantic Colors */
   --color-background: #ffffff;
@@ -41,16 +42,17 @@
   --bg: #ffffff;
   --fg: #0a0a0a;
   --muted: #6b7280;
-  --primary: #2563eb;
+  --primary: #ff0000; /* RED from Figma */
   --primary-fg: #ffffff;
   --card: #ffffff;
   --card-fg: #0a0a0a;
   --border: #e5e7eb;
   --accent: #111827;
 
-  /* Typography */
+  /* Typography - From Figma */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-body: 'DM Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
 
   /* Spacing System */
   --spacing-xs: 0.25rem;
@@ -195,15 +197,45 @@ body {
 
 /* Custom Component Classes - Figma Design System */
 .btn-primary {
-  @apply bg-red-500 text-white font-medium rounded-lg px-6 py-2.5 transition-all duration-200 hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  background-color: #ff0000;
+  color: #ffffff;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  transition: all 0.2s;
+  @apply focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.btn-primary:focus {
+  ring-color: #ff0000;
 }
 
 .btn-secondary {
-  @apply bg-white border border-gray-200 text-gray-700 font-medium rounded-lg transition-all duration-200 hover:bg-gray-50 hover:border-gray-300 focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  @apply bg-white border border-gray-200 text-gray-700 font-medium rounded-lg transition-all duration-200 hover:bg-gray-50 hover:border-gray-300 focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary:focus {
+  ring-color: #ff0000;
 }
 
 .btn-coral {
-  @apply bg-red-400 text-white font-medium rounded-lg px-6 py-3 transition-all duration-200 hover:bg-red-500 focus:ring-2 focus:ring-red-400 focus:ring-offset-2;
+  background-color: #ff0000;
+  color: #ffffff;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s;
+  @apply focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-coral:hover {
+  background-color: #ce394d;
 }
 
 .card {
