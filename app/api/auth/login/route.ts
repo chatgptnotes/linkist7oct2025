@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import bcrypt from 'bcryptjs';
+import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResponse = rateLimitMiddleware(request, RateLimits.auth);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const body = await request.json();
     const { email, password } = body;
@@ -39,9 +47,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In production, use bcrypt to compare hashed passwords
-    // For now, direct comparison (INSECURE - replace with bcrypt)
-    if (user.password_hash !== password) {
+    // Verify password using bcrypt
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+    if (!isValidPassword) {
       console.log('❌ Invalid password for:', normalizedEmail);
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },

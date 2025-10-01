@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import bcrypt from 'bcryptjs';
+import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResponse = rateLimitMiddleware(request, RateLimits.auth);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const body = await request.json();
     const { firstName, lastName, email, phone, password } = body;
@@ -52,6 +60,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Hash password with bcrypt
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     // Insert new user
     const { data: newUser, error: insertError } = await supabase
       .from('users')
@@ -60,7 +72,7 @@ export async function POST(request: NextRequest) {
         first_name: firstName,
         last_name: lastName,
         phone_number: phone || null,
-        password_hash: password, // TODO: Hash with bcrypt in production
+        password_hash: hashedPassword,
         role: 'user',
         email_verified: false,
         mobile_verified: false,

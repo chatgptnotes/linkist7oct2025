@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
 import { SupabaseMobileOTPStore } from '@/lib/supabase-otp-store';
 import { createClient } from '@supabase/supabase-js';
+import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -11,6 +12,12 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function POST(request: NextRequest) {
+  // Apply strict rate limiting for OTP verification
+  const rateLimitResponse = rateLimitMiddleware(request, RateLimits.strict);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const { mobile, otp } = await request.json();
 

@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
 import { SupabaseMobileOTPStore, generateMobileOTP, cleanExpiredOTPs } from '@/lib/supabase-otp-store';
+import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting for OTP requests
+  const rateLimitResponse = rateLimitMiddleware(request, RateLimits.otp);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const { mobile } = await request.json();
 
