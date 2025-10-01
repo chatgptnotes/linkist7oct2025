@@ -8,7 +8,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint:fix": "next lint --fix"
+    "lint:fix": "next lint --fix",
+    "test": "node tests/email-otp.test.js",
+    "test:otp": "node tests/email-otp.test.js",
+    "test:legacy": "node test-email-otp.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
