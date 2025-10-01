@@ -8,8 +8,14 @@ interface OTPData {
   attempts: number;
 }
 
-// Global shared Map - this will be shared across all API routes
-const globalOTPStore = new Map<string, OTPData>();
+// Use globalThis to persist across Next.js hot reloads in development
+declare global {
+  var __emailOTPStore: Map<string, OTPData> | undefined;
+}
+
+// Global shared Map - this will be shared across all API routes and persist across hot reloads
+const globalOTPStore = globalThis.__emailOTPStore ?? new Map<string, OTPData>();
+globalThis.__emailOTPStore = globalOTPStore;
 
 export const emailOTPStore = {
   set: (email: string, data: OTPData) => {
