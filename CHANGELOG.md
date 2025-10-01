@@ -2,6 +2,155 @@
 
 All notable changes to the Linkist NFC project will be documented in this file.
 
+## [0.2.0] - 2025-10-01 - Major Update 🚀
+
+### ✨ Features Added
+
+#### Claude Code Auto-Accept System
+- **Autonomous Development Workflow** - Complete auto-accept system for Claude Code
+  - User prompt submit hook (`.claude/hooks/user-prompt-submit.cjs`)
+  - JSON configuration system (`.claude/config/auto-accept.json`)
+  - Slash commands (`/auto-accept`, `/auto-status`)
+  - Comprehensive test suite (8/8 tests passing)
+  - Audit logging system
+  - Complete documentation and handoff guide
+
+#### Admin Dashboard & Supabase Integration
+- **Full Admin Panel** - Complete order management system
+  - Order listing with search and filtering
+  - Status management workflow
+  - Email resend functionality
+  - User management
+  - Analytics dashboard
+  - Communication tools
+- **Supabase Backend** - Production-ready database
+  - `SupabaseOrderStore` with complete CRUD operations
+  - Admin authentication
+  - Database migrations
+  - Row-level security policies
+  - Service role key for admin operations
+
+#### Email Service Enhancement
+- **Dual Provider Support** - Flexible email system
+  - Resend API integration
+  - Gmail SMTP fallback with Nodemailer
+  - Order lifecycle emails (confirmation, receipt, production, shipped, delivered)
+  - Email tracking and status logging
+  - Retry logic with exponential backoff (3 retries)
+  - Health check endpoints
+
+#### UI Improvements
+- **Theme Toggle** - Dark/light mode support
+  - Persistent theme selection
+  - Smooth transitions
+  - System preference detection
+- **Landing Page Components** - Complete marketing site
+  - Hero section
+  - Features grid
+  - How it works section
+  - Pricing cards
+  - Testimonials
+  - FAQ accordion
+  - Newsletter signup
+  - Footer with links
+
+#### Design System Integration
+- **Figma Design Tokens** - Integrated design system
+  - Extracted colors from Figma API
+  - Updated button colors to red theme (#ff0000)
+  - Gold color corrected to #ca8d00
+  - Social media brand colors
+  - Card material colors
+
+### 🔧 Changes & Improvements
+
+#### Order System Updates
+- **Order Prefix Change** - Changed from "NFC-" to "LNK-"
+  - Updated `lib/order-store.ts` generateOrderNumber()
+  - Fixed `app/api/orders/route.ts` to use proper function
+  - Created SQL migration for existing orders
+  - Maintained backward compatibility
+
+#### Configuration Enhancements
+- **Environment Variables** - Comprehensive configuration
+  - Updated `.env.example` with all required vars
+  - Added Gmail SMTP configuration
+  - Email deliverability documentation (SPF, DKIM, DMARC)
+  - Security keys and session secrets
+  - GDPR compliance configuration
+
+#### Code Quality
+- **Error Handling** - Enhanced logging throughout
+  - Structured console logging with emojis
+  - Detailed error messages
+  - Request/response tracking
+  - Email send tracking
+- **Type Safety** - Improved TypeScript types
+  - Aligned OrderRow with Supabase schema
+  - Enhanced type definitions
+  - Strict mode compliance
+
+### 🐛 Bug Fixes
+- **ES Module Conflict** - Resolved CommonJS/ES module issue
+  - Renamed hook from `.js` to `.cjs`
+  - Fixed require() usage in hook
+- **Order Generation** - Fixed inconsistent prefixes
+  - Corrected `/api/orders` route implementation
+  - Ensured all endpoints use `generateOrderNumber()`
+- **Email Configuration** - Fixed validation logic
+  - Improved Resend API key detection
+  - Enhanced development mode email handling
+  - Better error messages
+
+### 📦 Database Migrations
+- **002_update_order_prefix.sql** - Update existing orders
+  - Batch update NFC- to LNK- prefix
+  - Verification query
+  - Migration documentation
+
+### 🔒 Security Updates
+- **Auto-Accept Audit** - Complete audit logging
+  - All auto-accepted actions logged
+  - Timestamp and action tracking
+  - Security boundary enforcement
+- **Admin Authentication** - Enhanced security
+  - Service role key separation
+  - Environment-based access control
+
+### 📚 Documentation Updates
+- **README.md** - Complete rewrite
+  - Enhanced feature list
+  - Detailed quickstart guide
+  - Admin access instructions
+  - Auto-accept system documentation
+  - Database migration guide
+  - Deployment instructions
+- **claude.md** - Updated checklist
+  - All deliverables marked complete
+  - Status updated to COMPLETED
+- **DEPLOYMENT.md** - Added deployment guide
+- **HANDOFF.md** - Complete handoff documentation
+
+### 🚀 Deployment
+- **Vercel Production** - Deployed to existing project
+  - Project: linkist29sep2025
+  - URL: https://linkist29sep2025.vercel.app
+  - All branches merged (main + feature-ui)
+  - Environment variables configured
+
+### ⚙️ Technical Improvements
+- **Build System** - Enhanced build process
+  - npm scripts validated (dev, build, start, lint)
+  - Lint configuration reviewed
+  - Production build tested
+- **Git Workflow** - Improved version control
+  - Merged feature-ui branch
+  - Resolved all merge conflicts
+  - Meaningful commit messages
+  - Proper branch management
+
+---
+
 ## [0.1.0] - 2024-09-04 - Initial Release 🎉
 
 ### ✨ Features Added

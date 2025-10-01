@@ -8,46 +8,72 @@ A modern e-commerce platform for ordering premium NFC business cards with instan
 - **Real-time Preview**: See your card design as you create it
 - **Secure Checkout**: Stripe-powered payment processing
 - **Order Tracking**: Complete order management system
+- **Admin Dashboard**: Full order management with Supabase backend
+- **Email Service**: Automated order lifecycle emails (Resend/Gmail SMTP)
+- **Claude Code Auto-Accept**: Autonomous confirmation system for development
 - **Founder Member Benefits**: Early adopter program with app access
 - **International Shipping**: Worldwide delivery with localized pricing
 - **Responsive Design**: Works perfectly on all devices
+- **Theme Toggle**: Dark/light mode support
 
 ## 🛠 Tech Stack
 
 - **Frontend**: Next.js 15 (App Router), TypeScript, Tailwind CSS
 - **Backend**: Supabase (Auth, Database, Storage)
 - **Payments**: Stripe Checkout & Payment Intents
+- **Email**: Resend API / Gmail SMTP with Nodemailer
 - **UI Components**: Radix UI, Lucide React
 - **Forms**: React Hook Form with Zod validation
 - **Image Processing**: html2canvas, jsPDF
+- **Development Tools**: Claude Code with Auto-Accept System
 
 ## 📦 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 - Supabase account
+- Stripe account (for payments)
+- Resend or Gmail account (for emails)
 
 ### Quick Start
 
-1. **Install dependencies**
+1. **Clone and install**
    ```bash
+   git clone https://github.com/chatgptnotes/linkist29sep2025.git
+   cd linkist29sep2025
    npm install
    ```
 
-2. **Set up Supabase database**
-   - Go to your Supabase project: https://nyjduzifuibyowibhsjg.supabase.co
-   - Run the SQL schema from `supabase/schema.sql` in the SQL Editor
-   - Enable Row Level Security policies
+2. **Environment setup**
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your credentials
+   ```
 
-3. **Run the development server**
+3. **Set up Supabase database**
+   - Create a Supabase project at https://supabase.com
+   - Run the SQL schema from `supabase_schema.sql` in the SQL Editor
+   - Copy your project URL and keys to `.env.local`
+
+4. **Configure Stripe**
+   - Get your API keys from https://dashboard.stripe.com/apikeys
+   - Add them to `.env.local`
+
+5. **Run the development server**
    ```bash
    npm run dev
    ```
 
-4. **Open the application**
+6. **Open the application**
    Visit [http://localhost:3000](http://localhost:3000) to see your app
+
+### Admin Access
+
+Access the admin dashboard at `/admin-access` with credentials from `.env.local`:
+- Default email: `admin@linkist.ai`
+- Default password: Set in `ADMIN_PASSWORD` env variable
 
 ## 🗄 Database Schema
 
@@ -152,6 +178,45 @@ npm run lint   # Check code quality
 - **Database Issues**: Check the Supabase dashboard for connection status
 - **Build Errors**: Run `npm run lint:fix` to resolve common issues
 - **Payment Testing**: Use Stripe test cards (4242424242424242)
+
+## 🔧 Claude Code Auto-Accept System
+
+This project includes a fully functional auto-accept system for Claude Code development:
+
+**Quick commands:**
+```bash
+/auto-status         # Check auto-accept status
+/auto-accept on      # Enable auto-accept (default)
+/auto-accept off     # Disable auto-accept
+```
+
+**Test the system:**
+```bash
+./.claude/test-auto-accept.sh
+```
+
+All auto-accepted actions are logged in `.claude/logs/auto-accept.log`.
+
+## 📊 Database Migrations
+
+To update existing orders from NFC- to LNK- prefix, run this in Supabase SQL Editor:
+
+```sql
+-- See: supabase/migrations/002_update_order_prefix.sql
+UPDATE orders
+SET order_number = REPLACE(order_number, 'NFC-', 'LNK-')
+WHERE order_number LIKE 'NFC-%';
+```
+
+## 🚢 Deployment
+
+**Vercel (Production):**
+```bash
+vercel --prod
+```
+
+**Environment Variables:**
+Ensure all variables from `.env.example` are configured in Vercel dashboard.
 
 ---
 

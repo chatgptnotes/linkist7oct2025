@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SupabaseOrderStore } from '@/lib/supabase-order-store';
 import { emailService } from '@/lib/email-service';
-import { formatOrderForEmail } from '@/lib/order-store';
+import { formatOrderForEmail, generateOrderNumber } from '@/lib/order-store';
 import type { Order } from '@/lib/order-store';
 
 export async function POST(request: NextRequest) {
@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate order number
-    const orderNumber = `NFC-${Date.now()}`;
+    // Generate order number with LNK- prefix
+    const orderNumber = generateOrderNumber();
     
     // Create order object
     const orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> = {
