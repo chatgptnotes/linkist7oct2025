@@ -230,7 +230,7 @@ export default function SettingsPage() {
             <button
               onClick={saveSettings}
               disabled={saving || !changes}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center space-x-2 px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? (
                 <RefreshCw className="h-4 w-4 animate-spin" />
@@ -281,7 +281,7 @@ export default function SettingsPage() {
                           type="text"
                           value={settings.general.siteName}
                           onChange={(e) => updateSettings('general', 'siteName', e.target.value)}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                         />
                       </div>
 
@@ -293,7 +293,7 @@ export default function SettingsPage() {
                           type="email"
                           value={settings.general.adminEmail}
                           onChange={(e) => updateSettings('general', 'adminEmail', e.target.value)}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                         />
                       </div>
 
@@ -304,7 +304,7 @@ export default function SettingsPage() {
                         <select
                           value={settings.general.timezone}
                           onChange={(e) => updateSettings('general', 'timezone', e.target.value)}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                         >
                           <option value="UTC">UTC</option>
                           <option value="America/New_York">Eastern Time</option>
@@ -321,7 +321,7 @@ export default function SettingsPage() {
                         <select
                           value={settings.general.currency}
                           onChange={(e) => updateSettings('general', 'currency', e.target.value)}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                         >
                           <option value="USD">USD - US Dollar</option>
                           <option value="EUR">EUR - Euro</option>
@@ -339,7 +339,7 @@ export default function SettingsPage() {
                         value={settings.general.siteDescription}
                         onChange={(e) => updateSettings('general', 'siteDescription', e.target.value)}
                         rows={3}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                       />
                     </div>
                   </div>
@@ -373,7 +373,7 @@ export default function SettingsPage() {
                           type="text"
                           value={settings.email.smtpHost}
                           onChange={(e) => updateSettings('email', 'smtpHost', e.target.value)}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                           placeholder="smtp.gmail.com"
                         />
                       </div>
@@ -386,7 +386,7 @@ export default function SettingsPage() {
                           type="number"
                           value={settings.email.smtpPort}
                           onChange={(e) => updateSettings('email', 'smtpPort', parseInt(e.target.value))}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                           placeholder="587"
                         />
                       </div>
@@ -399,7 +399,7 @@ export default function SettingsPage() {
                           type="text"
                           value={settings.email.smtpUser}
                           onChange={(e) => updateSettings('email', 'smtpUser', e.target.value)}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                         />
                       </div>
 
@@ -412,7 +412,7 @@ export default function SettingsPage() {
                             type={showPasswords ? "text" : "password"}
                             value={settings.email.smtpPassword}
                             onChange={(e) => updateSettings('email', 'smtpPassword', e.target.value)}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:ring-red-600 focus:border-red-600"
                           />
                           <button
                             type="button"
@@ -436,7 +436,7 @@ export default function SettingsPage() {
                           type="email"
                           value={settings.email.fromEmail}
                           onChange={(e) => updateSettings('email', 'fromEmail', e.target.value)}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                         />
                       </div>
 
@@ -448,7 +448,7 @@ export default function SettingsPage() {
                           type="text"
                           value={settings.email.fromName}
                           onChange={(e) => updateSettings('email', 'fromName', e.target.value)}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                         />
                       </div>
                     </div>
@@ -467,7 +467,7 @@ export default function SettingsPage() {
                                 [key]: !enabled
                               })}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                enabled ? 'bg-blue-600' : 'bg-gray-200'
+                                enabled ? 'bg-red-700' : 'bg-gray-200'
                               }`}
                             >
                               <span
@@ -497,7 +497,7 @@ export default function SettingsPage() {
                           type="text"
                           value={settings.payment.stripePublicKey}
                           onChange={(e) => updateSettings('payment', 'stripePublicKey', e.target.value)}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                           placeholder="pk_live_..."
                         />
                       </div>
@@ -510,7 +510,7 @@ export default function SettingsPage() {
                           type={showPasswords ? "text" : "password"}
                           value={settings.payment.stripeSecretKey}
                           onChange={(e) => updateSettings('payment', 'stripeSecretKey', e.target.value)}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                           placeholder="sk_live_..."
                         />
                       </div>
@@ -524,7 +524,7 @@ export default function SettingsPage() {
                           step="0.01"
                           value={settings.payment.taxRate}
                           onChange={(e) => updateSettings('payment', 'taxRate', parseFloat(e.target.value))}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                         />
                       </div>
                     </div>
@@ -547,7 +547,7 @@ export default function SettingsPage() {
                           max="50"
                           value={settings.security.passwordMinLength}
                           onChange={(e) => updateSettings('security', 'passwordMinLength', parseInt(e.target.value))}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                         />
                       </div>
 
@@ -561,7 +561,7 @@ export default function SettingsPage() {
                           max="1440"
                           value={settings.security.sessionTimeout}
                           onChange={(e) => updateSettings('security', 'sessionTimeout', parseInt(e.target.value))}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                         />
                       </div>
 
@@ -575,7 +575,7 @@ export default function SettingsPage() {
                           max="10"
                           value={settings.security.maxLoginAttempts}
                           onChange={(e) => updateSettings('security', 'maxLoginAttempts', parseInt(e.target.value))}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
                         />
                       </div>
                     </div>
@@ -588,7 +588,7 @@ export default function SettingsPage() {
                         <button
                           onClick={() => updateSettings('security', 'twoFactorEnabled', !settings.security.twoFactorEnabled)}
                           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                            settings.security.twoFactorEnabled ? 'bg-blue-600' : 'bg-gray-200'
+                            settings.security.twoFactorEnabled ? 'bg-red-700' : 'bg-gray-200'
                           }`}
                         >
                           <span
@@ -627,7 +627,7 @@ export default function SettingsPage() {
                           <button
                             onClick={() => updateSettings('notifications', key, !enabled)}
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                              enabled ? 'bg-blue-600' : 'bg-gray-200'
+                              enabled ? 'bg-red-700' : 'bg-gray-200'
                             }`}
                           >
                             <span

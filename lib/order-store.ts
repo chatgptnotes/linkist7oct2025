@@ -252,7 +252,7 @@ export const OrderStore = {
 
 // Generate a new order number
 export const generateOrderNumber = (): string => {
-  const prefix = 'ORD-';
+  const prefix = 'LNK-'; // Changed from ORD- to LNK- as per client requirement
   const suffix = Math.random().toString(36).substring(2, 8).toUpperCase();
   return prefix + suffix;
 };

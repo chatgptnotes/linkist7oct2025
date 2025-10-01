@@ -135,7 +135,7 @@ export default function ThankYouPage() {
           {/* Expected Delivery */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
             <div className="flex items-center justify-center space-x-2 text-blue-800">
-              <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+              <div className="w-5 h-5 bg-red-600 rounded-full flex items-center justify-center">
                 <div className="w-2 h-2 bg-white rounded-full"></div>
               </div>
               <span className="font-medium">Estimated delivery: {orderData?.estimatedDelivery}</span>
@@ -155,13 +155,13 @@ export default function ThankYouPage() {
             <div className="flex justify-center space-x-4">
               <a 
                 href="#" 
-                className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors"
+                className="w-10 h-10 bg-red-700 rounded-full flex items-center justify-center text-white hover:bg-red-800 transition-colors"
               >
                 <Facebook className="h-5 w-5" />
               </a>
               <a 
                 href="#" 
-                className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center text-white hover:bg-blue-500 transition-colors"
+                className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors"
               >
                 <Twitter className="h-5 w-5" />
               </a>

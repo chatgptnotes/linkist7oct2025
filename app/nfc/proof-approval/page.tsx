@@ -420,7 +420,7 @@ export default function ProofApprovalPage() {
                     <div className="pt-2 border-t border-gray-600">
                       <div className="flex justify-center space-x-2">
                         {cardConfig.linkedin && (
-                          <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                          <div className="w-6 h-6 bg-red-700 rounded-full flex items-center justify-center">
                             <span className="text-white text-xs font-bold">in</span>
                           </div>
                         )}

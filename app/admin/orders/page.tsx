@@ -523,7 +523,7 @@ export default function OrdersPage() {
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => resendEmail(selectedOrder.id, 'confirmation')}
-                    className="px-3 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600"
+                    className="px-3 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700"
                   >
                     Resend Confirmation
                   </button>
@@ -535,7 +535,7 @@ export default function OrdersPage() {
                   </button>
                   <button
                     onClick={() => resendEmail(selectedOrder.id, 'production')}
-                    className="px-3 py-2 bg-purple-500 text-white text-sm rounded-lg hover:bg-purple-600"
+                    className="px-3 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700"
                   >
                     Send Production Update
                   </button>

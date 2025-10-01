@@ -311,7 +311,7 @@ export default function PrivacyPolicyPage() {
         <div className="mt-8 flex flex-col sm:flex-row gap-4">
           <Link
             href="/privacy/manage"
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600"
           >
             <Shield className="w-5 h-5 mr-2" />
             Manage Privacy Settings
@@ -319,7 +319,7 @@ export default function PrivacyPolicyPage() {
           
           <Link
             href="/terms"
-            className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600"
           >
             View Terms of Service
           </Link>

@@ -239,7 +239,7 @@ export default function PrivacyManagePage() {
                 placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
               />
               <p className="text-sm text-gray-500 mt-2">
                 Enter the email address associated with your Linkist account to manage your privacy settings.
@@ -273,7 +273,7 @@ export default function PrivacyManagePage() {
             <button
               onClick={handleDataExport}
               disabled={loading || !email}
-              className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download className="w-4 h-4 mr-2" />
               {loading ? 'Exporting...' : 'Export My Data'}

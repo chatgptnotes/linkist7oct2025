@@ -281,13 +281,13 @@ export default function ConfirmPaymentPage() {
 
                 {/* Security Icons */}
                 <div className="flex items-center justify-center space-x-4 pt-4">
-                  <div className="w-8 h-5 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
+                  <div className="w-8 h-5 bg-red-700 rounded text-white text-xs flex items-center justify-center font-bold">
                     VISA
                   </div>
                   <div className="w-8 h-5 bg-red-600 rounded text-white text-xs flex items-center justify-center font-bold">
                     MC
                   </div>
-                  <div className="w-8 h-5 bg-blue-500 rounded text-white text-xs flex items-center justify-center font-bold">
+                  <div className="w-8 h-5 bg-red-600 rounded text-white text-xs flex items-center justify-center font-bold">
                     AMEX
                   </div>
                   <div className="flex items-center text-xs text-gray-500">

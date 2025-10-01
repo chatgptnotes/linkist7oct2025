@@ -152,7 +152,7 @@ export default function SuccessPage() {
             </div>
             
             <div className="flex items-start space-x-4">
-              <div className="bg-blue-500 rounded-full p-2">
+              <div className="bg-red-600 rounded-full p-2">
                 <Package className="h-5 w-5 text-white" />
               </div>
               <div>

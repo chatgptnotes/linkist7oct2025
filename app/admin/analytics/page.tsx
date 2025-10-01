@@ -185,7 +185,7 @@ export default function AnalyticsPage() {
             </button>
             <button
               onClick={fetchAnalyticsData}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="flex items-center space-x-2 px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800"
             >
               <RefreshCw className="h-4 w-4" />
               <span>Refresh</span>
@@ -427,7 +427,7 @@ export default function AnalyticsPage() {
                 <div className="flex-1 mx-4">
                   <div className="w-full bg-gray-200 rounded-full h-6">
                     <div 
-                      className="bg-blue-600 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium"
+                      className="bg-red-700 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium"
                       style={{ width: `${stage.rate}%` }}
                     >
                       {stage.rate.toFixed(1)}%

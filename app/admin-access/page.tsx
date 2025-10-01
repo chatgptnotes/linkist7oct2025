@@ -144,7 +144,7 @@ export default function AdminAccessPage() {
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Home
           </Link>
-          <div className="mx-auto h-16 w-16 bg-blue-500 rounded-full flex items-center justify-center mb-4">
+          <div className="mx-auto h-16 w-16 bg-red-600 rounded-full flex items-center justify-center mb-4">
             <Shield className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Admin Access</h1>
@@ -185,7 +185,7 @@ export default function AdminAccessPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-start">
               <div className="flex-shrink-0">
-                <div className="h-10 w-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                <div className="h-10 w-10 bg-red-600 rounded-lg flex items-center justify-center">
                   <Key className="h-5 w-5 text-white" />
                 </div>
               </div>
@@ -199,7 +199,7 @@ export default function AdminAccessPage() {
                 <button
                   onClick={handleQuickLogin}
                   disabled={loading}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Logging in...' : 'Quick Admin Login'}
                   <ChevronRight className="ml-2 h-4 w-4" />
@@ -212,7 +212,7 @@ export default function AdminAccessPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-start">
               <div className="flex-shrink-0">
-                <div className="h-10 w-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                <div className="h-10 w-10 bg-red-600 rounded-lg flex items-center justify-center">
                   <Shield className="h-5 w-5 text-white" />
                 </div>
               </div>
@@ -230,7 +230,7 @@ export default function AdminAccessPage() {
                       value={pin}
                       onChange={(e) => setPin(e.target.value)}
                       placeholder="Enter admin PIN"
-                      className="block w-full sm:max-w-xs px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="block w-full sm:max-w-xs px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-600 focus:border-red-600"
                       required
                       disabled={loading}
                     />
@@ -238,7 +238,7 @@ export default function AdminAccessPage() {
                   <button
                     type="submit"
                     disabled={loading || !pin}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? 'Logging in...' : 'Login with PIN'}
                     <ChevronRight className="ml-2 h-4 w-4" />
@@ -265,7 +265,7 @@ export default function AdminAccessPage() {
                 </p>
                 <Link
                   href="/admin"
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600"
                 >
                   Open Admin Dashboard
                   <ChevronRight className="ml-2 h-4 w-4" />

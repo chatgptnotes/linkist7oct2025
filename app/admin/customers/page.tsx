@@ -259,7 +259,7 @@ export default function CustomersPage() {
           <div className="mt-4 sm:mt-0">
             <Link 
               href="/admin"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600"
             >
               <ChevronLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
@@ -317,7 +317,7 @@ export default function CustomersPage() {
                   placeholder="Search customers..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
                 />
               </div>
               
@@ -326,7 +326,7 @@ export default function CustomersPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'name' | 'orders' | 'spent' | 'recent')}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
                 >
                   <option value="recent">Most Recent</option>
                   <option value="name">Name (A-Z)</option>
