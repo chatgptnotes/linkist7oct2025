@@ -239,6 +239,9 @@ function VerifyMobileContent() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                   onKeyPress={(e) => e.key === 'Enter' && handleSendOtp()}
                 />
+                <p className="text-xs text-gray-500 mt-2">
+                  Include country code (e.g., +1 for US, +91 for India)
+                </p>
                 {error && (
                   <p className="text-red-600 text-sm mt-2">{error}</p>
                 )}
