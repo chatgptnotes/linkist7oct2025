@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// In-memory user store (shared with register endpoint)
+// This will reset on server restart - for development only
+const users = new Map<string, any>();
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password } = body;
+
+    console.log('🔐 Login attempt:', email);
 
     // Validate required fields
     if (!email || !password) {
@@ -19,14 +19,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user in Supabase
-    const { data: user, error: findError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email.toLowerCase())
-      .single();
+    const normalizedEmail = email.toLowerCase();
 
-    if (findError || !user) {
+    // Find user in memory store
+    const user = users.get(normalizedEmail);
+
+    if (!user) {
+      console.log('❌ User not found:', normalizedEmail);
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
         { status: 401 }
@@ -36,13 +35,14 @@ export async function POST(request: NextRequest) {
     // In production, use bcrypt to compare hashed passwords
     // For now, direct comparison (INSECURE - replace with bcrypt)
     if (user.password_hash !== password) {
+      console.log('❌ Invalid password for:', normalizedEmail);
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
-    console.log('✅ User logged in successfully:', email);
+    console.log('✅ User logged in successfully:', normalizedEmail);
 
     // Create session (in production, use JWT or session tokens)
     const response = NextResponse.json({
@@ -72,10 +72,13 @@ export async function POST(request: NextRequest) {
     return response;
 
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('❌ Login error:', error);
     return NextResponse.json(
       { success: false, error: 'Login failed. Please try again.' },
       { status: 500 }
     );
   }
 }
+
+// Export users map so register endpoint can share it
+export { users };

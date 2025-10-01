@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// In-memory user store (replace with database in production)
+// This will reset on server restart - for development only
+const users = new Map<string, any>();
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { firstName, lastName, email, phone, password } = body;
+
+    console.log('📝 Registration attempt:', { firstName, lastName, email, phone });
 
     // Validate required fields
     if (!email || !password) {
@@ -33,48 +33,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
-    const { data: existingUser } = await supabase
-      .from('users')
-      .select('email')
-      .eq('email', email.toLowerCase())
-      .single();
+    const normalizedEmail = email.toLowerCase();
 
-    if (existingUser) {
+    // Check if user already exists
+    if (users.has(normalizedEmail)) {
       return NextResponse.json(
         { success: false, error: 'An account with this email already exists' },
         { status: 409 }
       );
     }
 
-    // Create user in Supabase
-    const { data: user, error: createError } = await supabase
-      .from('users')
-      .insert([
-        {
-          email: email.toLowerCase(),
-          first_name: firstName,
-          last_name: lastName,
-          phone_number: phone || null,
-          password_hash: password, // In production, hash this with bcrypt
-          role: 'user',
-          email_verified: false,
-          mobile_verified: false,
-          created_at: new Date().toISOString(),
-        }
-      ])
-      .select()
-      .single();
+    // Create user object
+    const user = {
+      id: `user_${Date.now()}`,
+      email: normalizedEmail,
+      first_name: firstName,
+      last_name: lastName,
+      phone_number: phone || null,
+      password_hash: password, // In production, hash this with bcrypt
+      role: 'user',
+      email_verified: false,
+      mobile_verified: false,
+      created_at: new Date().toISOString(),
+    };
 
-    if (createError) {
-      console.error('Supabase create user error:', createError);
-      return NextResponse.json(
-        { success: false, error: 'Failed to create account. Please try again.' },
-        { status: 500 }
-      );
-    }
+    // Store user in memory
+    users.set(normalizedEmail, user);
 
-    console.log('✅ User registered successfully:', email);
+    console.log('✅ User registered successfully:', normalizedEmail);
+    console.log('📊 Total users:', users.size);
 
     // Return success with user data
     return NextResponse.json({
@@ -91,10 +78,13 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('❌ Registration error:', error);
     return NextResponse.json(
       { success: false, error: 'Registration failed. Please try again.' },
       { status: 500 }
     );
   }
 }
+
+// Export users map for login endpoint to access
+export { users };
