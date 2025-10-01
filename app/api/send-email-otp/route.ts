@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { gmailEmailService } from '@/lib/gmail-email-service';
+import { sendOTPEmail } from '@/lib/resend-email-service';
+import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
 
 // In-memory OTP storage (replace with Redis or database in production)
 const otpStore = new Map<string, { otp: string; expiresAt: number; attempts: number }>();
@@ -20,9 +21,17 @@ function cleanupExpiredOTPs() {
 }
 
 export async function POST(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResponse = rateLimitMiddleware(request, RateLimits.otp);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const body = await request.json();
     const { email } = body;
+
+    console.log('📧 Sending email OTP to:', email);
 
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -54,6 +63,7 @@ export async function POST(request: NextRequest) {
     // Generate new OTP
     const otp = generateOTP();
     const expiresAt = Date.now() + (5 * 60 * 1000); // 5 minutes
+    const expiresInMinutes = 5;
 
     // Store OTP
     otpStore.set(email.toLowerCase(), {
@@ -62,99 +72,54 @@ export async function POST(request: NextRequest) {
       attempts: 0
     });
 
-    // Send OTP via email
     const isDevelopment = process.env.NODE_ENV !== 'production';
 
-    try {
-      // Create email HTML
-      const emailHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Email Verification Code</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">Linkist NFC</h1>
-          </div>
+    // Send OTP via Resend
+    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_c1tpEyD8_NKFusih9vKVQknRAQfmFcWCv') {
+      try {
+        const emailResult = await sendOTPEmail({
+          to: email,
+          otp,
+          expiresInMinutes
+        });
 
-          <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-            <h2 style="color: #111827; margin-top: 0;">Verify Your Email</h2>
+        if (emailResult.success) {
+          console.log(`✅ Email OTP sent to ${email} via Resend`);
 
-            <p style="font-size: 16px; color: #4b5563;">
-              Use this verification code to complete your email verification:
-            </p>
-
-            <div style="background: white; border: 2px solid #dc2626; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0;">
-              <div style="font-size: 36px; font-weight: bold; color: #dc2626; letter-spacing: 8px;">
-                ${otp}
-              </div>
-            </div>
-
-            <p style="font-size: 14px; color: #6b7280;">
-              This code will expire in <strong>5 minutes</strong>.
-            </p>
-
-            <p style="font-size: 14px; color: #6b7280;">
-              If you didn't request this code, please ignore this email.
-            </p>
-
-            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-
-            <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">
-              © 2025 Linkist NFC. All rights reserved.<br>
-              Professional NFC business cards for modern networking.
-            </p>
-          </div>
-        </body>
-        </html>
-      `;
-
-      // In development, just log the OTP
-      if (isDevelopment) {
-        console.log(`📧 [DEV] Email OTP for ${email}: ${otp}`);
-        console.log(`⏰ Expires at: ${new Date(expiresAt).toLocaleTimeString()}`);
+          return NextResponse.json({
+            success: true,
+            message: 'Verification code sent to your email',
+            ...(isDevelopment && { devOtp: otp }),
+          });
+        } else {
+          console.error('❌ Resend failed:', emailResult.error);
+        }
+      } catch (emailError) {
+        console.error('❌ Email sending error:', emailError);
       }
-
-      // Try to send email (will use Gmail if configured)
-      const emailResult = await gmailEmailService.sendOrderEmail('confirmation', {
-        email,
-        orderNumber: 'EMAIL-VERIFICATION',
-        customerName: email.split('@')[0],
-        cardConfig: { firstName: '', lastName: '' },
-        shipping: {
-          fullName: '',
-          addressLine1: '',
-          city: '',
-          state: '',
-          country: '',
-          postalCode: '',
-          phoneNumber: ''
-        },
-        pricing: { subtotal: 0, shipping: 0, tax: 0, total: 0 }
-      });
-
-      console.log(`📨 Email OTP sent to ${email}:`, emailResult.success ? '✅' : '⚠️');
-
-    } catch (emailError) {
-      console.error('Email sending error:', emailError);
-      // Continue anyway - OTP is stored and can be used
     }
 
-    // Return success (with OTP in dev mode for testing)
+    // Fallback: OTP is stored, log it in development
+    console.log(`📧 [${isDevelopment ? 'DEV' : 'FALLBACK'}] Email OTP for ${email}: ${otp}`);
+    console.log(`⏰ Expires at: ${new Date(expiresAt).toLocaleTimeString()}`);
+
     return NextResponse.json({
       success: true,
-      message: 'Verification code sent to your email',
-      ...(isDevelopment && { devOtp: otp }), // Include OTP in dev mode for easy testing
+      message: isDevelopment
+        ? 'Verification code generated (check console - email service not configured)'
+        : 'Verification code sent to your email',
+      ...(isDevelopment && { devOtp: otp }),
+      emailStatus: process.env.RESEND_API_KEY ? 'fallback' : 'not_configured'
     });
 
   } catch (error) {
-    console.error('Send OTP error:', error);
+    console.error('❌ Send OTP error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to send verification code' },
       { status: 500 }
     );
   }
 }
+
+// Export store for verification endpoint
+export { otpStore };
