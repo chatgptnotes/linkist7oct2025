@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-// In-memory user store (shared with register endpoint)
-// This will reset on server restart - for development only
-const users = new Map<string, any>();
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,10 +21,17 @@ export async function POST(request: NextRequest) {
 
     const normalizedEmail = email.toLowerCase();
 
-    // Find user in memory store
-    const user = users.get(normalizedEmail);
+    // Create Supabase client with service role key
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    if (!user) {
+    // Find user by email
+    const { data: user, error: fetchError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', normalizedEmail)
+      .single();
+
+    if (fetchError || !user) {
       console.log('❌ User not found:', normalizedEmail);
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
@@ -79,6 +86,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Export users map so register endpoint can share it
-export { users };
