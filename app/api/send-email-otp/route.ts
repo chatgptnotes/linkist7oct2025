@@ -1,24 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendOTPEmail } from '@/lib/resend-email-service';
 import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
-
-// In-memory OTP storage (replace with Redis or database in production)
-const otpStore = new Map<string, { otp: string; expiresAt: number; attempts: number }>();
-
-// Generate 6-digit OTP
-function generateOTP(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-// Clean up expired OTPs
-function cleanupExpiredOTPs() {
-  const now = Date.now();
-  for (const [email, data] of otpStore.entries()) {
-    if (data.expiresAt < now) {
-      otpStore.delete(email);
-    }
-  }
-}
+import { emailOTPStore, generateOTP } from '@/lib/email-otp-store';
 
 export async function POST(request: NextRequest) {
   // Apply rate limiting
@@ -43,10 +26,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Clean up expired OTPs
-    cleanupExpiredOTPs();
+    emailOTPStore.cleanExpired();
 
     // Rate limiting: Check if OTP was sent recently
-    const existingOtp = otpStore.get(email.toLowerCase());
+    const existingOtp = emailOTPStore.get(email);
     if (existingOtp && existingOtp.expiresAt > Date.now()) {
       const timeRemaining = Math.ceil((existingOtp.expiresAt - Date.now()) / 1000);
       if (timeRemaining > 240) { // If more than 4 minutes remaining, don't allow resend
@@ -65,8 +48,8 @@ export async function POST(request: NextRequest) {
     const expiresAt = Date.now() + (5 * 60 * 1000); // 5 minutes
     const expiresInMinutes = 5;
 
-    // Store OTP
-    otpStore.set(email.toLowerCase(), {
+    // Store OTP in shared store
+    emailOTPStore.set(email, {
       otp,
       expiresAt,
       attempts: 0
@@ -120,6 +103,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Export store for verification endpoint
-export { otpStore };

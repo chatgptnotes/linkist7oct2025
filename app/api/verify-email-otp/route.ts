@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// Shared OTP store (same as send-email-otp)
-// In production, use Redis or database
-const otpStore = new Map<string, { otp: string; expiresAt: number; attempts: number }>();
+import { emailOTPStore } from '@/lib/email-otp-store';
 
 const MAX_ATTEMPTS = 5;
 
@@ -26,8 +23,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get stored OTP
-    const storedData = otpStore.get(email.toLowerCase());
+    // Get stored OTP from shared store
+    const storedData = emailOTPStore.get(email);
 
     if (!storedData) {
       return NextResponse.json(
@@ -38,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // Check if OTP has expired
     if (storedData.expiresAt < Date.now()) {
-      otpStore.delete(email.toLowerCase());
+      emailOTPStore.delete(email);
       return NextResponse.json(
         { success: false, error: 'Verification code has expired. Please request a new one.' },
         { status: 410 }
@@ -47,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // Check attempts
     if (storedData.attempts >= MAX_ATTEMPTS) {
-      otpStore.delete(email.toLowerCase());
+      emailOTPStore.delete(email);
       return NextResponse.json(
         { success: false, error: 'Too many failed attempts. Please request a new code.' },
         { status: 429 }
@@ -58,7 +55,7 @@ export async function POST(request: NextRequest) {
     if (storedData.otp !== otp) {
       // Increment attempts
       storedData.attempts += 1;
-      otpStore.set(email.toLowerCase(), storedData);
+      emailOTPStore.set(email, storedData);
 
       const remainingAttempts = MAX_ATTEMPTS - storedData.attempts;
       return NextResponse.json(
@@ -71,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     // OTP is valid! Remove it from store
-    otpStore.delete(email.toLowerCase());
+    emailOTPStore.delete(email);
 
     console.log(`✅ Email verified successfully: ${email}`);
 
