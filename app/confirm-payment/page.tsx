@@ -338,12 +338,6 @@ export default function ConfirmPaymentPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-4 mt-16">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <p className="text-gray-400 text-sm">© 2025 Linkist. All Rights Reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }
