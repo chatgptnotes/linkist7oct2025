@@ -321,14 +321,14 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8">
           {/* Checkout Form */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-8">
             {/* Email Verification */}
-            <div className="bg-white rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">1. Verify your email</h2>
-              <p className="text-gray-600 mb-6">We&apos;ll send a 6-digit code to your email for verification.</p>
+            <div className="bg-white rounded-lg p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">1. Verify your email</h2>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">We&apos;ll send a 6-digit code to your email for verification.</p>
               
               {emailAutoFilled && (
                 <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-3">
@@ -341,7 +341,7 @@ export default function CheckoutPage() {
                 </div>
               )}
               
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
                   <div className="relative">
                     <input
@@ -350,32 +350,32 @@ export default function CheckoutPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="alex.morgan@example.com"
                       disabled={emailVerified}
-                      className={`w-full p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 pl-12 ${
+                      className={`w-full p-3 sm:p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 pl-10 sm:pl-12 text-sm sm:text-base ${
                         emailVerified ? 'bg-green-50 border-green-300' : 'border-gray-300'
                       }`}
                     />
-                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm sm:text-base">
                       📧
                     </div>
                     {emailVerified && (
-                      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-green-500">
+                      <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-green-500">
                         ✓
                       </div>
                     )}
                   </div>
                   {formErrors.email && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                    <p className="text-red-500 text-xs sm:text-sm mt-1">{formErrors.email}</p>
                   )}
                 </div>
-                
+
                 {!emailVerified && (
                   <button
                     onClick={handleSendCode}
                     disabled={sendingOtp || !email}
-                    className="bg-gray-800 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto bg-gray-800 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
                   >
                     {sendingOtp ? (
-                      <div className="flex items-center">
+                      <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                         Sending...
                       </div>
@@ -420,25 +420,25 @@ export default function CheckoutPage() {
                     )}
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                         Enter 6-digit verification code
                       </label>
-                      <div className="flex space-x-2">
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                         <input
                           type="text"
                           value={otp}
                           onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                           placeholder="123456"
-                          className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-center text-lg tracking-widest"
+                          className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-center text-base sm:text-lg tracking-widest min-h-[44px]"
                           maxLength={6}
                         />
                         <button
                           onClick={handleVerifyOtp}
                           disabled={verifyingOtp || otp.length !== 6}
-                          className="bg-red-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-red-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base min-h-[44px]"
                         >
                           {verifyingOtp ? (
-                            <div className="flex items-center">
+                            <div className="flex items-center justify-center">
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                               Verifying...
                             </div>
@@ -477,13 +477,13 @@ export default function CheckoutPage() {
             </div>
 
             {/* Delivery Address */}
-            <div className="bg-white rounded-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">2. Delivery Address</h2>
+            <div className="bg-white rounded-lg p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">2. Delivery Address</h2>
                 {addressSaved && addressEditable && (
                   <button
                     onClick={handleEditAddress}
-                    className="text-blue-500 hover:text-blue-600 text-sm font-medium"
+                    className="text-blue-500 hover:text-blue-600 text-xs sm:text-sm font-medium"
                   >
                     Edit Address
                   </button>
@@ -510,9 +510,9 @@ export default function CheckoutPage() {
                 </label>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                     Full Name
                   </label>
                   <input
@@ -520,18 +520,18 @@ export default function CheckoutPage() {
                     value={formData.fullName}
                     onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                     disabled={!addressEditable}
-                    className={`w-full p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                    className={`w-full p-3 sm:p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base min-h-[44px] ${
                       formErrors.fullName ? 'border-red-500' : 'border-gray-300'
                     } ${!addressEditable ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                   />
                   {formErrors.fullName && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.fullName}</p>
+                    <p className="text-red-500 text-xs sm:text-sm mt-1">{formErrors.fullName}</p>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                       Address Line 1
                     </label>
                     <input
@@ -539,20 +539,20 @@ export default function CheckoutPage() {
                       value={formData.addressLine1}
                       onChange={(e) => setFormData({...formData, addressLine1: e.target.value})}
                       disabled={!addressEditable}
-                      className={`w-full p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full p-3 sm:p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base min-h-[44px] ${
                         formErrors.addressLine1 ? 'border-red-500' : 'border-gray-300'
                       } ${!addressEditable ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                     />
                     {formErrors.addressLine1 && (
-                      <div className="flex items-center text-red-500 text-sm mt-1">
+                      <div className="flex items-center text-red-500 text-xs sm:text-sm mt-1">
                         <span className="mr-1">⚠</span>
                         Please enter a valid address.
                       </div>
                     )}
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                       Address Line 2 <span className="text-gray-400">(Optional)</span>
                     </label>
                     <input
@@ -560,14 +560,14 @@ export default function CheckoutPage() {
                       value={formData.addressLine2}
                       onChange={(e) => setFormData({...formData, addressLine2: e.target.value})}
                       disabled={!addressEditable}
-                      className={`w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${!addressEditable ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                      className={`w-full p-3 sm:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base min-h-[44px] ${!addressEditable ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                       City
                     </label>
                     <input
@@ -575,14 +575,14 @@ export default function CheckoutPage() {
                       value={formData.city}
                       onChange={(e) => setFormData({...formData, city: e.target.value})}
                       disabled={!addressEditable}
-                      className={`w-full p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full p-3 sm:p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base min-h-[44px] ${
                         formErrors.city ? 'border-red-500' : 'border-gray-300'
                       } ${!addressEditable ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                       Region / State
                     </label>
                     <input
@@ -590,16 +590,16 @@ export default function CheckoutPage() {
                       value={formData.state}
                       onChange={(e) => setFormData({...formData, state: e.target.value})}
                       disabled={!addressEditable}
-                      className={`w-full p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full p-3 sm:p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base min-h-[44px] ${
                         formErrors.state ? 'border-red-500' : 'border-gray-300'
                       } ${!addressEditable ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                       Country
                     </label>
                     <div className="relative">
@@ -607,7 +607,7 @@ export default function CheckoutPage() {
                         value={formData.country}
                         onChange={(e) => setFormData({...formData, country: e.target.value})}
                         disabled={!addressEditable}
-                        className={`w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 appearance-none bg-white ${!addressEditable ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                        className={`w-full p-3 sm:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 appearance-none bg-white text-sm sm:text-base min-h-[44px] ${!addressEditable ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                       >
                         <option value="Afghanistan">Afghanistan</option>
                         <option value="Albania">Albania</option>
@@ -808,7 +808,7 @@ export default function CheckoutPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                       Postal Code
                     </label>
                     <input
@@ -816,7 +816,7 @@ export default function CheckoutPage() {
                       value={formData.postalCode}
                       onChange={(e) => setFormData({...formData, postalCode: e.target.value})}
                       disabled={!addressEditable}
-                      className={`w-full p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                      className={`w-full p-3 sm:p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base min-h-[44px] ${
                         formErrors.postalCode ? 'border-red-500' : 'border-gray-300'
                       } ${!addressEditable ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                     />
@@ -824,7 +824,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                     Phone Number
                   </label>
                   <input
@@ -833,18 +833,18 @@ export default function CheckoutPage() {
                     onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                     placeholder="For delivery updates"
                     disabled={!addressEditable}
-                    className={`w-full p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 ${
+                    className={`w-full p-3 sm:p-4 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm sm:text-base min-h-[44px] ${
                       formErrors.phoneNumber ? 'border-red-500' : 'border-gray-300'
                     } ${!addressEditable ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                   />
                 </div>
 
                 {/* Save Address Button */}
-                <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
                   <button
                     onClick={handleSaveAddress}
                     disabled={savingAddress || addressSaved || !addressEditable}
-                    className={`w-full py-3 px-6 rounded-lg font-medium transition-colors ${
+                    className={`w-full py-3 px-6 rounded-lg font-medium transition-colors text-sm sm:text-base min-h-[44px] ${
                       addressSaved
                         ? 'bg-green-500 text-white cursor-not-allowed'
                         : savingAddress
@@ -884,54 +884,54 @@ export default function CheckoutPage() {
           </div>
 
           {/* Order Summary */}
-          <div className="bg-white rounded-lg p-6 h-fit">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Order Summary</h2>
-            
+          <div className="bg-white rounded-lg p-4 sm:p-6 h-fit">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6">Order Summary</h2>
+
             {cartItems.map((item) => (
-              <div key={item.id} className="flex items-center space-x-4 mb-6">
-                <div className="w-12 h-8 bg-gray-800 rounded flex items-center justify-center">
-                  <img src="/logo.svg" alt="Linkist" className="h-4 filter brightness-0 invert" />
+              <div key={item.id} className="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+                <div className="w-10 sm:w-12 h-7 sm:h-8 bg-gray-800 rounded flex items-center justify-center flex-shrink-0">
+                  <img src="/logo.svg" alt="Linkist" className="h-3 sm:h-4 filter brightness-0 invert" />
                 </div>
-                <div className="flex-1">
-                  <div className="font-medium">{item.name}</div>
-                  <div className="text-sm text-gray-600">Qty: {item.quantity}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm sm:text-base truncate">{item.name}</div>
+                  <div className="text-xs sm:text-sm text-gray-600">Qty: {item.quantity}</div>
                 </div>
-                <div className="font-semibold">${item.price}</div>
+                <div className="font-semibold text-sm sm:text-base">${item.price}</div>
               </div>
             ))}
             
-            <div className="space-y-3 py-4 border-t border-gray-200">
-              <div className="flex justify-between">
+            <div className="space-y-2 sm:space-y-3 py-3 sm:py-4 border-t border-gray-200">
+              <div className="flex justify-between text-sm sm:text-base">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="font-medium">${calculateSubtotal().toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between text-sm sm:text-base">
                 <span className="text-gray-600">Shipping</span>
                 <span className="font-medium">${calculateShipping().toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between text-sm sm:text-base">
                 <span className="text-gray-600">Tax (5% VAT)</span>
                 <span className="font-medium">${calculateTax().toFixed(2)}</span>
               </div>
-              <div className="border-t pt-3 flex justify-between text-lg font-semibold">
+              <div className="border-t pt-2 sm:pt-3 flex justify-between text-base sm:text-lg font-semibold">
                 <span>Total (USD)</span>
                 <span>${calculateTotal().toFixed(2)}</span>
               </div>
             </div>
 
-            <div className="mb-4 text-sm text-gray-600">
+            <div className="mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">
               Expected Delivery: Sep 06, 2025
             </div>
 
             <button
               onClick={handleContinueToPayment}
-              className="w-full bg-red-500 text-white py-4 rounded-lg font-medium hover:bg-red-600 transition-colors mb-4"
+              className="w-full bg-red-500 text-white py-3 sm:py-4 rounded-lg font-medium hover:bg-red-600 transition-colors mb-3 sm:mb-4 text-sm sm:text-base min-h-[44px]"
             >
               Continue to Payment
             </button>
 
-            <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
-              <Lock className="h-4 w-4" />
+            <div className="flex items-center justify-center space-x-2 text-xs sm:text-sm text-gray-500">
+              <Lock className="h-3 sm:h-4 w-3 sm:w-4" />
               <span>Secure checkout via Stripe. Encrypted.</span>
             </div>
           </div>
