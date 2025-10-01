@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "autoAcceptAll": true,
+  "logEnabled": true,
+  "logPath": ".claude/logs/auto-accept.log",
+  "allowedOperations": [
+    "file_read",
+    "file_write",
+    "file_edit",
+    "bash_command",
+    "task_launch",
+    "web_fetch",
+    "web_search"
+  ],
+  "alwaysAccept": true,
+  "notifyOnAccept": false,
+  "version": "1.0.0"
+}
