@@ -233,46 +233,46 @@ export default function AccountPage() {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-xl font-bold text-gray-900">
+          <div className="flex justify-between items-center h-14 sm:h-16">
+            <Link href="/" className="text-lg sm:text-xl font-bold text-gray-900">
               Linkist NFC
             </Link>
-            <div className="flex items-center space-x-4">
-              <Link 
-                href="/nfc/configure" 
-                className="text-gray-700 hover:text-gray-900"
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <Link
+                href="/nfc/configure"
+                className="text-sm sm:text-base text-gray-700 hover:text-gray-900 hidden sm:inline"
               >
                 Design Card
               </Link>
               <button
                 onClick={handleLogout}
-                className="flex items-center text-gray-700 hover:text-gray-900"
+                className="flex items-center text-sm sm:text-base text-gray-700 hover:text-gray-900"
               >
-                <LogOut className="h-4 w-4 mr-1" />
-                Logout
+                <LogOut className="h-3 sm:h-4 w-3 sm:w-4 mr-1" />
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="bg-red-500 rounded-full p-2">
-                  <User className="h-6 w-6 text-white" />
+            <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+              <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+                <div className="bg-red-500 rounded-full p-1.5 sm:p-2 flex-shrink-0">
+                  <User className="h-5 sm:h-6 w-5 sm:w-6 text-white" />
                 </div>
-                <div>
-                  <h2 className="font-semibold">
-                    {user?.first_name && user?.last_name 
+                <div className="min-w-0">
+                  <h2 className="font-semibold text-sm sm:text-base truncate">
+                    {user?.first_name && user?.last_name
                       ? `${user.first_name} ${user.last_name}`
                       : user?.email.split('@')[0]}
                   </h2>
-                  <p className="text-sm text-gray-600">{user?.email}</p>
-                  <div className="flex items-center space-x-2 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">{user?.email}</p>
+                  <div className="flex items-center flex-wrap gap-1 sm:gap-2 mt-1">
                     {user?.email_verified && (
                       <div className="flex items-center space-x-1 text-xs text-green-600">
                         <CheckCircle className="h-3 w-3" />
@@ -301,10 +301,10 @@ export default function AccountPage() {
               </div>
               
               {stats?.founderMember && (
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg p-3 mb-6">
+                <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg p-2.5 sm:p-3 mb-4 sm:mb-6">
                   <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4" />
-                    <span className="text-sm font-medium">Founder Member</span>
+                    <CheckCircle className="h-3 sm:h-4 w-3 sm:w-4" />
+                    <span className="text-xs sm:text-sm font-medium">Founder Member</span>
                   </div>
                   <p className="text-xs opacity-90 mt-1">
                     1 year free app access included
@@ -314,9 +314,9 @@ export default function AccountPage() {
 
               {/* Account Stats Summary */}
               {stats && (
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                  <h3 className="font-medium text-gray-900 mb-3">Account Summary</h3>
-                  <div className="space-y-2 text-sm">
+                <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+                  <h3 className="font-medium text-sm sm:text-base text-gray-900 mb-2 sm:mb-3">Account Summary</h3>
+                  <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Total Orders:</span>
                       <span className="font-medium">{stats.totalOrders}</span>
@@ -333,22 +333,22 @@ export default function AccountPage() {
                 </div>
               )}
 
-              <nav className="space-y-2">
-                <a href="#orders" className="flex items-center space-x-3 text-black bg-gray-100 rounded-lg px-3 py-2">
-                  <Package className="h-4 w-4" />
+              <nav className="space-y-1.5 sm:space-y-2">
+                <a href="#orders" className="flex items-center space-x-2 sm:space-x-3 text-black bg-gray-100 rounded-lg px-2.5 sm:px-3 py-2 text-sm sm:text-base min-h-[44px]">
+                  <Package className="h-3.5 sm:h-4 w-3.5 sm:w-4" />
                   <span>My Orders</span>
                 </a>
-                <a href="#profile" className="flex items-center space-x-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
-                  <Settings className="h-4 w-4" />
+                <a href="#profile" className="flex items-center space-x-2 sm:space-x-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg px-2.5 sm:px-3 py-2 text-sm sm:text-base min-h-[44px]">
+                  <Settings className="h-3.5 sm:h-4 w-3.5 sm:w-4" />
                   <span>Profile Settings</span>
                 </a>
-                <a href="#billing" className="flex items-center space-x-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg px-3 py-2">
-                  <CreditCard className="h-4 w-4" />
+                <a href="#billing" className="flex items-center space-x-2 sm:space-x-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg px-2.5 sm:px-3 py-2 text-sm sm:text-base min-h-[44px]">
+                  <CreditCard className="h-3.5 sm:h-4 w-3.5 sm:w-4" />
                   <span>Billing</span>
                 </a>
                 {user?.role === 'admin' && (
-                  <Link href="/admin" className="flex items-center space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg px-3 py-2">
-                    <Settings className="h-4 w-4" />
+                  <Link href="/admin" className="flex items-center space-x-2 sm:space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg px-2.5 sm:px-3 py-2 text-sm sm:text-base min-h-[44px]">
+                    <Settings className="h-3.5 sm:h-4 w-3.5 sm:w-4" />
                     <span>Admin Dashboard</span>
                   </Link>
                 )}
@@ -360,49 +360,49 @@ export default function AccountPage() {
           <div className="lg:col-span-3">
             {/* Orders Section */}
             <div id="orders" className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b border-gray-200">
-                <h1 className="text-2xl font-bold">My Orders</h1>
-                <p className="text-gray-600 mt-1">Track your NFC card orders and delivery status</p>
+              <div className="p-4 sm:p-6 border-b border-gray-200">
+                <h1 className="text-xl sm:text-2xl font-bold">My Orders</h1>
+                <p className="text-sm sm:text-base text-gray-600 mt-1">Track your NFC card orders and delivery status</p>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {orders.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
-                    <p className="text-gray-600 mb-6">Start by designing your first NFC card</p>
+                  <div className="text-center py-8 sm:py-12">
+                    <Package className="h-10 sm:h-12 w-10 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
+                    <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">Start by designing your first NFC card</p>
                     <Link
                       href="/nfc/configure"
-                      className="inline-flex items-center bg-black text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 transition"
+                      className="inline-flex items-center bg-black text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-gray-800 transition text-sm sm:text-base min-h-[44px]"
                     >
                       Design Your Card
                     </Link>
                   </div>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {orders.map((order) => (
-                      <div key={order.id} className="border border-gray-200 rounded-lg p-6">
-                        <div className="flex justify-between items-start mb-4">
+                      <div key={order.id} className="border border-gray-200 rounded-lg p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 sm:mb-4 space-y-2 sm:space-y-0">
                           <div>
-                            <h3 className="font-semibold text-lg">Order #{order.orderNumber}</h3>
-                            <p className="text-gray-600">
+                            <h3 className="font-semibold text-base sm:text-lg">Order #{order.orderNumber}</h3>
+                            <p className="text-sm sm:text-base text-gray-600">
                               Placed on {new Date(order.createdAt).toLocaleDateString()}
                             </p>
                             {order.estimatedDelivery && (
-                              <p className="text-sm text-blue-600">
+                              <p className="text-xs sm:text-sm text-blue-600">
                                 Expected: {order.estimatedDelivery}
                               </p>
                             )}
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-1.5 sm:space-x-2">
                             {getStatusIcon(order.status)}
-                            <span className={`text-sm font-medium ${getStatusColor(order.status)}`}>
+                            <span className={`text-xs sm:text-sm font-medium ${getStatusColor(order.status)}`}>
                               {getStatusText(order.status)}
                             </span>
                           </div>
                         </div>
 
-                        <div className="grid md:grid-cols-3 gap-4 mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
                           <div>
                             <h4 className="font-medium text-gray-900 mb-2">Card Details</h4>
                             <p className="text-sm text-gray-600">
