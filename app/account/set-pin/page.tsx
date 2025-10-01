@@ -99,9 +99,22 @@ export default function SetPinPage() {
 
       setSuccess(true);
 
-      // Redirect to account after 2 seconds
+      // Mark PIN as set
+      localStorage.setItem('pinSet', 'true');
+
+      // Check if user came from product selection flow
+      const productSelection = localStorage.getItem('productSelection');
+
+      // Redirect based on context
       setTimeout(() => {
-        router.push('/account');
+        if (productSelection === 'physical-digital') {
+          router.push('/nfc/configure');
+        } else if (productSelection === 'digital-only') {
+          router.push('/nfc/digital-profile');
+        } else {
+          // Default to account page
+          router.push('/account');
+        }
       }, 2000);
 
     } catch (err) {
