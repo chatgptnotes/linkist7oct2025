@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Phone, Check, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Phone, Check, ArrowLeft, RefreshCw, Mail, X } from 'lucide-react';
 
 function VerifyMobileContent() {
   const router = useRouter();
@@ -314,6 +314,39 @@ function VerifyMobileContent() {
               </div>
             </div>
           )}
+
+          {/* Email Verification & Skip Options */}
+          <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
+            <button
+              onClick={() => router.push('/verify-email')}
+              className="w-full flex items-center justify-center space-x-2 px-6 py-3 border-2 border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium"
+            >
+              <Mail className="w-5 h-5" />
+              <span>Verify Email Instead</span>
+            </button>
+
+            <button
+              onClick={() => {
+                // Skip verification and go to next step
+                const productSelection = localStorage.getItem('productSelection');
+                const pinSet = localStorage.getItem('pinSet');
+
+                if (!pinSet) {
+                  router.push('/account/set-pin');
+                } else if (productSelection === 'physical-digital') {
+                  router.push('/nfc/configure');
+                } else if (productSelection === 'digital-only') {
+                  router.push('/nfc/digital-profile');
+                } else {
+                  router.push('/account');
+                }
+              }}
+              className="w-full flex items-center justify-center space-x-2 px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+            >
+              <X className="w-5 h-5" />
+              <span>Skip Verification</span>
+            </button>
+          </div>
 
           {/* Info */}
           <p className="text-xs text-gray-500 text-center mt-6">
