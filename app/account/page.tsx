@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Package, Truck, CheckCircle, Clock, User, Settings, CreditCard, LogOut, Mail, AlertCircle } from 'lucide-react';
+import { Package, Truck, CheckCircle, Clock, User, Settings, CreditCard, Mail, AlertCircle } from 'lucide-react';
 
 interface User {
   id: string;
@@ -137,15 +137,6 @@ export default function AccountPage() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -230,32 +221,6 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <Link href="/" className="text-lg sm:text-xl font-bold text-gray-900">
-              Linkist NFC
-            </Link>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Link
-                href="/nfc/configure"
-                className="text-sm sm:text-base text-gray-700 hover:text-gray-900 hidden sm:inline"
-              >
-                Design Card
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="flex items-center text-sm sm:text-base text-gray-700 hover:text-gray-900"
-              >
-                <LogOut className="h-3 sm:h-4 w-3 sm:w-4 mr-1" />
-                <span className="hidden sm:inline">Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8">
           {/* Sidebar */}
