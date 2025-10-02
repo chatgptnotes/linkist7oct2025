@@ -53,6 +53,7 @@ export default function AccountPage() {
   const [stats, setStats] = useState<AccountStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'orders' | 'profile' | 'billing'>('orders');
 
   useEffect(() => {
     checkAuthAndLoadData();
@@ -77,8 +78,8 @@ export default function AccountPage() {
       }
 
       if (!userEmail) {
-        // No user data found, redirect to home
-        router.push('/?auth=required');
+        // No user data found, redirect to landing
+        router.push('/landing?auth=required');
         return;
       }
 

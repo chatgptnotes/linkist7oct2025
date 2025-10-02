@@ -32,7 +32,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       await fetch('/api/auth/logout', { method: 'POST' });
       localStorage.clear();
       document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      router.push('/');
+      router.push('/landing');
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -49,7 +49,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       <>
         <header className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50 h-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-2">
+            <Link href="/landing" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-red-500 rounded flex items-center justify-center">
                 <span className="text-white font-bold text-sm">L</span>
               </div>

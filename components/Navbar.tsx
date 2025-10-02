@@ -11,7 +11,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-full flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/landing" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-red-500 rounded flex items-center justify-center">
               <span className="text-white font-bold text-sm">L</span>
             </div>

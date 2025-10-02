@@ -14,7 +14,7 @@ export default function SuccessPage() {
     if (order) {
       setOrderData(JSON.parse(order));
     } else {
-      router.push('/');
+      router.push('/landing');
     }
   }, [router]);
 
@@ -35,7 +35,7 @@ export default function SuccessPage() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="text-xl font-bold text-gray-900">
+            <Link href="/landing" className="text-xl font-bold text-gray-900">
               Linkist NFC
             </Link>
             <Link 
