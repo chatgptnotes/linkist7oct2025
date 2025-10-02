@@ -66,7 +66,7 @@ function createMiddlewareClient(request: NextRequest) {
 }
 
 // Get authenticated user from Supabase session
-async function getAuthenticatedUser(request: NextRequest): Promise<AuthSession> {
+export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSession> {
   try {
     // 🚨 TESTING BYPASS - RETURN TEST USER 🚨
     const testUser: AuthUser = {
