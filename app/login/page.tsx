@@ -46,7 +46,14 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        showToast('Verification code sent to your email!', 'success');
+        // Display OTP in toast for development/testing
+        if (data.devOtp) {
+          showToast(`Your OTP: ${data.devOtp} (Check console for details)`, 'success');
+          console.log('🔐 Development OTP:', data.devOtp);
+          alert(`Development Mode - Your OTP is: ${data.devOtp}\n\nThis will be removed in production.`);
+        } else {
+          showToast('Verification code sent to your email!', 'success');
+        }
         // Store email and return URL for verification
         localStorage.setItem('loginEmail', formData.email);
         localStorage.setItem('returnUrl', returnUrl);
