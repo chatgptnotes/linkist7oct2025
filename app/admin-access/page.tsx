@@ -44,7 +44,10 @@ export default function AdminAccessPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ pin: '1234' }),
+        body: JSON.stringify({
+          email: 'admin@gmail.com',
+          password: '12345678'
+        }),
       });
 
       const data = await response.json();
@@ -76,7 +79,10 @@ export default function AdminAccessPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ pin }),
+        body: JSON.stringify({
+          email: 'admin@gmail.com',
+          password: pin
+        }),
       });
 
       const data = await response.json();
@@ -191,10 +197,10 @@ export default function AdminAccessPage() {
               </div>
               <div className="ml-4 flex-1">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Quick Access (Default PIN)
+                  Quick Access (Default Password)
                 </h3>
                 <p className="text-gray-600 text-sm mb-4">
-                  One-click admin login using the default PIN (1234)
+                  One-click admin login using default credentials
                 </p>
                 <button
                   onClick={handleQuickLogin}
@@ -218,10 +224,10 @@ export default function AdminAccessPage() {
               </div>
               <div className="ml-4 flex-1">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Custom PIN Login
+                  Custom Password Login
                 </h3>
                 <p className="text-gray-600 text-sm mb-4">
-                  Enter a custom PIN if you've changed the default
+                  Enter admin password (default: 12345678)
                 </p>
                 <form onSubmit={handleCustomLogin} className="space-y-3">
                   <div>
@@ -229,7 +235,7 @@ export default function AdminAccessPage() {
                       type="password"
                       value={pin}
                       onChange={(e) => setPin(e.target.value)}
-                      placeholder="Enter admin PIN"
+                      placeholder="Enter admin password"
                       className="block w-full sm:max-w-xs px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-600 focus:border-red-600"
                       required
                       disabled={loading}
@@ -240,7 +246,7 @@ export default function AdminAccessPage() {
                     disabled={loading || !pin}
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? 'Logging in...' : 'Login with PIN'}
+                    {loading ? 'Logging in...' : 'Login with Password'}
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </button>
                 </form>
@@ -287,11 +293,12 @@ export default function AdminAccessPage() {
 
         {/* Quick URLs */}
         <div className="mt-8 bg-gray-100 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Quick Access URLs:</h4>
+          <h4 className="text-sm font-medium text-gray-900 mb-2">Quick Access Info:</h4>
           <div className="space-y-1 text-xs text-gray-600">
             <div><strong>Admin Dashboard:</strong> /admin</div>
             <div><strong>Admin Access Page:</strong> /admin-access</div>
-            <div><strong>API Login:</strong> POST /api/admin-login {"{ pin: '1234' }"}</div>
+            <div><strong>Admin Email:</strong> admin@gmail.com</div>
+            <div><strong>Admin Password:</strong> 12345678</div>
           </div>
         </div>
       </div>
