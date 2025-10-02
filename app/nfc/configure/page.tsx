@@ -359,33 +359,35 @@ export default function ConfigureNewPage() {
                 <div className="text-center text-sm text-gray-600">Back</div>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Pricing Summary */}
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Pricing Summary</h3>
-                
-                <div className="space-y-3">
+        {/* Pricing Summary - Bottom of Page */}
+        <div className="mt-8 max-w-2xl mx-auto">
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Pricing Summary</h3>
+
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Base Price (Premium Card)</span>
+                  <span className="font-medium">${getPrice().toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">VAT (@5%)</span>
+                  <span className="font-medium">included</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Shipping (Within UAE)</span>
+                  <span className="font-medium">included</span>
+                </div>
+                <div className="border-t pt-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Base Price (Premium Card)</span>
-                    <span className="font-medium">${getPrice().toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">VAT (@5%)</span>
-                    <span className="font-medium">included</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Shipping (Within UAE)</span>
-                    <span className="font-medium">included</span>
-                  </div>
-                  <div className="border-t pt-3">
-                    <div className="flex justify-between">
-                      <span className="text-lg font-semibold">Total Price</span>
-                      <span className="text-lg font-bold text-red-500">${getPrice().toFixed(2)}</span>
-                    </div>
+                    <span className="text-lg font-semibold">Total Price</span>
+                    <span className="text-lg font-bold text-red-500">${getPrice().toFixed(2)}</span>
                   </div>
                 </div>
               </div>
-          </div>
+            </div>
         </div>
       </div>
     </div>
