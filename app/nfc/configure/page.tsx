@@ -338,9 +338,10 @@ export default function ConfigureNewPage() {
                   {/* Linkist Logo Center */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <div className="flex items-center space-x-3 mb-2">
-                      <div className="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">L</span>
-                      </div>
+                      {/* Red Boomerang Logo */}
+                      <svg width="32" height="32" viewBox="0 0 336 278" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0.253254 263.138C8.77347 348.169 327.038 368.66 336.02 277.78C326.399 183.047 173.286 238.54 168.136 199.656C168.136 155.192 252.125 37.271 194.351 4.33764C127.497 -33.0187 -6.60376 180.9 0.253254 263.138Z" fill="#FF0000"/>
+                      </svg>
                       <span className="text-white text-2xl font-semibold">Linkist</span>
                     </div>
                     <div className="text-gray-400 text-sm font-medium tracking-wider">FOUNDING MEMBER</div>
