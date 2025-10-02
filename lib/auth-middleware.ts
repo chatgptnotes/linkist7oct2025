@@ -2,6 +2,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
+import { SessionStore } from './session-store'
 
 // Auth configuration
 const AUTH_CONFIG = {
@@ -90,12 +91,35 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
       }
     }
 
+    // Check for custom session cookie (from OTP login)
+    const customSessionId = request.cookies.get('session')?.value
+    if (customSessionId) {
+      const sessionData = SessionStore.get(customSessionId)
+
+      if (sessionData) {
+        const sessionUser: AuthUser = {
+          id: sessionData.userId,
+          email: sessionData.email,
+          role: sessionData.role,
+          email_verified: true,
+          created_at: new Date(sessionData.createdAt).toISOString(),
+        }
+
+        return {
+          user: sessionUser,
+          isAuthenticated: true,
+          isAdmin: sessionData.role === 'admin',
+          sessionId: customSessionId,
+        }
+      }
+    }
+
     // Check for regular Supabase user session
     const { supabase, response } = createMiddlewareClient(request)
-    
+
     // Get the current user from Supabase
     const { data: { user }, error } = await supabase.auth.getUser()
-    
+
     if (error || !user) {
       return { user: null, isAuthenticated: false, isAdmin: false }
     }
