@@ -28,13 +28,13 @@ export default function Navbar() {
             Support
           </Link>
           <Link
-            href="/welcome"
+            href="/login"
             className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
           >
             Login
           </Link>
           <Link
-            href="/welcome"
+            href="/login"
             className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-base font-semibold transition-colors duration-300"
           >
             Get Started
@@ -81,14 +81,14 @@ export default function Navbar() {
               Support
             </Link>
             <Link
-              href="/welcome"
+              href="/login"
               className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Login
             </Link>
             <Link
-              href="/welcome"
+              href="/login"
               className="block bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-300 text-center"
               onClick={() => setIsMobileMenuOpen(false)}
             >
