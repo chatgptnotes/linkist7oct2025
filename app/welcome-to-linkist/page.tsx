@@ -10,8 +10,8 @@ export default function WelcomeToLinkist() {
   const router = useRouter();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
   const [formData, setFormData] = useState({
+    email: '',
     country: 'India',
     countryCode: '+91',
     mobileNumber: '',
@@ -20,28 +20,24 @@ export default function WelcomeToLinkist() {
   });
 
   useEffect(() => {
-    // Check if user is authenticated
+    // Check if user is authenticated and pre-fill email if available
     const checkAuth = async () => {
       try {
         const response = await fetch('/api/auth/me');
         if (response.ok) {
           const data = await response.json();
           if (data.isAuthenticated && data.user?.email) {
-            setEmail(data.user.email);
-          } else {
-            router.push('/login');
+            setFormData(prev => ({ ...prev, email: data.user.email }));
           }
-        } else {
-          router.push('/login');
         }
       } catch (error) {
         console.error('Auth check error:', error);
-        router.push('/login');
+        // Don't redirect - allow non-authenticated users to use this page
       }
     };
 
     checkAuth();
-  }, [router]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +51,7 @@ export default function WelcomeToLinkist() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email,
+          email: formData.email,
           firstName: formData.firstName,
           lastName: formData.lastName,
           country: formData.country,
@@ -72,6 +68,7 @@ export default function WelcomeToLinkist() {
 
         // Store user profile data
         localStorage.setItem('userProfile', JSON.stringify({
+          email: formData.email,
           firstName: formData.firstName,
           lastName: formData.lastName,
           country: formData.country,
@@ -200,6 +197,21 @@ export default function WelcomeToLinkist() {
 
             {/* Right Column */}
             <div className="space-y-6">
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  placeholder="e.g., alex@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
               {/* First Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

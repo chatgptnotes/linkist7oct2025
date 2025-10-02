@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Mail, ArrowLeft, CheckCircle, Key } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
 
 export default function VerifyLoginPage() {
@@ -14,14 +14,78 @@ export default function VerifyLoginPage() {
   const [email, setEmail] = useState('');
   const [devOtp, setDevOtp] = useState('');
 
-  useEffect(() => {
-    // Get email from localStorage
-    const loginEmail = localStorage.getItem('loginEmail');
-    if (!loginEmail) {
-      router.push('/login');
-      return;
+  const handleSendOtp = async (emailToSend: string) => {
+    try {
+      const response = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: emailToSend }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showToast('Verification code sent to your email!', 'success');
+        if (data.otp && process.env.NODE_ENV === 'development') {
+          setDevOtp(data.otp);
+        }
+      } else {
+        showToast(data.error || 'Failed to send verification code', 'error');
+      }
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      showToast('Failed to send verification code', 'error');
     }
-    setEmail(loginEmail);
+  };
+
+  useEffect(() => {
+    // Check URL parameters first (coming from verify-mobile redirect)
+    const searchParams = new URLSearchParams(window.location.search);
+    const emailParam = searchParams.get('email');
+
+    if (emailParam) {
+      setEmail(emailParam);
+      // Store it for the verification process
+      localStorage.setItem('loginEmail', emailParam);
+      // Send OTP automatically
+      handleSendOtp(emailParam);
+    } else {
+      // Try to get email from user profile (from onboarding)
+      const userProfile = localStorage.getItem('userProfile');
+      let emailToUse = '';
+
+      if (userProfile) {
+        try {
+          const profile = JSON.parse(userProfile);
+          if (profile.email) {
+            emailToUse = profile.email;
+          }
+        } catch (error) {
+          console.error('Error parsing user profile:', error);
+        }
+      }
+
+      // Fallback to loginEmail if no profile email
+      if (!emailToUse) {
+        const loginEmail = localStorage.getItem('loginEmail');
+        if (loginEmail) {
+          emailToUse = loginEmail;
+        }
+      }
+
+      if (emailToUse) {
+        setEmail(emailToUse);
+        localStorage.setItem('loginEmail', emailToUse);
+        // Send OTP automatically for prefilled email
+        handleSendOtp(emailToUse);
+      } else {
+        // No email found anywhere, redirect to login
+        router.push('/login');
+        return;
+      }
+    }
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,12 +163,7 @@ export default function VerifyLoginPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <Link href="/" className="flex items-center space-x-3">
-            <img src="/logo.svg" alt="Linkist" className="h-10" />
-          </Link>
-        </div>
-        <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
+        <h2 className="text-center text-3xl font-bold text-gray-900">
           Verify your email
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
@@ -116,13 +175,33 @@ export default function VerifyLoginPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Email field - shown but read-only */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={email}
+                  readOnly
+                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 sm:text-sm cursor-not-allowed"
+                />
+              </div>
+            </div>
+
             <div>
               <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
                 Verification code
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  <Key className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="otp"
@@ -134,6 +213,7 @@ export default function VerifyLoginPage() {
                   className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
                   placeholder="Enter 6-digit code"
                   maxLength={6}
+                  autoFocus
                 />
               </div>
             </div>

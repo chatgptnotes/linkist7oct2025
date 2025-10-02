@@ -5,8 +5,19 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Truck, CreditCard, Shield, ArrowLeft } from 'lucide-react';
-import PinVerificationModal from '@/components/PinVerificationModal';
+import { Truck, CreditCard, Shield, ArrowLeft, MapPin } from 'lucide-react';
+import dynamic from 'next/dynamic';
+// PIN verification removed - no longer needed
+
+// Dynamically import MapPicker to avoid SSR issues
+const MapPicker = dynamic(() => import('@/components/MapPickerSimple'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-96 bg-gray-50 rounded-lg flex items-center justify-center">
+      <p className="text-gray-500">Loading map...</p>
+    </div>
+  ),
+});
 
 const checkoutSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -36,8 +47,13 @@ export default function CheckoutPage() {
     [key: string]: any;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showPinModal, setShowPinModal] = useState(false);
-  const [pendingOrderData, setPendingOrderData] = useState<any>(null);
+  const [showMap, setShowMap] = useState(false);
+  const [gpsCoordinates, setGpsCoordinates] = useState<{
+    latitude?: number;
+    longitude?: number;
+    area?: string;
+  }>({});
+  // PIN modal and related state removed - no longer needed
   // const [step, setStep] = useState<'shipping' | 'payment' | 'review'>('shipping');
 
   const {
@@ -63,15 +79,15 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     console.log('Checkout: Loading configuration data...');
-    
+
     // Check for nfcConfig first (this is what configure page saves)
     const nfcConfigStr = localStorage.getItem('nfcConfig');
-    
+
     if (nfcConfigStr) {
       try {
         const config = JSON.parse(nfcConfigStr);
         console.log('Checkout: Raw loaded config:', config);
-        
+
         // Validate that we have required fields
         if (config.firstName && config.lastName) {
           const processedConfig = {
@@ -80,17 +96,60 @@ export default function CheckoutPage() {
             baseMaterial: config.baseMaterial,
             texture: config.texture,
             pattern: config.pattern,
-            color: config.color,
+            color: config.colour || config.color,  // Handle both colour and color
             fullName: `${config.firstName} ${config.lastName}`.trim()
           };
-          
+
           console.log('Checkout: Processed config for display:', processedConfig);
           setCardConfig(processedConfig);
-          
+
           // Auto-populate form fields with configured data
           setValue('firstName', config.firstName);
           setValue('lastName', config.lastName);
           console.log('Checkout: Auto-populated form fields:', config.firstName, config.lastName);
+
+          // Also check for saved user profile data to autofill other fields
+          const userProfileStr = localStorage.getItem('userProfile');
+          if (userProfileStr) {
+            try {
+              const userProfile = JSON.parse(userProfileStr);
+              console.log('Checkout: Found user profile:', userProfile);
+
+              // Autofill fields from user profile (these are still editable)
+              if (userProfile.email) {
+                setValue('email', userProfile.email);
+              }
+              if (userProfile.firstName && !config.firstName) {
+                setValue('firstName', userProfile.firstName);
+              }
+              if (userProfile.lastName && !config.lastName) {
+                setValue('lastName', userProfile.lastName);
+              }
+              if (userProfile.mobile) {
+                setValue('phone', userProfile.mobile);
+              }
+              if (userProfile.country) {
+                // Map country name to country code if needed
+                const countryMap: { [key: string]: string } = {
+                  'United States': 'US',
+                  'United Arab Emirates': 'AE',
+                  'India': 'IN',
+                  'Canada': 'CA',
+                  'United Kingdom': 'GB',
+                  'Australia': 'AU',
+                  'Germany': 'DE',
+                  'France': 'FR',
+                  'Singapore': 'SG'
+                };
+                const countryCode = countryMap[userProfile.country] || userProfile.country;
+                setValue('country', countryCode);
+              }
+
+              console.log('Checkout: Autofilled user profile data');
+            } catch (error) {
+              console.error('Checkout: Error parsing user profile:', error);
+            }
+          }
         } else {
           console.error('Checkout: Invalid config data - missing firstName or lastName');
           router.push('/nfc/configure');
@@ -103,16 +162,22 @@ export default function CheckoutPage() {
       console.log('Checkout: No config found, redirecting to configure');
       router.push('/nfc/configure');
     }
-  }, [router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const calculatePricing = () => {
     // Get price based on selected material
-    const materialPrices = { pvc: 29, wood: 49, stainless_steel: 99 };
-    const basePrice = cardConfig?.baseMaterial ? materialPrices[cardConfig.baseMaterial] || 29.99 : 29.99;
+    const materialPrices = { pvc: 29, wood: 49, metal: 99, stainless_steel: 99 };
+    const basePrice = cardConfig?.baseMaterial ? materialPrices[cardConfig.baseMaterial] || 29 : 29;
     const subtotal = basePrice * quantity;
-    const taxRate = 0.05; // 5% default tax
+
+    // Tax logic: 18% GST for India, 5% VAT for others
+    const isIndia = watchedValues.country === 'IN';
+    const taxRate = isIndia ? 0.18 : 0.05;
     const taxAmount = subtotal * taxRate;
-    const shippingCost = watchedValues.country !== 'AE' ? 10 : 0; // Free shipping in UAE
+
+    // Shipping is included in base price (no additional cost)
+    const shippingCost = 0;
     const total = subtotal + taxAmount + shippingCost;
 
     return {
@@ -121,37 +186,47 @@ export default function CheckoutPage() {
       taxAmount,
       shippingCost,
       total,
+      taxRate,
+      taxLabel: isIndia ? 'GST (18%)' : 'VAT (5%)'
     };
   };
 
   const pricing = calculatePricing();
 
-  const verifyPin = async (pin: string): Promise<boolean> => {
-    try {
-      const response = await fetch('/api/account/set-pin', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ pin }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        // PIN verified successfully, proceed with order
-        if (pendingOrderData) {
-          await createOrder(pendingOrderData);
-        }
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.error('❌ PIN verification error:', error);
-      return false;
+  // Handle address update from map
+  const handleMapAddressChange = (addressData: any) => {
+    // Update form fields with address from map
+    if (addressData.addressLine1) setValue('addressLine1', addressData.addressLine1);
+    if (addressData.addressLine2) setValue('addressLine2', addressData.addressLine2);
+    if (addressData.city) setValue('city', addressData.city);
+    if (addressData.stateProvince) setValue('stateProvince', addressData.stateProvince);
+    if (addressData.postalCode) setValue('postalCode', addressData.postalCode);
+    if (addressData.countryCode) {
+      // Map country codes to select values
+      const countryCodeMap: { [key: string]: string } = {
+        'US': 'US',
+        'AE': 'AE',
+        'IN': 'IN',
+        'CA': 'CA',
+        'GB': 'GB',
+        'AU': 'AU',
+        'DE': 'DE',
+        'FR': 'FR',
+        'SG': 'SG',
+      };
+      const mappedCode = countryCodeMap[addressData.countryCode] || 'US';
+      setValue('country', mappedCode);
     }
+
+    // Store GPS coordinates and area
+    setGpsCoordinates({
+      latitude: addressData.latitude,
+      longitude: addressData.longitude,
+      area: addressData.area,
+    });
   };
+
+  // PIN verification function removed - no longer needed
 
   const createOrder = async (orderPayload: any) => {
     try {
@@ -177,12 +252,10 @@ export default function CheckoutPage() {
       // Save order data to localStorage for success page
       localStorage.setItem('currentOrder', JSON.stringify(result.order));
 
-      // Close PIN modal and redirect
-      setShowPinModal(false);
+      // Redirect to success page
       router.push('/nfc/success');
     } catch (error) {
       console.error('❌ Checkout: Order processing error:', error);
-      setShowPinModal(false);
       alert(`Order creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
@@ -216,7 +289,10 @@ export default function CheckoutPage() {
           stateProvince: formData.stateProvince,
           country: formData.country,
           postalCode: formData.postalCode,
-          phoneNumber: formData.phone
+          phoneNumber: formData.phone,
+          latitude: gpsCoordinates.latitude,
+          longitude: gpsCoordinates.longitude,
+          area: gpsCoordinates.area
         },
         pricing: {
           subtotal: pricing.subtotal,
@@ -227,11 +303,10 @@ export default function CheckoutPage() {
         isFounderMember: formData.isFounderMember
       };
 
-      console.log('📤 Checkout: Order prepared, showing PIN verification modal');
+      console.log('📤 Checkout: Order prepared, creating order directly');
 
-      // Store order payload and show PIN modal
-      setPendingOrderData(orderPayload);
-      setShowPinModal(true);
+      // Create order directly without PIN verification
+      await createOrder(orderPayload);
       setIsLoading(false);
 
     } catch (error) {
@@ -347,10 +422,55 @@ export default function CheckoutPage() {
 
               {/* Shipping Address */}
               <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-lg font-semibold mb-4 flex items-center">
-                  <Truck className="h-5 w-5 mr-2" />
-                  Shipping Address
-                </h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold flex items-center">
+                    <Truck className="h-5 w-5 mr-2" />
+                    Shipping Address
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowMap(!showMap)}
+                    className="flex items-center space-x-2 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    <span>{showMap ? 'Hide Map' : 'Use Map'}</span>
+                  </button>
+                </div>
+
+                {/* Map Picker */}
+                {showMap && (
+                  <div className="mb-4">
+                    <MapPicker
+                      initialAddress={{
+                        addressLine1: watchedValues.addressLine1,
+                        addressLine2: watchedValues.addressLine2,
+                        city: watchedValues.city,
+                        stateProvince: watchedValues.stateProvince,
+                        postalCode: watchedValues.postalCode,
+                        country: watchedValues.country,
+                        latitude: gpsCoordinates.latitude,
+                        longitude: gpsCoordinates.longitude,
+                      }}
+                      onAddressChange={handleMapAddressChange}
+                      className="mb-4"
+                    />
+                  </div>
+                )}
+
+                {/* GPS Coordinates Display */}
+                {gpsCoordinates.latitude && gpsCoordinates.longitude && (
+                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-800 font-medium flex items-center">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Location Captured
+                    </p>
+                    <p className="text-xs text-green-600 mt-1">
+                      GPS: {gpsCoordinates.latitude.toFixed(6)}, {gpsCoordinates.longitude.toFixed(6)}
+                      {gpsCoordinates.area && ` • Area: ${gpsCoordinates.area}`}
+                    </p>
+                  </div>
+                )}
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -525,12 +645,16 @@ export default function CheckoutPage() {
                   <span>${pricing.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Tax (5%)</span>
-                  <span>${pricing.taxAmount.toFixed(2)}</span>
+                  <span>Customization</span>
+                  <span className="text-green-600">Included</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>{pricing.shippingCost === 0 ? 'Free' : `$${pricing.shippingCost.toFixed(2)}`}</span>
+                  <span className="text-green-600">Included</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{pricing.taxLabel || 'VAT (5%)'}</span>
+                  <span>${pricing.taxAmount.toFixed(2)}</span>
                 </div>
                 {isFounderMember && (
                   <div className="flex justify-between text-green-600">
@@ -557,17 +681,7 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {/* PIN Verification Modal */}
-      <PinVerificationModal
-        isOpen={showPinModal}
-        onClose={() => {
-          setShowPinModal(false);
-          setPendingOrderData(null);
-          setIsLoading(false);
-        }}
-        onVerify={verifyPin}
-        loading={isLoading}
-      />
+      {/* PIN verification removed - orders are created directly */}
     </div>
   );
 }

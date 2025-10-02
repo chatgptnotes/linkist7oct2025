@@ -3,23 +3,26 @@ import { getCurrentUser } from '@/lib/auth-middleware';
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const authSession = await getCurrentUser(request);
+    const body = await request.json();
+    const { email, firstName, lastName, country, mobile, onboarded } = body;
 
-    if (!authSession.isAuthenticated || !authSession.user) {
+    // Check if email is provided (required for non-authenticated users)
+    if (!email) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+        { error: 'Email is required' },
+        { status: 400 }
       );
     }
 
-    const body = await request.json();
-    const { firstName, lastName, country, mobile, onboarded } = body;
-    const email = authSession.user.email;
+    // Optional: Check if user is authenticated and use their email
+    const authSession = await getCurrentUser(request);
+    const userEmail = authSession.isAuthenticated && authSession.user
+      ? authSession.user.email
+      : email;
 
     // For now, we'll just store the data locally and mark the user as onboarded
     // In a production app, you would save this to your database
-    console.log('✅ Profile data received for:', email, {
+    console.log('✅ Profile data received for:', userEmail, {
       firstName,
       lastName,
       country,
@@ -32,7 +35,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       profile: {
-        email,
+        email: userEmail,
         firstName,
         lastName,
         country,

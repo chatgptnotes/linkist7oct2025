@@ -5,17 +5,28 @@ import { jwtVerify } from 'jose'
 import { SessionStore } from './session-store'
 
 // Auth configuration
-const AUTH_CONFIG = {
+const AUTH_CONFIG: {
+  adminRoutes: string[];
+  protectedRoutes: string[];
+  publicRoutes: string[];
+  adminApiRoutes: string[];
+  protectedApiRoutes: string[];
+  publicApiRoutes: string[];
+  sessionDuration: number;
+  adminPin: string;
+} = {
   // Protected admin routes
   adminRoutes: ['/admin'],
-  // Protected user routes  
+  // Protected user routes
   protectedRoutes: ['/account', '/dashboard'],
   // Public routes that don't need auth
-  publicRoutes: ['/', '/landing', '/login', '/register', '/signup', '/verify-login', '/nfc/configure', '/nfc/checkout', '/nfc/success'],
+  publicRoutes: ['/', '/landing', '/login', '/register', '/signup', '/verify-login', '/nfc/configure', '/nfc/checkout', '/nfc/success', '/welcome-to-linkist', '/verify-mobile'],
   // API routes that need admin access
   adminApiRoutes: ['/api/admin'],
-  // API routes that need user auth
-  protectedApiRoutes: ['/api/user', '/api/account'],
+  // API routes that need user auth (excluding specific endpoints)
+  protectedApiRoutes: ['/api/account'],
+  // Public API routes that don't need auth
+  publicApiRoutes: ['/api/user/profile'],
   // Session duration
   sessionDuration: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
   // Admin PIN for admin access (in production, this should be more secure)
@@ -186,11 +197,16 @@ export async function createAdminSession(): Promise<string> {
 
 // Check if route requires authentication
 function requiresAuth(pathname: string): 'admin' | 'user' | 'none' {
+  // Check if it's a public API route first
+  if (AUTH_CONFIG.publicApiRoutes && AUTH_CONFIG.publicApiRoutes.some(route => pathname.startsWith(route))) {
+    return 'none'
+  }
+
   // Check admin routes
   if (AUTH_CONFIG.adminRoutes.some(route => pathname.startsWith(route))) {
     return 'admin'
   }
-  
+
   // Check admin API routes
   if (AUTH_CONFIG.adminApiRoutes.some(route => pathname.startsWith(route))) {
     return 'admin'
@@ -203,6 +219,11 @@ function requiresAuth(pathname: string): 'admin' | 'user' | 'none' {
 
   // Check protected API routes
   if (AUTH_CONFIG.protectedApiRoutes.some(route => pathname.startsWith(route))) {
+    return 'user'
+  }
+
+  // Check if it's any /api/user route (but not in public API routes)
+  if (pathname.startsWith('/api/user')) {
     return 'user'
   }
 

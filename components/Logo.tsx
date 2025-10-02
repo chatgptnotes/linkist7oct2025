@@ -9,6 +9,7 @@ interface LogoProps {
   imageClassName?: string;
   width?: number;
   height?: number;
+  noLink?: boolean; // Add flag to disable Link wrapper
 }
 
 export default function Logo({
@@ -16,18 +17,31 @@ export default function Logo({
   className = '',
   imageClassName = '',
   width = 120,
-  height = 40
+  height = 40,
+  noLink = false
 }: LogoProps) {
+  const imageElement = (
+    <Image
+      src="/logo_linkist.png"
+      alt="Linkist"
+      width={width}
+      height={height}
+      className={imageClassName}
+      priority
+    />
+  );
+
+  if (noLink) {
+    return (
+      <div className={`flex items-center ${className}`}>
+        {imageElement}
+      </div>
+    );
+  }
+
   return (
     <Link href={href} className={`flex items-center ${className}`}>
-      <Image
-        src="/logo_linkist.png"
-        alt="Linkist"
-        width={width}
-        height={height}
-        className={imageClassName}
-        priority
-      />
+      {imageElement}
     </Link>
   );
 }

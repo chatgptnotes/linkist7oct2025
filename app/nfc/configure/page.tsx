@@ -2,26 +2,42 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle } from 'lucide-react';
+import { Check } from 'lucide-react';
+
+// Define types for our configuration
+type BaseMaterial = 'pvc' | 'wood' | 'metal';
+type TextureOption = 'matte' | 'glossy' | 'brushed' | 'none';
+type ColourOption = 'white' | 'black-pvc' | 'black-metal' | 'cherry' | 'birch' | 'silver' | 'rose-gold';
 
 interface StepData {
   firstName: string;
   lastName: string;
-  baseMaterial: 'pvc' | 'wood' | 'stainless_steel';
-  texture: 'matte' | 'metal_brushed';
-  pattern: number;
-  color: 'black' | 'silver' | 'gold';
+  baseMaterial: BaseMaterial | null;
+  texture: TextureOption | null;
+  colour: ColourOption | null;
+  pattern: number | null;
+}
+
+interface PriceSummary {
+  currency: string;
+  basePrice: number;
+  customization: number;
+  taxLabel: string;
+  taxRate: number;
+  taxAmount: number;
+  shipping: number;
+  total: number;
 }
 
 export default function ConfigureNewPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<StepData>({
-    firstName: '',
-    lastName: '',
-    baseMaterial: 'stainless_steel',
-    texture: 'metal_brushed',
-    pattern: 0,
-    color: 'black'
+    firstName: 'John',
+    lastName: 'Doe',
+    baseMaterial: null,
+    texture: null,
+    colour: null,
+    pattern: null
   });
 
   // Clear any existing corrupted data on component mount
@@ -32,45 +48,160 @@ export default function ConfigureNewPage() {
     console.log('Configure: Cleared old localStorage data');
   }, []);
 
-  const steps = [
-    { number: 1, title: 'Personalize Your Name', completed: false },
-    { number: 2, title: 'Select Base Material', completed: false },
-    { number: 3, title: 'Choose Design', completed: false }
+  // Admin-configured prices (these would come from admin panel)
+  const prices: Record<BaseMaterial, number> = {
+    pvc: 29,
+    wood: 49,
+    metal: 99
+  };
+
+  // Define dependencies
+  const textureOptions: Record<BaseMaterial, TextureOption[]> = {
+    pvc: ['matte', 'glossy'],
+    wood: ['none'],
+    metal: ['matte', 'brushed']
+  };
+
+  const colourOptions: Record<BaseMaterial, ColourOption[]> = {
+    pvc: ['white', 'black-pvc'],
+    wood: ['cherry', 'birch'],
+    metal: ['black-metal', 'silver', 'rose-gold']
+  };
+
+  // Base materials with descriptions
+  const baseMaterials: Array<{ value: BaseMaterial; label: string; description: string }> = [
+    { value: 'pvc', label: 'PVC', description: 'Lightweight and affordable' },
+    { value: 'wood', label: 'Wood', description: 'Natural and sustainable' },
+    { value: 'metal', label: 'Metal', description: 'Premium and durable' }
   ];
 
-  const materials = [
-    { id: 'pvc', name: 'PVC', price: 29, description: 'Lightweight, durable and cost-effective' },
-    { id: 'wood', name: 'Wood', price: 49, description: 'Natural texture with sustainable appeal' },
-    { id: 'stainless_steel', name: 'Stainless Steel', price: 99, description: 'Premium metal finish with ultimate durability', selected: true }
+  // All texture options for display
+  const allTextures: Array<{ value: TextureOption; label: string; description: string }> = [
+    { value: 'matte', label: 'Matte', description: 'Soft anti-reflective finish' },
+    { value: 'glossy', label: 'Glossy', description: 'High-shine reflective surface' },
+    { value: 'brushed', label: 'Brushed', description: 'Directional brushed pattern' },
+    { value: 'none', label: 'Natural', description: 'Natural material texture' }
   ];
 
-  const textures = [
-    { id: 'matte', name: 'Matte', description: 'Soft anti-reflective finish with elegant sophistication' },
-    { id: 'metal_brushed', name: 'Metal Brushed Steel', description: 'Directional brushed pattern with metallic appeal', selected: true }
+  // All colour options for display with exact hex codes
+  const allColours: Array<{ value: ColourOption; label: string; hex: string; gradient: string }> = [
+    // PVC colors
+    { value: 'white', label: 'White', hex: '#FFFFFF', gradient: 'from-white to-gray-100' },
+    { value: 'black-pvc', label: 'Black', hex: '#000000', gradient: 'from-gray-900 to-black' },
+    // Wood colors
+    { value: 'cherry', label: 'Cherry', hex: '#8E3A2D', gradient: 'from-red-950 to-red-900' },
+    { value: 'birch', label: 'Birch', hex: '#E5C79F', gradient: 'from-amber-100 to-amber-200' },
+    // Metal colors
+    { value: 'black-metal', label: 'Black', hex: '#1A1A1A', gradient: 'from-gray-800 to-gray-900' },
+    { value: 'silver', label: 'Silver', hex: '#C0C0C0', gradient: 'from-gray-300 to-gray-400' },
+    { value: 'rose-gold', label: 'Rose Gold', hex: '#B76E79', gradient: 'from-rose-300 to-rose-400' }
   ];
 
-  const colors = [
-    { id: 'black', name: 'Black', color: '#000000', hex: '#000000', gradient: 'from-black to-gray-900' },
-    { id: 'silver', name: 'Silver', color: '#BFC5CC', hex: '#BFC5CC–#D0D5DB', gradient: 'from-slate-300 to-slate-500' },
-    { id: 'gold', name: 'Gold', color: '#FFD700', hex: '#FFD700', gradient: 'from-yellow-400 to-amber-500' }
-  ];
-
+  // Admin-configured patterns
   const patterns = [
-    { id: 0, name: 'Pattern 1' },
-    { id: 1, name: 'Pattern 2' },
-    { id: 2, name: 'Pattern 3' },
-    { id: 3, name: 'Pattern 4' }
+    { id: 1, name: 'Geometric' },
+    { id: 2, name: 'Minimalist' },
+    { id: 3, name: 'Abstract' }
   ];
+
+  // Check if an option is available based on current base selection
+  const isTextureAvailable = (texture: TextureOption): boolean => {
+    if (!formData.baseMaterial) return false;
+    return textureOptions[formData.baseMaterial].includes(texture);
+  };
+
+  const isColourAvailable = (colour: ColourOption): boolean => {
+    if (!formData.baseMaterial) return false;
+    return colourOptions[formData.baseMaterial].includes(colour);
+  };
+
+  // Handle base material change
+  const handleBaseMaterialChange = (material: BaseMaterial) => {
+    const newFormData: StepData = {
+      ...formData,
+      baseMaterial: material,
+      // Clear texture if not valid for new base
+      texture: formData.texture && textureOptions[material].includes(formData.texture)
+        ? formData.texture
+        : null,
+      // Clear colour if not valid for new base
+      colour: formData.colour && colourOptions[material].includes(formData.colour)
+        ? formData.colour
+        : null
+    };
+    setFormData(newFormData);
+    console.log('Base material changed:', newFormData);
+  };
+
+  // Handle other selections
+  const handleTextureChange = (texture: TextureOption) => {
+    if (isTextureAvailable(texture)) {
+      setFormData({ ...formData, texture });
+    }
+  };
+
+  const handleColourChange = (colour: ColourOption) => {
+    if (isColourAvailable(colour)) {
+      setFormData({ ...formData, colour });
+    }
+  };
+
+  const handlePatternChange = (patternId: number) => {
+    setFormData({ ...formData, pattern: patternId });
+  };
 
   const getPrice = () => {
-    const basePrices = { pvc: 29, wood: 49, stainless_steel: 99 };
-    return basePrices[formData.baseMaterial];
+    if (!formData.baseMaterial) return 0;
+    return prices[formData.baseMaterial];
+  };
+
+  // Calculate price summary with simplified tax logic
+  const calculatePriceSummary = (): PriceSummary | null => {
+    const basePrice = getPrice();
+    if (!basePrice) return null;
+
+    // Default 5% VAT (will be 18% GST for India deliveries at checkout)
+    const taxRate = 0.05;
+    const taxLabel = 'VAT (5%)';
+    const taxAmount = basePrice * taxRate;
+
+    // Shipping is included in base price
+    const total = basePrice + taxAmount;
+
+    return {
+      currency: '$',
+      basePrice,
+      customization: 0,
+      taxLabel,
+      taxRate,
+      taxAmount,
+      shipping: 0, // Included in base price
+      total
+    };
+  };
+
+  // Format currency
+  const formatCurrency = (amount: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
   };
 
   const getCardGradient = () => {
-    const selectedColor = colors.find(c => c.id === formData.color);
-    console.log('Selected color:', formData.color, 'Gradient:', selectedColor?.gradient);
-    return selectedColor?.gradient || 'from-black to-gray-900';
+    const selectedColor = allColours.find(c => c.value === formData.colour);
+    return selectedColor?.gradient || 'from-gray-200 to-gray-300';
+  };
+
+  const getTextColor = () => {
+    // Return white text for dark backgrounds, black for light backgrounds
+    const darkBackgrounds = ['black-pvc', 'black-metal', 'cherry', 'rose-gold'];
+    if (formData.colour && darkBackgrounds.includes(formData.colour)) {
+      return 'text-white';
+    }
+    return 'text-gray-900';
   };
 
   const handleContinue = () => {
@@ -78,315 +209,471 @@ export default function ConfigureNewPage() {
       alert('Please enter both first and last name');
       return;
     }
-    
+
+    if (!formData.baseMaterial || !formData.texture || !formData.colour || !formData.pattern) {
+      alert('Please complete all configuration options');
+      return;
+    }
+
     // Create clean data object for storage
     const configData = {
       firstName: formData.firstName.trim(),
       lastName: formData.lastName.trim(),
       baseMaterial: formData.baseMaterial,
       texture: formData.texture,
-      pattern: formData.pattern,
-      color: formData.color
+      colour: formData.colour,
+      pattern: formData.pattern
     };
-    
+
     console.log('Configure: Saving data to localStorage:', configData);
-    
+
     // Save to localStorage and redirect to checkout
     localStorage.setItem('nfcConfig', JSON.stringify(configData));
-    
+
     // Verify the data was saved correctly
     const savedData = localStorage.getItem('nfcConfig');
     console.log('Configure: Verified saved data:', savedData);
-    
+
     router.push('/nfc/checkout');
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Configure Your NFC Card</h1>
-          <p className="text-gray-600">Personalize every aspect of your business card</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      {/* Modern Header */}
+      <div className="bg-white border-b border-gray-100 sticky top-16 z-40 backdrop-blur-lg bg-opacity-90">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Configure Your NFC Card</h1>
+              <p className="text-sm text-gray-600 mt-1">Craft your perfect digital business card</p>
+            </div>
+            <div className="hidden sm:flex items-center space-x-2">
+              <div className="flex items-center space-x-1">
+                <div className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center text-xs font-semibold">1</div>
+                <div className="w-16 h-0.5 bg-gray-300"></div>
+                <div className="w-8 h-8 rounded-full bg-gray-300 text-gray-500 flex items-center justify-center text-xs font-semibold">2</div>
+                <div className="w-16 h-0.5 bg-gray-300"></div>
+                <div className="w-8 h-8 rounded-full bg-gray-300 text-gray-500 flex items-center justify-center text-xs font-semibold">3</div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Form Section - Second on All Screens */}
-          <div className="space-y-8 order-2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Configuration Section - Left Side */}
+          <div className="lg:col-span-7 space-y-4 order-2 lg:order-1">
 
-            {/* Step 1: Personalize Name */}
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Personalize Your Name</h2>
-                <p className="text-gray-600 mb-8">
-                  Enter your name as you'd like it to appear on your card. It will be automatically formatted.
+            {/* Step 1: Personalize Name - Compact Modern Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-red-500 to-red-600 px-6 py-3">
+                <h2 className="text-lg font-semibold text-white flex items-center">
+                  <span className="mr-2">👤</span> Personalize Your Name
+                </h2>
+              </div>
+              <div className="p-6">
+                <p className="text-sm text-gray-600 mb-4">
+                  Your name will appear on the card exactly as entered
                 </p>
-
-                <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Jane"
-                      value={formData.firstName}
-                      onChange={(e) => {
-                        const newFormData = {...formData, firstName: e.target.value};
-                        setFormData(newFormData);
-                        console.log('First name updated:', newFormData);
-                      }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500"
-                    />
-                    <div className="text-right text-sm text-gray-500 mt-1">
-                      {formData.firstName.length} / 15
+                    <label className="block text-xs font-medium text-gray-700 mb-1.5">First Name</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="e.g. John"
+                        value={formData.firstName}
+                        onChange={(e) => {
+                          const newFormData = {...formData, firstName: e.target.value};
+                          setFormData(newFormData);
+                        }}
+                        maxLength={15}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-sm"
+                      />
+                      <span className="absolute right-2 top-2 text-xs text-gray-400">
+                        {formData.firstName.length}/15
+                      </span>
                     </div>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Doe"
-                      value={formData.lastName}
-                      onChange={(e) => {
-                        const newFormData = {...formData, lastName: e.target.value};
-                        setFormData(newFormData);
-                        console.log('Last name updated:', newFormData);
-                      }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500"
-                    />
-                    <div className="text-right text-sm text-gray-500 mt-1">
-                      {formData.lastName.length} / 15
+                    <label className="block text-xs font-medium text-gray-700 mb-1.5">Last Name</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="e.g. Doe"
+                        value={formData.lastName}
+                        onChange={(e) => {
+                          const newFormData = {...formData, lastName: e.target.value};
+                          setFormData(newFormData);
+                        }}
+                        maxLength={15}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-sm"
+                      />
+                      <span className="absolute right-2 top-2 text-xs text-gray-400">
+                        {formData.lastName.length}/15
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Step 2: Select Base Material */}
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Select Base Material</h2>
-                <p className="text-gray-600 mb-8">Each material offers a unique feel and finish.</p>
-
-                <div className="space-y-4">
-                  {materials.map((material) => (
-                    <div
-                      key={material.id}
-                      onClick={() => setFormData({...formData, baseMaterial: material.id as any})}
-                      className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        formData.baseMaterial === material.id
-                          ? 'border-red-500 bg-red-50'
-                          : 'border-gray-200 hover:border-gray-300'
+            {/* Step 2: Base Material - Modern Grid */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-gray-700 to-gray-800 px-6 py-3">
+                <h2 className="text-lg font-semibold text-white flex items-center">
+                  <span className="mr-2">🎨</span> Base Material
+                </h2>
+              </div>
+              <div className="p-4">
+                <div className="grid grid-cols-3 gap-3">
+                  {baseMaterials.map((material) => (
+                    <button
+                      key={material.value}
+                      onClick={() => handleBaseMaterialChange(material.value)}
+                      className={`relative p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                        formData.baseMaterial === material.value
+                          ? 'border-red-500 bg-red-50 shadow-md scale-105'
+                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{material.name}</h3>
-                          <p className="text-sm text-gray-600">{material.description}</p>
+                      {formData.baseMaterial === material.value && (
+                        <div className="absolute top-2 right-2">
+                          <Check className="h-4 w-4 text-red-500" />
                         </div>
-                        <div className="text-xl font-bold text-gray-900">${material.price}</div>
+                      )}
+                      <div className="text-center">
+                        <h3 className="font-semibold text-gray-900 text-sm">{material.label}</h3>
+                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{material.description}</p>
+                        <div className="mt-3 text-lg font-bold text-gray-900">${prices[material.value]}</div>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
-
-                <div className="mt-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Texture</h3>
-                  <div className="space-y-4">
-                    {textures.map((texture) => (
-                      <div
-                        key={texture.id}
-                        onClick={() => setFormData({...formData, texture: texture.id as any})}
-                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                          formData.texture === texture.id
-                            ? 'border-red-500 bg-red-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <h4 className="font-semibold text-gray-900">{texture.name}</h4>
-                        <p className="text-sm text-gray-600">{texture.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
 
-            {/* Step 3: Choose Design */}
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Choose Design</h2>
-                <p className="text-gray-600 mb-8">Select pattern and color for your card's background.</p>
+            {/* Combined Texture & Colour in One Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-3">
+                <h2 className="text-lg font-semibold text-white flex items-center">
+                  <span className="mr-2">✨</span> Texture & Colour
+                </h2>
+              </div>
 
-                <div className="space-y-8">
-                  {/* Pattern Selection */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Pattern</h3>
-                    <div className="grid grid-cols-4 gap-3">
-                      {patterns.map((pattern) => (
-                        <div
-                          key={pattern.id}
-                          onClick={() => setFormData({...formData, pattern: pattern.id})}
-                          className={`aspect-square border-2 rounded-lg cursor-pointer flex items-center justify-center ${
-                            formData.pattern === pattern.id
-                              ? 'border-red-500 bg-red-50'
-                              : 'border-gray-200 hover:border-gray-300'
+              <div className="p-4 space-y-4">
+                {/* Texture Section */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Texture</h3>
+                  <div className="grid grid-cols-4 gap-2">
+                    {allTextures.map((texture) => {
+                      const isAvailable = isTextureAvailable(texture.value);
+                      const isSelected = formData.texture === texture.value;
+
+                      return (
+                        <button
+                          key={texture.value}
+                          onClick={() => handleTextureChange(texture.value)}
+                          disabled={!isAvailable}
+                          className={`relative p-3 border rounded-lg transition-all ${
+                            !isAvailable
+                              ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-100'
+                              : isSelected
+                                ? 'border-red-500 bg-red-50 shadow-sm'
+                                : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                           }`}
                         >
-                          <div className="w-8 h-8 bg-gray-300 rounded"></div>
-                        </div>
-                      ))}
-                    </div>
+                          {isSelected && isAvailable && (
+                            <Check className="absolute top-1 right-1 h-3 w-3 text-red-500" />
+                          )}
+                          <div className="text-center">
+                            <h4 className={`text-xs font-medium ${!isAvailable ? 'text-gray-500' : 'text-gray-900'}`}>
+                              {texture.label}
+                            </h4>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
+                </div>
 
-                  {/* Color Selection */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Color</h3>
-                    <div className="flex space-x-4">
-                      {colors.map((color) => (
-                        <div
-                          key={color.id}
-                          onClick={() => setFormData({...formData, color: color.id as any})}
-                          className={`flex flex-col items-center cursor-pointer transition-all ${
-                            formData.color === color.id ? 'opacity-100 scale-110' : 'opacity-60 hover:opacity-80'
-                          }`}
+                {/* Colour Section */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Colour</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {allColours.map((colour) => {
+                      const isAvailable = isColourAvailable(colour.value);
+                      const isSelected = formData.colour === colour.value;
+
+                      return (
+                        <button
+                          key={colour.value}
+                          onClick={() => handleColourChange(colour.value)}
+                          disabled={!isAvailable}
+                          className={`relative group ${!isAvailable ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                           <div
-                            className={`w-12 h-12 rounded-full border-4 transition-all ${
-                              formData.color === color.id ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-200'
+                            className={`w-14 h-14 rounded-xl border-3 transition-all ${
+                              isSelected && isAvailable
+                                ? 'border-red-500 scale-110 shadow-lg'
+                                : !isAvailable
+                                  ? 'border-gray-200 opacity-50'
+                                  : 'border-gray-300 hover:scale-105'
                             }`}
-                            style={{ backgroundColor: color.color }}
-                          ></div>
-                          <div className="text-center mt-2">
-                            <span className="text-sm text-gray-600 block">{color.name}</span>
-                            <span className="text-xs text-gray-500">{color.hex}</span>
+                            style={{
+                              backgroundColor: colour.hex,
+                              opacity: !isAvailable ? 0.5 : 1
+                            }}
+                          >
+                            {isSelected && isAvailable && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Check className="h-6 w-6 text-white drop-shadow-lg" />
+                              </div>
+                            )}
+                          </div>
+                          <span className={`text-xs mt-1 block text-center font-medium ${
+                            !isAvailable ? 'text-gray-500' : 'text-gray-700'
+                          }`}>
+                            {colour.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {!formData.baseMaterial && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <p className="text-xs text-amber-700 flex items-center">
+                      <span className="mr-2">⚠️</span> Select a base material to see available options
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Step 4: Pattern - Modern Compact */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3">
+                <h2 className="text-lg font-semibold text-white flex items-center">
+                  <span className="mr-2">🎭</span> Pattern
+                </h2>
+              </div>
+              <div className="p-4">
+                <div className="grid grid-cols-3 gap-3">
+                  {patterns.map((pattern) => {
+                    const isSelected = formData.pattern === pattern.id;
+
+                    return (
+                      <button
+                        key={pattern.id}
+                        onClick={() => handlePatternChange(pattern.id)}
+                        className={`relative p-3 border-2 rounded-xl transition-all ${
+                          isSelected
+                            ? 'border-red-500 bg-red-50 shadow-md scale-105'
+                            : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                        }`}
+                      >
+                        {isSelected && (
+                          <Check className="absolute top-2 right-2 h-4 w-4 text-red-500" />
+                        )}
+                        <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-2 flex items-center justify-center">
+                          <span className="text-gray-600 text-xs font-medium">{pattern.name}</span>
+                        </div>
+                        <span className="text-xs font-medium text-gray-700">{pattern.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Preview & Pricing Section - Right Side Sticky */}
+          <div className="lg:col-span-5 order-1 lg:order-2">
+            <div className="sticky top-32 space-y-4">
+              {/* Card Preview - Compact Modern */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-3">
+                  <h3 className="text-lg font-semibold text-white">Live Preview</h3>
+                </div>
+                <div className="p-4 space-y-4">
+                  {/* Front Card */}
+                  <div>
+                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                      {/* AI Logo top right */}
+                      <div className="absolute top-4 right-4">
+                        <div className={`${getTextColor() === 'text-white' ? 'bg-gray-800 bg-opacity-50' : 'bg-white bg-opacity-70'} rounded-lg px-2 py-1 ${getTextColor() === 'text-white' ? 'text-white' : 'text-gray-900'} text-xs font-semibold`}>
+                          AI
+                        </div>
+                      </div>
+
+                      {/* User Initials or Name */}
+                      <div className="absolute bottom-6 left-6">
+                        {(() => {
+                          const firstName = formData.firstName?.trim() || '';
+                          const lastName = formData.lastName?.trim() || '';
+                          const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+
+                          if (isSingleCharOnly) {
+                            return (
+                              <div className={`${getTextColor()} text-2xl font-light`}>
+                                {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div className={`${getTextColor()} text-base font-medium`}>
+                                {firstName} {lastName}
+                              </div>
+                            );
+                          }
+                        })()}
+                      </div>
+                    </div>
+                    <div className="text-center text-sm text-gray-600">Front</div>
+                  </div>
+
+                  {/* Back Card */}
+                  <div>
+                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                      {/* Linkist Logo Center */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <div className={`${getTextColor() === 'text-white' ? 'bg-white bg-opacity-90' : 'bg-gray-900 bg-opacity-90'} p-3 rounded-lg mb-3`}>
+                          <img
+                            src="/logo_linkist.png"
+                            alt="Linkist"
+                            className="h-12 w-auto"
+                          />
+                        </div>
+                        <div className={`${getTextColor()} text-sm font-medium tracking-wider`}>FOUNDING MEMBER</div>
+                      </div>
+
+                      {/* NFC Symbol bottom right */}
+                      <div className="absolute bottom-4 right-4">
+                        <div className={`${getTextColor()} text-lg`}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 7v10m12-10v10M9 9h6m-6 6h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                            <path d="M3 12h2m14 0h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-center text-sm text-gray-600 mt-2">Back</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Detailed Price Breakdown */}
+              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 overflow-hidden">
+                <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-4 py-2">
+                  <h3 className="text-sm font-semibold text-white">Price Breakdown</h3>
+                </div>
+                <div className="p-4">
+                  {(() => {
+                    const priceSummary = calculatePriceSummary();
+                    const hasBase = formData.baseMaterial !== null;
+
+                    return (
+                      <div className="space-y-2 text-sm">
+                        {/* Base Price */}
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700">Base Price</span>
+                          <span className="font-semibold text-gray-900">
+                            {hasBase ? formatCurrency(getPrice()) : '—'}
+                          </span>
+                        </div>
+
+                        {/* Customization - Show as included */}
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700">Customization</span>
+                          <span className="text-green-600 font-medium">Included</span>
+                        </div>
+
+                        {/* Shipping - Show as included */}
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700">Shipping</span>
+                          <span className="text-green-600 font-medium">Included</span>
+                        </div>
+
+                        {/* Tax */}
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700">
+                            {priceSummary ? priceSummary.taxLabel : 'VAT (5%)'}
+                          </span>
+                          <span className="font-semibold text-gray-900">
+                            {priceSummary ? formatCurrency(priceSummary.taxAmount) : '—'}
+                          </span>
+                        </div>
+
+                        {/* Total */}
+                        <div className="border-t pt-2 mt-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-bold text-gray-900">Total</span>
+                            <span className={`text-xl font-bold ${priceSummary ? 'text-red-500' : 'text-gray-400'}`}>
+                              {priceSummary ? formatCurrency(priceSummary.total) : '—'}
+                            </span>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+
+                        {/* Info about India GST */}
+                        <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                          <p className="text-xs text-blue-700">
+                            ℹ️ GST (18%) will apply for deliveries to India
+                          </p>
+                        </div>
+
+                        {/* Warning about incomplete selections */}
+                        {(() => {
+                          const missingItems = [];
+                          if (!formData.firstName?.trim() || !formData.lastName?.trim()) {
+                            missingItems.push('Name');
+                          }
+                          if (!formData.baseMaterial) {
+                            missingItems.push('Base Material');
+                          }
+                          if (!formData.texture) {
+                            missingItems.push('Texture');
+                          }
+                          if (!formData.colour) {
+                            missingItems.push('Colour');
+                          }
+                          if (!formData.pattern) {
+                            missingItems.push('Pattern');
+                          }
+
+                          if (missingItems.length > 0) {
+                            return (
+                              <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                                <p className="text-xs text-amber-700">
+                                  ⚠️ Please select: <span className="font-semibold">{missingItems.join(', ')}</span>
+                                </p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </div>
+                    );
+                  })()}
+
+                  <button
+                    onClick={handleContinue}
+                    disabled={!formData.baseMaterial || !formData.texture || !formData.colour || !formData.pattern || !formData.firstName?.trim() || !formData.lastName?.trim()}
+                    className={`w-full mt-4 px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
+                      formData.baseMaterial && formData.texture && formData.colour && formData.pattern && formData.firstName?.trim() && formData.lastName?.trim()
+                        ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-lg transform hover:-translate-y-0.5'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    Continue to Checkout →
+                  </button>
                 </div>
-              </div>
-            </div>
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-center pt-8">
-              <button
-                onClick={handleContinue}
-                className="px-8 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors"
-              >
-                Continue to Checkout
-              </button>
-            </div>
-          </div>
-
-          {/* Preview & Pricing Section - First on All Screens */}
-          <div className="space-y-8 order-1">
-            {/* Card Preview */}
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Live Preview</h3>
-              {/* Debug info */}
-              {process.env.NODE_ENV === 'development' && (
-                <div className="text-xs text-gray-500 mb-2">
-                  Debug: {formData.firstName} {formData.lastName} → {(formData.firstName?.substring(0, 1) || 'B').toUpperCase()}{(formData.lastName?.substring(0, 1) || 'T').toUpperCase()}
-                </div>
-              )}
-              
-              {/* Front Card */}
-              <div className="space-y-4">
-                <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                  {/* AI Logo top right */}
-                  <div className="absolute top-4 right-4">
-                    <div className="bg-gray-600 bg-opacity-70 rounded-lg px-2 py-1 text-white text-xs font-semibold">
-                      AI
-                    </div>
-                  </div>
-                  
-                  {/* User Initials or Name */}
-                  <div className="absolute bottom-6 left-6">
-                    {(() => {
-                      const firstName = formData.firstName?.trim() || '';
-                      const lastName = formData.lastName?.trim() || '';
-
-                      // Check if both are single characters (initials only)
-                      const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
-
-                      if (isSingleCharOnly) {
-                        // Show only initials (large)
-                        return (
-                          <div className="text-white text-2xl font-light">
-                            {(firstName || 'B').toUpperCase()}{(lastName || 'K').toUpperCase()}
-                          </div>
-                        );
-                      } else {
-                        // Show full name
-                        return (
-                          <div className="text-white text-base font-medium">
-                            {firstName} {lastName}
-                          </div>
-                        );
-                      }
-                    })()}
-                  </div>
-                </div>
-                <div className="text-center text-sm text-gray-600">Front</div>
-              </div>
-
-              {/* Back Card */}
-              <div className="space-y-4 mt-6">
-                <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                  {/* Linkist Logo Center */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <img
-                      src="/logo_linkist.png"
-                      alt="Linkist"
-                      className="h-16 w-auto mb-3"
-                    />
-                    <div className="text-gray-400 text-sm font-medium tracking-wider">FOUNDING MEMBER</div>
-                  </div>
-                  
-                  {/* NFC Symbol bottom right */}
-                  <div className="absolute bottom-4 right-4">
-                    <div className="text-white text-lg">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 7v10m12-10v10M9 9h6m-6 6h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                        <path d="M3 12h2m14 0h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-center text-sm text-gray-600">Back</div>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Pricing Summary - Bottom of Page */}
-        <div className="mt-8 max-w-2xl mx-auto">
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Pricing Summary</h3>
-
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Base Price (Premium Card)</span>
-                  <span className="font-medium">${getPrice().toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">VAT (@5%)</span>
-                  <span className="font-medium">included</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Shipping (Within UAE)</span>
-                  <span className="font-medium">included</span>
-                </div>
-                <div className="border-t pt-3">
-                  <div className="flex justify-between">
-                    <span className="text-lg font-semibold">Total Price</span>
-                    <span className="text-lg font-bold text-red-500">${getPrice().toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
         </div>
       </div>
     </div>

@@ -1,0 +1,225 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Linkist" [ref=e4] [cursor=pointer]:
+        - /url: /landing
+        - img "Linkist" [ref=e5] [cursor=pointer]
+      - generic [ref=e6]:
+        - link "Templates" [ref=e7] [cursor=pointer]:
+          - /url: /templates
+        - link "Pricing" [ref=e8] [cursor=pointer]:
+          - /url: /landing#pricing
+        - link "Founding Member" [ref=e9] [cursor=pointer]:
+          - /url: /founding-member
+        - link "Features" [ref=e10] [cursor=pointer]:
+          - /url: /landing#features
+        - link "New Card" [ref=e11] [cursor=pointer]:
+          - /url: /welcome-to-linkist
+        - link "Login" [ref=e12] [cursor=pointer]:
+          - /url: /login
+        - link "Get Started" [ref=e13] [cursor=pointer]:
+          - /url: /register
+  - main [ref=e14]:
+    - generic [ref=e15]:
+      - img "Linkist" [ref=e18]
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - heading "Choose Your Linkist Experience" [level=1] [ref=e21]
+          - paragraph [ref=e22]: Select the perfect plan for your professional networking needs
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - generic [ref=e26]: MOST POPULAR
+            - generic [ref=e27]:
+              - img [ref=e29]
+              - heading "Physical NFC Card + Linkist App" [level=3] [ref=e31]
+              - paragraph [ref=e32]: 1 year subscription & AI Credits
+              - generic [ref=e33]:
+                - paragraph [ref=e34]: $29
+                - paragraph [ref=e35]: Most Popular
+              - list [ref=e36]:
+                - listitem [ref=e37]:
+                  - img [ref=e38]
+                  - generic [ref=e40]: Premium NFC Card
+                - listitem [ref=e41]:
+                  - img [ref=e42]
+                  - generic [ref=e44]: Linkist App Access (1 Year)
+                - listitem [ref=e45]:
+                  - img [ref=e46]
+                  - generic [ref=e48]: AI Credits worth $50
+                - listitem [ref=e49]:
+                  - img [ref=e50]
+                  - generic [ref=e52]: Unlimited Profile Updates
+                - listitem [ref=e53]:
+                  - img [ref=e54]
+                  - generic [ref=e56]: Analytics Dashboard
+                - listitem [ref=e57]:
+                  - img [ref=e58]
+                  - generic [ref=e60]: Priority Support
+              - button "Select This Plan" [ref=e61]
+          - generic [ref=e63]:
+            - img [ref=e65]
+            - heading "Digital Profile + Linkist App" [level=3] [ref=e67]
+            - paragraph [ref=e68]: 1 year subscription & AI Credits
+            - generic [ref=e69]:
+              - paragraph [ref=e70]: $19
+              - paragraph [ref=e71]: Best Value
+            - list [ref=e72]:
+              - listitem [ref=e73]:
+                - img [ref=e74]
+                - generic [ref=e76]: Digital Business Card
+              - listitem [ref=e77]:
+                - img [ref=e78]
+                - generic [ref=e80]: Linkist App Access (1 Year)
+              - listitem [ref=e81]:
+                - img [ref=e82]
+                - generic [ref=e84]: AI Credits worth $30
+              - listitem [ref=e85]:
+                - img [ref=e86]
+                - generic [ref=e88]: Unlimited Profile Updates
+              - listitem [ref=e89]:
+                - img [ref=e90]
+                - generic [ref=e92]: Analytics Dashboard
+              - listitem [ref=e93]:
+                - img [ref=e94]
+                - generic [ref=e96]: Email Support
+            - button "Select This Plan" [ref=e97]
+          - generic [ref=e99]:
+            - img [ref=e101]
+            - heading "Digital Profile Only" [level=3] [ref=e104]
+            - paragraph [ref=e105]: Without Linkist App & AI credits
+            - generic [ref=e106]:
+              - paragraph [ref=e107]: $9
+              - paragraph [ref=e108]: Basic
+            - list [ref=e109]:
+              - listitem [ref=e110]:
+                - img [ref=e111]
+                - generic [ref=e113]: Digital Business Card
+              - listitem [ref=e114]:
+                - img [ref=e115]
+                - generic [ref=e117]: Basic Profile
+              - listitem [ref=e118]:
+                - img [ref=e119]
+                - generic [ref=e121]: Limited Updates (5/month)
+              - listitem [ref=e122]:
+                - img [ref=e123]
+                - generic [ref=e125]: QR Code Generation
+              - listitem [ref=e126]:
+                - img [ref=e127]
+                - generic [ref=e129]: Basic Analytics
+              - listitem [ref=e130]:
+                - img [ref=e131]
+                - generic [ref=e133]: Community Support
+            - button "Select This Plan" [ref=e134]
+        - generic [ref=e135]:
+          - paragraph [ref=e136]: Need help choosing? All plans include a 30-day money-back guarantee.
+          - paragraph [ref=e137]: Prices may vary based on your location and selected features.
+        - button "← Go Back" [ref=e139]
+  - contentinfo [ref=e140]:
+    - generic [ref=e141]:
+      - generic [ref=e142]:
+        - generic [ref=e143]:
+          - heading "Products" [level=3] [ref=e144]
+          - list [ref=e145]:
+            - listitem [ref=e146]:
+              - link "Linkist Card" [ref=e147] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e148]:
+              - link "Premium Card" [ref=e149] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e150]:
+              - link "Business Card" [ref=e151] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e152]:
+              - link "Student Card" [ref=e153] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e154]:
+              - link "Family Cards" [ref=e155] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e156]:
+          - heading "Services" [level=3] [ref=e157]
+          - list [ref=e158]:
+            - listitem [ref=e159]:
+              - link "Banking" [ref=e160] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e161]:
+              - link "Investments" [ref=e162] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e163]:
+              - link "Loans" [ref=e164] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e165]:
+              - link "Insurance" [ref=e166] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e167]:
+              - link "Rewards Program" [ref=e168] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e169]:
+          - heading "Support" [level=3] [ref=e170]
+          - list [ref=e171]:
+            - listitem [ref=e172]:
+              - link "Help Center" [ref=e173] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e174]:
+              - link "Contact Us" [ref=e175] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e176]:
+              - link "Security" [ref=e177] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e178]:
+              - link "Card Activation" [ref=e179] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e180]:
+              - link "Report Fraud" [ref=e181] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e182]:
+          - heading "Company" [level=3] [ref=e183]
+          - list [ref=e184]:
+            - listitem [ref=e185]:
+              - link "About Linkist" [ref=e186] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e187]:
+              - link "Careers" [ref=e188] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e189]:
+              - link "Press" [ref=e190] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e191]:
+              - link "Investors" [ref=e192] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=e193]:
+              - link "Sustainability" [ref=e194] [cursor=pointer]:
+                - /url: "#"
+      - generic [ref=e195]:
+        - generic [ref=e196]: Linkist
+        - generic [ref=e197]:
+          - link "Privacy Policy" [ref=e198] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms of Service" [ref=e199] [cursor=pointer]:
+            - /url: /terms
+          - link "Security" [ref=e200] [cursor=pointer]:
+            - /url: "#"
+          - link "Accessibility" [ref=e201] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=e202]: © 2025 Linkist Inc. All rights reserved.
+  - button "Open Next.js Dev Tools" [ref=e208] [cursor=pointer]:
+    - img [ref=e209] [cursor=pointer]
+  - alert [ref=e212]
+  - generic [ref=e215]:
+    - generic [ref=e216]:
+      - img [ref=e217]
+      - generic [ref=e219]:
+        - heading "We value your privacy" [level=3] [ref=e220]
+        - paragraph [ref=e221]:
+          - text: We use cookies and similar technologies to enhance your experience, analyze usage, and deliver personalized content. By clicking "Accept All", you consent to our use of cookies.
+          - link "Learn more in our Privacy Policy" [ref=e222] [cursor=pointer]:
+            - /url: /privacy
+    - generic [ref=e223]:
+      - button "Customize" [ref=e224]:
+        - img [ref=e225]
+        - text: Customize
+      - button "Reject All" [ref=e228]
+      - button "Accept All" [ref=e229]
+```

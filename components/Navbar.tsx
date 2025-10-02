@@ -81,6 +81,12 @@ export default function Navbar() {
                 Features
               </Link>
               <Link
+                href="/welcome-to-linkist"
+                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+              >
+                New Card
+              </Link>
+              <Link
                 href="/login"
                 className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
               >
@@ -102,7 +108,7 @@ export default function Navbar() {
                 Templates
               </Link>
               <Link
-                href="/product-selection"
+                href="/welcome-to-linkist"
                 className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
               >
                 New Card
@@ -168,6 +174,13 @@ export default function Navbar() {
                   Features
                 </Link>
                 <Link
+                  href="/welcome-to-linkist"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  New Card
+                </Link>
+                <Link
                   href="/login"
                   className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -218,7 +231,7 @@ export default function Navbar() {
                   Templates
                 </Link>
                 <Link
-                  href="/product-selection"
+                  href="/welcome-to-linkist"
                   className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >

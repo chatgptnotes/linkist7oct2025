@@ -16,13 +16,19 @@ function VerifyMobileContent() {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [success, setSuccess] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  const [otpSent, setOtpSent] = useState(false);
 
   useEffect(() => {
     const phoneParam = searchParams.get('phone');
-    if (phoneParam) {
+    if (phoneParam && !otpSent) {
       setPhone(phoneParam);
+      setOtpSent(true);
+      // Automatically trigger OTP sending when phone is provided
+      setTimeout(() => {
+        handleSendOtpWithPhone(phoneParam);
+      }, 500);
     }
-  }, [searchParams]);
+  }, [searchParams, otpSent]);
 
   useEffect(() => {
     if (resendTimer > 0) {
@@ -36,8 +42,8 @@ function VerifyMobileContent() {
     return phoneRegex.test(phone);
   };
 
-  const handleSendOtp = async () => {
-    if (!validatePhone(phone)) {
+  const handleSendOtpWithPhone = async (phoneNumber: string) => {
+    if (!validatePhone(phoneNumber)) {
       setError('Please enter a valid phone number');
       return;
     }
@@ -51,7 +57,7 @@ function VerifyMobileContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ mobile: phone }),
+        body: JSON.stringify({ mobile: phoneNumber }),
       });
 
       const data = await response.json();
@@ -73,6 +79,10 @@ function VerifyMobileContent() {
     } finally {
       setSendingOtp(false);
     }
+  };
+
+  const handleSendOtp = async () => {
+    await handleSendOtpWithPhone(phone);
   };
 
   const handleOtpChange = (index: number, value: string) => {
@@ -133,7 +143,7 @@ function VerifyMobileContent() {
       localStorage.setItem('mobileVerified', 'true');
 
       setTimeout(() => {
-        router.push('/account/set-pin');
+        router.push('/product-selection');
       }, 2000);
 
     } catch (err) {
@@ -316,26 +326,31 @@ function VerifyMobileContent() {
             </div>
           )}
 
-          {/* Skip Option */}
+          {/* Verify Email Instead */}
           <div className="mt-8 pt-8 border-t border-gray-200">
             <button
               onClick={() => {
-                const productSelection = localStorage.getItem('productSelection');
-                const pinSet = localStorage.getItem('pinSet');
-
-                if (!pinSet) {
-                  router.push('/account/set-pin');
-                } else if (productSelection === 'physical-digital') {
-                  router.push('/nfc/configure');
-                } else if (productSelection === 'digital-only') {
-                  router.push('/nfc/digital-profile');
+                // Get user email from profile
+                const userProfile = localStorage.getItem('userProfile');
+                if (userProfile) {
+                  try {
+                    const profile = JSON.parse(userProfile);
+                    if (profile.email) {
+                      // Redirect to email verification with email as parameter
+                      router.push(`/verify-login?email=${encodeURIComponent(profile.email)}`);
+                    } else {
+                      router.push('/verify-login');
+                    }
+                  } catch (error) {
+                    router.push('/verify-login');
+                  }
                 } else {
-                  router.push('/account');
+                  router.push('/verify-login');
                 }
               }}
-              className="w-full text-gray-500 hover:text-gray-700 font-medium py-3 transition-colors"
+              className="w-full bg-red-600 text-white text-lg font-semibold px-6 py-4 rounded-xl hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
             >
-              Skip for Now
+              Verify Email Instead
             </button>
           </div>
         </div>
