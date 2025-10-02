@@ -9,6 +9,13 @@ export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
 
+    console.log('🔐 Admin login attempt:', {
+      receivedEmail: email,
+      receivedPasswordLength: password?.length,
+      expectedEmail: ADMIN_EMAIL,
+      expectedPasswordLength: ADMIN_PASSWORD.length
+    })
+
     if (!email || !password) {
       return NextResponse.json(
         { success: false, error: 'Email and password are required' },
@@ -16,8 +23,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify admin credentials
-    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+    // Verify admin credentials with detailed logging
+    const emailMatch = email === ADMIN_EMAIL
+    const passwordMatch = password === ADMIN_PASSWORD
+
+    console.log('🔍 Credential check:', { emailMatch, passwordMatch })
+
+    if (!emailMatch || !passwordMatch) {
       console.log(`❌ Invalid admin credentials attempt: ${email}`)
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
