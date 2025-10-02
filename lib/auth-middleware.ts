@@ -10,7 +10,7 @@ const AUTH_CONFIG = {
   // Protected user routes  
   protectedRoutes: ['/account', '/dashboard'],
   // Public routes that don't need auth
-  publicRoutes: ['/', '/login', '/signup', '/nfc/configure', '/nfc/checkout', '/nfc/success'],
+  publicRoutes: ['/', '/landing', '/login', '/register', '/signup', '/verify-login', '/nfc/configure', '/nfc/checkout', '/nfc/success'],
   // API routes that need admin access
   adminApiRoutes: ['/api/admin'],
   // API routes that need user auth
@@ -90,25 +90,7 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
       }
     }
 
-    // 🚨 TESTING BYPASS - RETURN TEST USER 🚨
-    const testUser: AuthUser = {
-      id: '7d249956-d4d3-429c-accb-4447d263ef9e', // Real user ID for database compatibility
-      email: 'cmd@hopehospital.com',
-      role: 'user',
-      email_verified: true,
-      mobile_verified: false,
-      created_at: new Date().toISOString(),
-    }
-
-    return {
-      user: testUser,
-      isAuthenticated: true,
-      isAdmin: false,
-      sessionId: 'test-session',
-    }
-    // END TESTING BYPASS
-
-    // Then check for regular Supabase user session
+    // Check for regular Supabase user session
     const { supabase, response } = createMiddlewareClient(request)
     
     // Get the current user from Supabase
@@ -204,10 +186,6 @@ export async function authMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   console.log(`🔐 Auth middleware: ${pathname}`)
-
-  // 🚨 BYPASS AUTH FOR TESTING - REMOVE IN PRODUCTION 🚨
-  console.log(`⚠️  AUTH BYPASSED - ALL ROUTES ALLOWED FOR TESTING`)
-  return NextResponse.next()
 
   // Skip auth for public routes and static files
   if (
