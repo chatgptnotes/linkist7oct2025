@@ -89,15 +89,21 @@ export async function POST(request: NextRequest) {
     });
 
     // Set HTTP-only session cookie
-    response.cookies.set('session', sessionId, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
       maxAge: 30 * 24 * 60 * 60, // 30 days
       path: '/'
+    };
+
+    response.cookies.set('session', sessionId, cookieOptions);
+
+    console.log('✅ Session cookie set:', {
+      sessionId,
+      cookieOptions,
+      nodeEnv: process.env.NODE_ENV
     });
-    
-    console.log('🔍 Set session cookie:', sessionId);
 
     return response;
 

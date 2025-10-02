@@ -93,8 +93,11 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
 
     // Check for custom session cookie (from OTP login)
     const customSessionId = request.cookies.get('session')?.value
+    console.log('🔍 Checking custom session cookie:', customSessionId ? 'Found' : 'Not found')
+
     if (customSessionId) {
       const sessionData = await SessionStore.get(customSessionId)
+      console.log('🔍 Session data from DB:', sessionData ? 'Found' : 'Not found')
 
       if (sessionData) {
         const sessionUser: AuthUser = {
@@ -105,6 +108,7 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
           created_at: new Date(sessionData.createdAt).toISOString(),
         }
 
+        console.log('✅ Custom session valid for:', sessionData.email)
         return {
           user: sessionUser,
           isAuthenticated: true,
