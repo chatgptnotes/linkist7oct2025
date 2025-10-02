@@ -48,16 +48,28 @@ export default function Navbar() {
           {!isLoggedIn ? (
             <>
               <Link
-                href="#"
+                href="/templates"
                 className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
               >
-                About
+                Templates
               </Link>
               <Link
-                href="#"
+                href="/landing#pricing"
                 className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
               >
-                Support
+                Pricing
+              </Link>
+              <Link
+                href="/founding-member"
+                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+              >
+                Founding Member
+              </Link>
+              <Link
+                href="/landing#features"
+                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+              >
+                Features
               </Link>
               <Link
                 href="/login"
@@ -66,7 +78,7 @@ export default function Navbar() {
                 Login
               </Link>
               <Link
-                href="/login"
+                href="/register"
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-base font-semibold transition-colors duration-300"
               >
                 Get Started
@@ -75,10 +87,22 @@ export default function Navbar() {
           ) : (
             <>
               <Link
+                href="/templates"
+                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+              >
+                Templates
+              </Link>
+              <Link
                 href="/account"
                 className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
               >
                 Dashboard
+              </Link>
+              <Link
+                href="/product-selection"
+                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+              >
+                New Card
               </Link>
               <button
                 onClick={handleLogout}
@@ -118,18 +142,32 @@ export default function Navbar() {
             {!isLoggedIn ? (
               <>
                 <Link
-                  href="#"
+                  href="/templates"
                   className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  About
+                  Templates
                 </Link>
                 <Link
-                  href="#"
+                  href="/landing#pricing"
                   className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Support
+                  Pricing
+                </Link>
+                <Link
+                  href="/founding-member"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Founding Member
+                </Link>
+                <Link
+                  href="/landing#features"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Features
                 </Link>
                 <Link
                   href="/login"
@@ -139,7 +177,7 @@ export default function Navbar() {
                   Login
                 </Link>
                 <Link
-                  href="/login"
+                  href="/register"
                   className="block bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-300 text-center"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -149,11 +187,25 @@ export default function Navbar() {
             ) : (
               <>
                 <Link
+                  href="/templates"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Templates
+                </Link>
+                <Link
                   href="/account"
                   className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Dashboard
+                </Link>
+                <Link
+                  href="/product-selection"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  New Card
                 </Link>
                 <button
                   onClick={() => {

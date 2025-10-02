@@ -121,19 +121,19 @@ const HeroSection = () => {
             className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Link
-              href="/nfc/configure"
+              href="/templates"
               className="group relative inline-flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:shadow-xl transform transition hover:scale-105"
             >
-              Pre-Order Your Card
+              Browse Templates
               <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <button
-              onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+            <Link
+              href="/founding-member"
               className="inline-flex items-center justify-center rounded-full border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-8 py-4 text-lg font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
             >
-              See How It Works
+              Become a Founding Member
               <ChevronRight className="ml-2 h-5 w-5" />
-            </button>
+            </Link>
           </motion.div>
 
           {/* Trust Indicators */}

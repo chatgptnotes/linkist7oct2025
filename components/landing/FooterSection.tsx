@@ -64,28 +64,28 @@ const FooterSection = () => {
   };
 
   const companyLinks = [
-    { href: '/about', label: 'About Us' },
-    { href: '/careers', label: 'Careers' },
-    { href: '/press', label: 'Press Kit' },
-    { href: '/contact', label: 'Contact' },
-    { href: '/blog', label: 'Blog' },
+    { href: '/founding-member', label: 'Founding Member' },
+    { href: '/templates', label: 'Templates' },
+    { href: '/landing#testimonials', label: 'Testimonials' },
+    { href: '/landing#faq', label: 'FAQ' },
+    { href: '/landing#newsletter', label: 'Newsletter' },
   ];
 
   const productLinks = [
-    { href: '/features', label: 'Features' },
-    { href: '/pricing', label: 'Pricing' },
-    { href: '/how-it-works', label: 'How It Works' },
-    { href: '/card-designs', label: 'Card Designs' },
-    { href: '/digital-profiles', label: 'Digital Profiles' },
+    { href: '/landing#features', label: 'Features' },
+    { href: '/landing#pricing', label: 'Pricing' },
+    { href: '/landing#how-it-works', label: 'How It Works' },
+    { href: '/templates', label: 'Card Templates' },
+    { href: '/founding-member', label: 'Membership' },
   ];
 
   const supportLinks = [
-    { href: '/help', label: 'Help Center' },
-    { href: '/faq', label: 'FAQs' },
-    { href: '/shipping', label: 'Shipping Info' },
-    { href: '/returns', label: 'Returns' },
+    { href: '/register', label: 'Get Started' },
+    { href: '/login', label: 'Login' },
+    { href: '/landing#faq', label: 'FAQs' },
     { href: '/terms', label: 'Terms of Service' },
     { href: '/privacy', label: 'Privacy Policy' },
+    { href: '/account', label: 'My Account' },
   ];
 
   const socialLinks = [

@@ -264,14 +264,14 @@ const PricingSection = () => {
                 <div className="mt-8">
                   {tier.id === 'enterprise' ? (
                     <Link
-                      href="/contact-sales"
+                      href="/founding-member"
                       className={`block w-full rounded-full bg-gradient-to-r ${tier.gradient} py-3 text-center font-semibold text-white shadow-lg hover:shadow-xl transition`}
                     >
                       {tier.cta}
                     </Link>
                   ) : (
                     <Link
-                      href="/nfc/configure"
+                      href="/templates"
                       className={`block w-full rounded-full ${
                         tier.popular
                           ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg hover:shadow-xl'
