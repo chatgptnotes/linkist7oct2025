@@ -70,7 +70,7 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
   try {
     // 🚨 TESTING BYPASS - RETURN TEST USER 🚨
     const testUser: AuthUser = {
-      id: 'test-user-id',
+      id: '7d249956-d4d3-429c-accb-4447d263ef9e', // Real user ID for database compatibility
       email: 'cmd@hopehospital.com',
       role: 'user',
       email_verified: true,
