@@ -68,24 +68,6 @@ function createMiddlewareClient(request: NextRequest) {
 // Get authenticated user from Supabase session
 export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSession> {
   try {
-    // 🚨 TESTING BYPASS - RETURN TEST USER 🚨
-    const testUser: AuthUser = {
-      id: '7d249956-d4d3-429c-accb-4447d263ef9e', // Real user ID for database compatibility
-      email: 'cmd@hopehospital.com',
-      role: 'user',
-      email_verified: true,
-      mobile_verified: false,
-      created_at: new Date().toISOString(),
-    }
-
-    return {
-      user: testUser,
-      isAuthenticated: true,
-      isAdmin: false,
-      sessionId: 'test-session',
-    }
-    // END TESTING BYPASS
-
     // First check for admin session (PIN-based admin access)
     const adminSessionId = request.cookies.get('admin_session')?.value
     const isAdminSession = await verifyAdminSession(adminSessionId)
@@ -107,6 +89,24 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
         sessionId: 'admin-session',
       }
     }
+
+    // 🚨 TESTING BYPASS - RETURN TEST USER 🚨
+    const testUser: AuthUser = {
+      id: '7d249956-d4d3-429c-accb-4447d263ef9e', // Real user ID for database compatibility
+      email: 'cmd@hopehospital.com',
+      role: 'user',
+      email_verified: true,
+      mobile_verified: false,
+      created_at: new Date().toISOString(),
+    }
+
+    return {
+      user: testUser,
+      isAuthenticated: true,
+      isAdmin: false,
+      sessionId: 'test-session',
+    }
+    // END TESTING BYPASS
 
     // Then check for regular Supabase user session
     const { supabase, response } = createMiddlewareClient(request)
