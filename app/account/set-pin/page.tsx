@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Logo from '@/components/Logo';
 import { Check, X } from 'lucide-react';
 
 export default function SetPinPage() {
@@ -138,12 +137,7 @@ export default function SetPinPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <header className="px-6 py-4 border-b border-gray-100">
-        <Logo width={120} height={40} />
-      </header>
-
-      {/* Main Content */}
+      {/* Main Content - removed duplicate header since Navbar already has logo */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
           {/* Title */}
