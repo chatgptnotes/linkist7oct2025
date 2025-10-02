@@ -1,11 +1,41 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Logo from './Logo';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check if user is logged in by checking for session cookie
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          setIsLoggedIn(data.isAuthenticated);
+        }
+      } catch (error) {
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setIsLoggedIn(false);
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 h-16 w-full shadow-sm">
@@ -15,30 +45,49 @@ export default function Navbar() {
 
         {/* Desktop Navigation Items */}
         <div className="hidden md:flex items-center gap-8">
-          <Link 
-            href="#" 
-            className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
-          >
-            About
-          </Link>
-          <Link 
-            href="#" 
-            className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
-          >
-            Support
-          </Link>
-          <Link
-            href="/login"
-            className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
-          >
-            Login
-          </Link>
-          <Link
-            href="/login"
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-base font-semibold transition-colors duration-300"
-          >
-            Get Started
-          </Link>
+          {!isLoggedIn ? (
+            <>
+              <Link
+                href="#"
+                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+              >
+                About
+              </Link>
+              <Link
+                href="#"
+                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+              >
+                Support
+              </Link>
+              <Link
+                href="/login"
+                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+              >
+                Login
+              </Link>
+              <Link
+                href="/login"
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-base font-semibold transition-colors duration-300"
+              >
+                Get Started
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/account"
+                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
+              >
+                Dashboard
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-base font-semibold transition-colors duration-300"
+              >
+                Logout
+              </button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -66,34 +115,57 @@ export default function Navbar() {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-40">
           <div className="px-4 py-4 space-y-4">
-            <Link 
-              href="#" 
-              className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              About
-            </Link>
-            <Link 
-              href="#" 
-              className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Support
-            </Link>
-            <Link
-              href="/login"
-              className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Login
-            </Link>
-            <Link
-              href="/login"
-              className="block bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-300 text-center"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Get Started
-            </Link>
+            {!isLoggedIn ? (
+              <>
+                <Link
+                  href="#"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+                <Link
+                  href="#"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Support
+                </Link>
+                <Link
+                  href="/login"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/login"
+                  className="block bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-300 text-center"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Get Started
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/account"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-300 text-center"
+                >
+                  Logout
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
