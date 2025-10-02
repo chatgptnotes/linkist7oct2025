@@ -105,13 +105,14 @@ export default function ConfigureNewPage() {
     <div className="min-h-screen bg-gray-50">
 
       <div className="max-w-6xl mx-auto px-6 py-12">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Configure Your NFC Card</h1>
+          <p className="text-gray-600">Personalize every aspect of your business card</p>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Left Side - Form */}
-          <div className="space-y-8">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">Configure Your NFC Card</h1>
-              <p className="text-gray-600">Personalize every aspect of your business card</p>
-            </div>
+          {/* Form Section - Second on All Screens */}
+          <div className="space-y-8 order-2">
 
             {/* Step 1: Personalize Name */}
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
@@ -279,8 +280,8 @@ export default function ConfigureNewPage() {
             </div>
           </div>
 
-          {/* Right Side - Preview & Pricing */}
-          <div className="space-y-8">
+          {/* Preview & Pricing Section - First on All Screens */}
+          <div className="space-y-8 order-1">
             {/* Card Preview */}
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Live Preview</h3>
