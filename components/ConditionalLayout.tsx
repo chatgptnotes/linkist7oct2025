@@ -5,6 +5,7 @@ import { LogOut } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import Logo from './Logo';
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;
@@ -49,12 +50,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       <>
         <header className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50 h-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
-            <Link href="/landing" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-red-500 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">L</span>
-              </div>
-              <span className="text-lg sm:text-xl font-bold text-gray-900">Linkist NFC</span>
-            </Link>
+            <Logo width={140} height={45} />
             <button
               onClick={handleLogout}
               className="flex items-center space-x-2 text-sm sm:text-base text-gray-700 hover:text-red-600 transition-colors px-3 py-2 rounded-lg hover:bg-gray-100"

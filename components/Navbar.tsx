@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import Logo from './Logo';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -10,14 +11,7 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 h-16 w-full shadow-sm">
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-full flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center">
-          <Link href="/landing" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-red-500 rounded flex items-center justify-center">
-              <span className="text-white font-bold text-sm">L</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900">Linkist</span>
-          </Link>
-        </div>
+        <Logo width={140} height={45} />
 
         {/* Desktop Navigation Items */}
         <div className="hidden md:flex items-center gap-8">

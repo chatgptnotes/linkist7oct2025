@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, Package, Truck, Mail, ArrowRight, Calendar } from 'lucide-react';
+import Logo from '@/components/Logo';
 
 export default function SuccessPage() {
   const router = useRouter();
@@ -35,9 +36,7 @@ export default function SuccessPage() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/landing" className="text-xl font-bold text-gray-900">
-              Linkist NFC
-            </Link>
+            <Logo width={140} height={45} />
             <Link 
               href="/account" 
               className="text-gray-700 hover:text-gray-900"
