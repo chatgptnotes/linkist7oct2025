@@ -2,8 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { Phone, Check, ArrowLeft, RefreshCw, Mail, X } from 'lucide-react';
+import Logo from '@/components/Logo';
+import { Check, X, RefreshCw } from 'lucide-react';
 
 function VerifyMobileContent() {
   const router = useRouter();
@@ -18,7 +18,6 @@ function VerifyMobileContent() {
   const [resendTimer, setResendTimer] = useState(0);
 
   useEffect(() => {
-    // Pre-fill phone if provided in URL
     const phoneParam = searchParams.get('phone');
     if (phoneParam) {
       setPhone(phoneParam);
@@ -33,7 +32,6 @@ function VerifyMobileContent() {
   }, [resendTimer]);
 
   const validatePhone = (phone: string): boolean => {
-    // Simple validation - accepts digits, spaces, hyphens, parentheses
     const phoneRegex = /^[\d\s\-\(\)\+]{10,}$/;
     return phoneRegex.test(phone);
   };
@@ -63,11 +61,11 @@ function VerifyMobileContent() {
       }
 
       setStep('verify');
-      setResendTimer(60); // 60 second cooldown
+      setResendTimer(60);
 
-      // In development, show the OTP in console
       if (data.devOtp) {
         console.log('🔑 Development OTP:', data.devOtp);
+        alert(`⚠️ SMS delivery issue!\n\nYour OTP: ${data.devOtp}\n\nCopy this code for verification.`);
       }
 
     } catch (err) {
@@ -78,19 +76,17 @@ function VerifyMobileContent() {
   };
 
   const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return; // Only allow digits
+    if (!/^\d*$/.test(value)) return;
 
     const newOtp = [...otp];
-    newOtp[index] = value.slice(-1); // Only take the last digit
+    newOtp[index] = value.slice(-1);
     setOtp(newOtp);
 
-    // Auto-focus next input
     if (value && index < 5) {
       const nextInput = document.getElementById(`otp-${index + 1}`);
       nextInput?.focus();
     }
 
-    // Auto-submit when all 6 digits are entered
     if (index === 5 && value && newOtp.every(digit => digit !== '')) {
       setTimeout(() => handleVerifyOtp(newOtp.join('')), 100);
     }
@@ -133,12 +129,9 @@ function VerifyMobileContent() {
       }
 
       setSuccess(true);
-
-      // Store verified phone in localStorage
       localStorage.setItem('verifiedPhone', phone);
       localStorage.setItem('mobileVerified', 'true');
 
-      // Redirect to PIN setup page
       setTimeout(() => {
         router.push('/account/set-pin');
       }, 2000);
@@ -146,7 +139,6 @@ function VerifyMobileContent() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification failed');
       setLoading(false);
-      // Clear OTP on error
       setOtp(['', '', '', '', '', '']);
       const firstInput = document.getElementById('otp-0');
       firstInput?.focus();
@@ -161,74 +153,50 @@ function VerifyMobileContent() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="w-8 h-8 text-green-600" />
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Check className="w-10 h-10 text-green-600" />
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Number Verified!</h2>
-          <p className="text-gray-600 mb-6">
-            Your mobile number has been successfully verified. Redirecting to PIN setup...
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Number Verified!</h2>
+          <p className="text-gray-600 text-lg">
+            Your mobile number has been successfully verified.
           </p>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto"></div>
+          <div className="mt-6">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-red-500 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">L</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">Linkist NFC</span>
-            </Link>
-          </div>
-        </div>
+      <header className="px-6 py-4 border-b border-gray-100">
+        <Logo width={120} height={40} />
       </header>
 
-      <div className="max-w-md mx-auto px-4 py-12">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          {/* Back Button */}
-          {step === 'verify' && (
-            <button
-              onClick={() => {
-                setStep('phone');
-                setOtp(['', '', '', '', '', '']);
-                setError('');
-              }}
-              className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Change Number
-            </button>
-          )}
-
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Phone className="w-8 h-8 text-red-600" />
-            </div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          {/* Title */}
+          <div className="text-center mb-12">
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
               {step === 'phone' ? 'Verify Your Number' : 'Enter Verification Code'}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-lg">
               {step === 'phone'
                 ? 'Enter your mobile number to receive a verification code'
                 : `We sent a 6-digit code to ${phone}`}
             </p>
           </div>
 
-          {/* Phone Input */}
+          {/* Phone Input Step */}
           {step === 'phone' && (
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
                   Mobile Number
                 </label>
                 <input
@@ -236,32 +204,43 @@ function VerifyMobileContent() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+1 (555) 000-0000"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                  className="w-full px-4 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-red-600 focus:ring-4 focus:ring-red-100 outline-none transition-all bg-gray-50"
                   onKeyPress={(e) => e.key === 'Enter' && handleSendOtp()}
                 />
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-sm text-gray-500 mt-3">
                   Include country code (e.g., +1 for US, +91 for India)
                 </p>
-                {error && (
-                  <p className="text-red-600 text-sm mt-2">{error}</p>
-                )}
               </div>
+
+              {error && (
+                <div className="flex items-center text-red-600 text-sm bg-red-50 py-3 px-4 rounded-lg">
+                  <X className="w-4 h-4 mr-2" />
+                  {error}
+                </div>
+              )}
 
               <button
                 onClick={handleSendOtp}
                 disabled={sendingOtp || !phone}
-                className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
+                className="w-full bg-red-600 text-white text-lg font-semibold px-6 py-4 rounded-xl hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
               >
-                {sendingOtp ? 'Sending Code...' : 'Send Verification Code'}
+                {sendingOtp ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                    Sending Code...
+                  </div>
+                ) : (
+                  'Send Verification Code'
+                )}
               </button>
             </div>
           )}
 
-          {/* OTP Input */}
+          {/* OTP Verification Step */}
           {step === 'verify' && (
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div>
-                <div className="flex justify-center space-x-3 mb-4">
+                <div className="flex justify-center gap-3 mb-6">
                   {otp.map((digit, index) => (
                     <input
                       key={index}
@@ -272,7 +251,7 @@ function VerifyMobileContent() {
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
                       onKeyDown={(e) => handleKeyDown(index, e)}
-                      className="w-12 h-14 text-center text-2xl font-semibold border-2 border-gray-300 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                      className="w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-red-600 focus:ring-4 focus:ring-red-100 outline-none transition-all bg-gray-50"
                       autoFocus={index === 0}
                       disabled={loading}
                     />
@@ -280,54 +259,67 @@ function VerifyMobileContent() {
                 </div>
 
                 {error && (
-                  <p className="text-red-600 text-sm text-center">{error}</p>
+                  <div className="flex items-center justify-center text-red-600 text-sm bg-red-50 py-3 px-4 rounded-lg">
+                    <X className="w-4 h-4 mr-2" />
+                    {error}
+                  </div>
                 )}
               </div>
 
               <button
                 onClick={() => handleVerifyOtp()}
                 disabled={loading || otp.join('').length !== 6}
-                className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
+                className="w-full bg-red-600 text-white text-lg font-semibold px-6 py-4 rounded-xl hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
               >
-                {loading ? 'Verifying...' : 'Verify Number'}
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                    Verifying...
+                  </div>
+                ) : (
+                  'Verify Number'
+                )}
               </button>
 
               {/* Resend Code */}
               <div className="text-center">
-                <p className="text-sm text-gray-600 mb-2">
+                <p className="text-sm text-gray-600 mb-3">
                   Didn't receive the code?
                 </p>
                 {resendTimer > 0 ? (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 font-medium">
                     Resend code in {resendTimer}s
                   </p>
                 ) : (
                   <button
                     onClick={handleResendOtp}
                     disabled={sendingOtp}
-                    className="flex items-center justify-center space-x-2 text-red-600 hover:text-red-700 font-medium mx-auto"
+                    className="inline-flex items-center space-x-2 text-red-600 hover:text-red-700 font-semibold transition-colors"
                   >
                     <RefreshCw className="w-4 h-4" />
                     <span>Resend Code</span>
                   </button>
                 )}
               </div>
+
+              {/* Change Number */}
+              <button
+                onClick={() => {
+                  setStep('phone');
+                  setOtp(['', '', '', '', '', '']);
+                  setError('');
+                }}
+                className="w-full text-gray-600 hover:text-gray-900 font-medium py-3 transition-colors"
+              >
+                Change Phone Number
+              </button>
             </div>
           )}
 
-          {/* Email Verification & Skip Options */}
-          <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
-            <button
-              onClick={() => router.push('/verify-email')}
-              className="w-full flex items-center justify-center space-x-2 px-6 py-3 border-2 border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium"
-            >
-              <Mail className="w-5 h-5" />
-              <span>Verify Email Instead</span>
-            </button>
-
+          {/* Skip Option */}
+          <div className="mt-8 pt-8 border-t border-gray-200">
             <button
               onClick={() => {
-                // Skip verification and go to next step
                 const productSelection = localStorage.getItem('productSelection');
                 const pinSet = localStorage.getItem('pinSet');
 
@@ -341,18 +333,19 @@ function VerifyMobileContent() {
                   router.push('/account');
                 }
               }}
-              className="w-full flex items-center justify-center space-x-2 px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+              className="w-full text-gray-500 hover:text-gray-700 font-medium py-3 transition-colors"
             >
-              <X className="w-5 h-5" />
-              <span>Skip Verification</span>
+              Skip for Now
             </button>
           </div>
-
-          {/* Info */}
-          <p className="text-xs text-gray-500 text-center mt-6">
-            Standard SMS rates may apply
-          </p>
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 py-6 border-t border-gray-100">
+        <p className="text-center text-sm text-gray-500">
+          Standard SMS rates may apply
+        </p>
       </div>
     </div>
   );
@@ -361,10 +354,10 @@ function VerifyMobileContent() {
 export default function VerifyMobilePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto mb-4"></div>
-          <p>Loading...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     }>

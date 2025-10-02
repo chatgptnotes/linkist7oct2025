@@ -2,9 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Lock, Check, X, ArrowLeft } from 'lucide-react';
-import LogoutButton from '@/components/LogoutButton';
+import Logo from '@/components/Logo';
+import { Check, X } from 'lucide-react';
 
 export default function SetPinPage() {
   const router = useRouter();
@@ -34,13 +33,17 @@ export default function SetPinPage() {
       );
       nextInput?.focus();
     }
+
+    // Auto-submit on last digit for confirm step
+    if (isConfirm && index === 5 && value) {
+      setTimeout(() => handleSubmit([...confirmPin.slice(0, 5), value]), 100);
+    }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent, isConfirm: boolean = false) => {
     if (e.key === 'Backspace' && index > 0) {
       const pinArray = isConfirm ? [...confirmPin] : [...pin];
       if (!pinArray[index]) {
-        // If current input is empty, go back and clear previous
         const prevInput = document.getElementById(
           isConfirm ? `confirm-pin-${index - 1}` : `pin-${index - 1}`
         );
@@ -65,9 +68,9 @@ export default function SetPinPage() {
     setStep('confirm');
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (confirmPinArray?: string[]) => {
     const pinValue = pin.join('');
-    const confirmPinValue = confirmPin.join('');
+    const confirmPinValue = confirmPinArray ? confirmPinArray.join('') : confirmPin.join('');
 
     if (confirmPinValue.length !== 6) {
       setError('Please enter all 6 digits');
@@ -76,6 +79,9 @@ export default function SetPinPage() {
 
     if (pinValue !== confirmPinValue) {
       setError('PINs do not match');
+      setConfirmPin(['', '', '', '', '', '']);
+      const firstInput = document.getElementById('confirm-pin-0');
+      firstInput?.focus();
       return;
     }
 
@@ -98,21 +104,16 @@ export default function SetPinPage() {
       }
 
       setSuccess(true);
-
-      // Mark PIN as set
       localStorage.setItem('pinSet', 'true');
 
-      // Check if user came from product selection flow
       const productSelection = localStorage.getItem('productSelection');
 
-      // Redirect based on context
       setTimeout(() => {
         if (productSelection === 'physical-digital') {
           router.push('/nfc/configure');
         } else if (productSelection === 'digital-only') {
           router.push('/nfc/digital-profile');
         } else {
-          // Default to account page
           router.push('/account');
         }
       }, 2000);
@@ -123,131 +124,121 @@ export default function SetPinPage() {
     }
   };
 
-  const handleReset = () => {
-    setPin(['', '', '', '', '', '']);
-    setConfirmPin(['', '', '', '', '', '']);
-    setStep('create');
-    setError('');
-  };
-
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Check className="w-8 h-8 text-green-600" />
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Check className="w-10 h-10 text-green-600" />
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">PIN Set Successfully!</h2>
-          <p className="text-gray-600 mb-6">
-            Your checkout PIN has been created. Redirecting to your account...
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">PIN Set Successfully!</h2>
+          <p className="text-gray-600 text-lg">
+            Your account is secure. Redirecting...
           </p>
+          <div className="mt-6">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/account" className="text-xl font-bold text-gray-900">
-              Linkist NFC
-            </Link>
-            <LogoutButton />
-          </div>
-        </div>
+      <header className="px-6 py-4 border-b border-gray-100">
+        <Logo width={120} height={40} />
       </header>
 
-      <div className="max-w-md mx-auto px-4 py-12">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          {/* Back Button */}
-          <button
-            onClick={() => step === 'confirm' ? handleReset() : router.back()}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {step === 'confirm' ? 'Start Over' : 'Back'}
-          </button>
-
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-red-600" />
-            </div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-              {step === 'create' ? 'Create Your PIN' : 'Confirm Your PIN'}
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          {/* Title */}
+          <div className="text-center mb-12">
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              {step === 'create' ? 'Set Your PIN' : 'Confirm PIN'}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-lg">
               {step === 'create'
-                ? 'Enter a 6-digit PIN to secure your checkout'
+                ? 'Create a 6-digit PIN to secure your account'
                 : 'Re-enter your PIN to confirm'}
             </p>
           </div>
 
           {/* PIN Input */}
-          <div className="mb-6">
-            <div className="flex justify-center space-x-3 mb-4">
+          <div className="mb-8">
+            <div className="flex justify-center gap-3 mb-6">
               {(step === 'create' ? pin : confirmPin).map((digit, index) => (
                 <input
                   key={index}
                   id={step === 'create' ? `pin-${index}` : `confirm-pin-${index}`}
-                  type="text"
+                  type="password"
                   inputMode="numeric"
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handlePinChange(index, e.target.value, step === 'confirm')}
                   onKeyDown={(e) => handleKeyDown(index, e, step === 'confirm')}
-                  className="w-12 h-14 text-center text-2xl font-semibold border-2 border-gray-300 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                  className="w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-red-600 focus:ring-4 focus:ring-red-100 outline-none transition-all bg-gray-50"
                   autoFocus={index === 0}
+                  disabled={loading}
                 />
               ))}
             </div>
 
             {error && (
-              <div className="flex items-center justify-center text-red-600 text-sm">
-                <X className="w-4 h-4 mr-1" />
+              <div className="flex items-center justify-center text-red-600 text-sm bg-red-50 py-3 px-4 rounded-lg">
+                <X className="w-4 h-4 mr-2" />
                 {error}
               </div>
             )}
           </div>
 
-          {/* Requirements */}
+          {/* Info Message */}
           {step === 'create' && (
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <p className="text-sm font-medium text-gray-700 mb-2">PIN Requirements:</p>
-              <ul className="space-y-1 text-sm text-gray-600">
-                <li className="flex items-center">
-                  <Check className={`w-4 h-4 mr-2 ${pin.join('').length === 6 ? 'text-green-600' : 'text-gray-400'}`} />
-                  Must be 6 digits
-                </li>
-                <li className="flex items-center">
-                  <Check className={`w-4 h-4 mr-2 ${/^\d+$/.test(pin.join('')) && pin.join('').length > 0 ? 'text-green-600' : 'text-gray-400'}`} />
-                  Numbers only
-                </li>
-                <li className="flex items-center">
-                  <Check className="w-4 h-4 mr-2 text-gray-400" />
-                  Easy to remember
-                </li>
-              </ul>
+            <div className="mb-8 text-center">
+              <p className="text-sm text-gray-500">
+                Don't forget this PIN - you'll need it to access your account
+              </p>
             </div>
           )}
 
-          {/* Action Button */}
+          {/* Continue Button */}
           <button
-            onClick={step === 'create' ? handleContinue : handleSubmit}
+            onClick={step === 'create' ? handleContinue : () => handleSubmit()}
             disabled={loading || (step === 'create' ? pin.join('').length !== 6 : confirmPin.join('').length !== 6)}
-            className="w-full bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed font-medium"
+            className="w-full bg-red-600 text-white text-lg font-semibold px-6 py-4 rounded-xl hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
           >
-            {loading ? 'Setting PIN...' : step === 'create' ? 'Continue' : 'Set PIN'}
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                Setting up your account...
+              </div>
+            ) : (
+              step === 'create' ? 'Continue' : 'Create Account'
+            )}
           </button>
 
-          {/* Info */}
-          <p className="text-xs text-gray-500 text-center mt-6">
-            Your PIN will be used to authorize purchases during checkout
-          </p>
+          {/* Back to Create */}
+          {step === 'confirm' && (
+            <button
+              onClick={() => {
+                setStep('create');
+                setConfirmPin(['', '', '', '', '', '']);
+                setError('');
+              }}
+              className="w-full mt-4 text-gray-600 hover:text-gray-900 font-medium py-3"
+            >
+              Back to Create PIN
+            </button>
+          )}
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 py-6 border-t border-gray-100">
+        <p className="text-center text-sm text-gray-500">
+          Your PIN is encrypted and securely stored
+        </p>
       </div>
     </div>
   );
