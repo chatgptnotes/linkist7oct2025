@@ -488,7 +488,7 @@ export default function ProofApprovalPage() {
                   className={`flex items-center px-6 py-3 rounded-lg font-medium transition-colors ${
                     approving
                       ? 'bg-gray-400 text-white cursor-not-allowed'
-                      : 'bg-green-600 text-white hover:bg-green-700'
+                      : 'bg-red-600 text-white hover:bg-red-700'
                   }`}
                 >
                   {approving ? (
@@ -520,7 +520,7 @@ export default function ProofApprovalPage() {
                 className={`px-8 py-3 rounded-lg font-medium transition-colors ${
                   addingToCart
                     ? 'bg-gray-400 text-white cursor-not-allowed'
-                    : 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-red-600 text-white hover:bg-red-700'
                 }`}
               >
                 {addingToCart ? (
@@ -560,7 +560,7 @@ export default function ProofApprovalPage() {
                   className={`flex-1 px-4 py-2 rounded transition-colors ${
                     addingToCart
                       ? 'bg-gray-400 text-white cursor-not-allowed'
-                      : 'bg-green-600 text-white hover:bg-green-700'
+                      : 'bg-red-600 text-white hover:bg-red-700'
                   }`}
                 >
                   {addingToCart ? (

@@ -733,14 +733,14 @@ export default function ConfigurePage() {
                         value={mobileOtp}
                         onChange={(e) => setMobileOtp(e.target.value)}
                         placeholder="Enter 6-digit code"
-                        className="flex-1 px-3 py-2 border border-blue-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        className="flex-1 px-3 py-2 border border-blue-200 rounded focus:outline-none focus:ring-1 focus:ring-red-500"
                         maxLength={6}
                       />
                       <button
                         type="button"
                         onClick={handleMobileOtpVerify}
                         disabled={mobileVerificationLoading || !mobileOtp}
-                        className="px-4 py-2 bg-blue-500 text-white rounded font-medium hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                        className="px-4 py-2 bg-blue-500 text-white rounded font-medium hover:bg-red-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
                       >
                         {mobileVerificationLoading ? 'Verifying...' : 'Verify'}
                       </button>
@@ -1092,7 +1092,7 @@ export default function ConfigurePage() {
                         <div className="grid grid-cols-3 gap-3">
                           {watchedValues.linkedin && (
                             <div className="text-center">
-                              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-1">
+                              <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-1">
                                 <span className="text-white text-xs font-bold">in</span>
                               </div>
                               <p className="text-xs text-gray-600">LinkedIn</p>

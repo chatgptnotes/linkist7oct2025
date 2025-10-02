@@ -313,7 +313,7 @@ const NewsletterSection = () => {
                     onChange={handleEmailChange}
                     placeholder="Enter your email address"
                     disabled={state.isSubmitting}
-                    className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed ${
                       state.errors.email
                         ? 'border-red-300 dark:border-red-500 focus:border-red-500'
                         : 'border-gray-200 dark:border-gray-600 focus:border-indigo-500'
@@ -340,7 +340,7 @@ const NewsletterSection = () => {
                   checked={state.consent}
                   onChange={handleConsentChange}
                   disabled={state.isSubmitting}
-                  className="mt-1 h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 rounded focus:ring-indigo-500 disabled:opacity-50"
+                  className="mt-1 h-4 w-4 text-indigo-600 border-gray-300 dark:border-gray-600 rounded focus:ring-red-500 disabled:opacity-50"
                 />
                 <label htmlFor="consent" className="text-sm text-gray-600 dark:text-gray-300">
                   I agree to receive marketing emails and understand that I can unsubscribe at any time.
@@ -366,7 +366,7 @@ const NewsletterSection = () => {
               <motion.button
                 type="submit"
                 disabled={state.isSubmitting || !state.email || !state.consent}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-red-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                 whileHover={!state.isSubmitting ? { scale: 1.02 } : {}}
                 whileTap={!state.isSubmitting ? { scale: 0.98 } : {}}
               >

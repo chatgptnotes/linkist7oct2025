@@ -231,7 +231,7 @@ async function handlePaymentFailure(paymentIntent: any) {
 
     // Create failed payment record for analysis and potential retry
     const failedPaymentData = {
-      orderNumber: `FAILED-${Date.now().toString().slice(-8)}`,
+      orderNumber: `LNK-FAILED-${Date.now().toString().slice(-8)}`,
       status: 'cancelled' as const,
       customerName: paymentIntent.metadata?.customerName || email.split('@')[0],
       email,

@@ -234,7 +234,7 @@ const FeaturesGrid = () => {
           <p className="text-gray-600 dark:text-gray-300 mb-4">
             And that's just the beginning...
           </p>
-          <button className="inline-flex items-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 transition">
+          <button className="inline-flex items-center rounded-full bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-red-700 transition">
             Explore All Features
             <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

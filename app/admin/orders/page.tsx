@@ -247,7 +247,7 @@ export default function OrdersPage() {
                       alert('Failed to create test data');
                     }
                   }}
-                  className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
                   <RefreshCw className="h-4 w-4" />
                   <span>Add Real Test Data</span>
@@ -529,7 +529,7 @@ export default function OrdersPage() {
                   </button>
                   <button
                     onClick={() => resendEmail(selectedOrder.id, 'receipt')}
-                    className="px-3 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600"
+                    className="px-3 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-red-600"
                   >
                     Resend Receipt
                   </button>

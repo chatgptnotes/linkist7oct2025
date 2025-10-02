@@ -10,7 +10,7 @@ export const POST = requireAdmin(
       
       // Create a real test order with actual data
       const realTestOrder = {
-        orderNumber: `ORD-${Date.now()}`,
+        orderNumber: `LNK-${Date.now()}`,
         status: 'confirmed' as const,
         customerName: 'Tejaswini Dhage',
         email: 'tejaswinidhage2023@gmail.com',

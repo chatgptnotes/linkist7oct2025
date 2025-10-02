@@ -52,7 +52,7 @@ export default function ConfigureNewPage() {
   const colors = [
     { id: 'black', name: 'Black', color: '#000000', hex: '#000000', gradient: 'from-black to-gray-900' },
     { id: 'silver', name: 'Silver', color: '#BFC5CC', hex: '#BFC5CC–#D0D5DB', gradient: 'from-slate-300 to-slate-500' },
-    { id: 'gold', name: 'Gold', color: '#C07E5D', hex: '#C07E5D', gradient: 'from-amber-700 to-orange-800' }
+    { id: 'gold', name: 'Gold', color: '#FFD700', hex: '#FFD700', gradient: 'from-yellow-400 to-amber-500' }
   ];
 
   const patterns = [

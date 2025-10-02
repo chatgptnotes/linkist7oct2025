@@ -1,17 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
+import { createClient } from '@supabase/supabase-js';
+import bcrypt from 'bcryptjs';
+import { getAuthenticatedUser } from '@/lib/auth-middleware';
 
-// In production, this should store the PIN in your database
-// For now, we'll use a simple in-memory storage (replace with database)
-const userPins = new Map<string, string>();
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
-// Simple hash function using Node.js crypto
-function hashPin(pin: string): string {
-  return crypto.createHash('sha256').update(pin).digest('hex');
+// Hash PIN using bcrypt for better security
+async function hashPin(pin: string): Promise<string> {
+  const salt = await bcrypt.genSalt(10);
+  return bcrypt.hash(pin, salt);
+}
+
+// Verify PIN against hash
+async function verifyPin(pin: string, hash: string): Promise<boolean> {
+  return bcrypt.compare(pin, hash);
 }
 
 export async function POST(request: NextRequest) {
   try {
+    // Get authenticated user
+    const authResult = await getAuthenticatedUser(request);
+
+    if (!authResult.isAuthenticated || !authResult.user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { pin } = body;
 
@@ -23,19 +42,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user email from session/cookie
-    // In production, get this from your auth system
-    const userEmail = request.cookies.get('userEmail')?.value ||
-                      request.headers.get('x-user-email') ||
-                      'guest@example.com'; // Fallback for development
-
     // Hash the PIN before storing (security best practice)
-    const hashedPin = hashPin(pin);
+    const hashedPin = await hashPin(pin);
 
-    // Store the hashed PIN (in production, save to database)
-    userPins.set(userEmail, hashedPin);
+    // Update user's PIN in database
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        pin_hash: hashedPin,
+        pin_set_at: new Date().toISOString()
+      })
+      .eq('id', authResult.user.id);
 
-    console.log(`PIN set for user: ${userEmail}`);
+    if (updateError) {
+      console.error('Database error setting PIN:', updateError);
+      throw new Error('Failed to save PIN to database');
+    }
+
+    console.log(`✅ PIN set successfully for user: ${authResult.user.email}`);
 
     return NextResponse.json({
       success: true,
@@ -43,7 +67,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Set PIN error:', error);
+    console.error('❌ Set PIN error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to set PIN' },
       { status: 500 }
@@ -54,6 +78,16 @@ export async function POST(request: NextRequest) {
 // Verify PIN endpoint
 export async function PUT(request: NextRequest) {
   try {
+    // Get authenticated user
+    const authResult = await getAuthenticatedUser(request);
+
+    if (!authResult.isAuthenticated || !authResult.user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { pin } = body;
 
@@ -64,15 +98,22 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Get user email
-    const userEmail = request.cookies.get('userEmail')?.value ||
-                      request.headers.get('x-user-email') ||
-                      'guest@example.com';
+    // Get user's PIN hash from database
+    const { data: userData, error: fetchError } = await supabase
+      .from('users')
+      .select('pin_hash')
+      .eq('id', authResult.user.id)
+      .single();
 
-    // Get stored hashed PIN
-    const hashedPin = userPins.get(userEmail);
+    if (fetchError || !userData) {
+      console.error('Database error fetching PIN:', fetchError);
+      return NextResponse.json(
+        { success: false, error: 'Failed to fetch user data' },
+        { status: 500 }
+      );
+    }
 
-    if (!hashedPin) {
+    if (!userData.pin_hash) {
       return NextResponse.json(
         { success: false, error: 'No PIN set for this user' },
         { status: 404 }
@@ -80,15 +121,17 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify PIN
-    const inputHashedPin = hashPin(pin);
-    const isValid = inputHashedPin === hashedPin;
+    const isValid = await verifyPin(pin, userData.pin_hash);
 
     if (!isValid) {
+      console.log(`❌ Invalid PIN attempt for user: ${authResult.user.email}`);
       return NextResponse.json(
         { success: false, error: 'Incorrect PIN' },
         { status: 401 }
       );
     }
+
+    console.log(`✅ PIN verified successfully for user: ${authResult.user.email}`);
 
     return NextResponse.json({
       success: true,
@@ -96,7 +139,7 @@ export async function PUT(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Verify PIN error:', error);
+    console.error('❌ Verify PIN error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to verify PIN' },
       { status: 500 }

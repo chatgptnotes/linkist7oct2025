@@ -244,7 +244,7 @@ export default function UsersPage() {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => handleBulkAction('activate')}
-                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
                 >
                   Activate
                 </button>

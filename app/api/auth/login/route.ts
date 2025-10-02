@@ -48,7 +48,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify password using bcrypt
+    console.log('🔍 DEBUG - User found:', {
+      email: user.email,
+      hasPasswordHash: !!user.password_hash,
+      hashLength: user.password_hash?.length,
+      hashPrefix: user.password_hash?.substring(0, 7),
+      inputPasswordLength: password.length,
+      inputPassword: password
+    });
+
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
+
+    console.log('🔍 DEBUG - Password comparison result:', isValidPassword);
 
     if (!isValidPassword) {
       console.log('❌ Invalid password for:', normalizedEmail);

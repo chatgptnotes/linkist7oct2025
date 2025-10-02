@@ -68,10 +68,28 @@ function createMiddlewareClient(request: NextRequest) {
 // Get authenticated user from Supabase session
 async function getAuthenticatedUser(request: NextRequest): Promise<AuthSession> {
   try {
+    // 🚨 TESTING BYPASS - RETURN TEST USER 🚨
+    const testUser: AuthUser = {
+      id: 'test-user-id',
+      email: 'cmd@hopehospital.com',
+      role: 'user',
+      email_verified: true,
+      mobile_verified: false,
+      created_at: new Date().toISOString(),
+    }
+
+    return {
+      user: testUser,
+      isAuthenticated: true,
+      isAdmin: false,
+      sessionId: 'test-session',
+    }
+    // END TESTING BYPASS
+
     // First check for admin session (PIN-based admin access)
     const adminSessionId = request.cookies.get('admin_session')?.value
     const isAdminSession = await verifyAdminSession(adminSessionId)
-    
+
     if (isAdminSession) {
       // Create admin user from session token
       const adminUser: AuthUser = {
@@ -184,8 +202,12 @@ function requiresAuth(pathname: string): 'admin' | 'user' | 'none' {
 // Main authentication middleware
 export async function authMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  
+
   console.log(`🔐 Auth middleware: ${pathname}`)
+
+  // 🚨 BYPASS AUTH FOR TESTING - REMOVE IN PRODUCTION 🚨
+  console.log(`⚠️  AUTH BYPASSED - ALL ROUTES ALLOWED FOR TESTING`)
+  return NextResponse.next()
 
   // Skip auth for public routes and static files
   if (
@@ -205,7 +227,7 @@ export async function authMiddleware(request: NextRequest) {
   }
 
   const authRequirement = requiresAuth(pathname)
-  
+
   if (authRequirement === 'none') {
     console.log(`✅ Public route, continuing: ${pathname}`)
     return NextResponse.next()

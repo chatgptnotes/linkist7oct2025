@@ -134,7 +134,7 @@ export default function GDPRConsentBanner() {
               </button>
               <button
                 onClick={handleAcceptAll}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
                 disabled={loading}
               >
                 {loading ? 'Saving...' : 'Accept All'}
@@ -179,7 +179,7 @@ export default function GDPRConsentBanner() {
                 <button
                   onClick={() => setPreferences(prev => ({ ...prev, analytics: !prev.analytics }))}
                   className={`w-12 h-6 rounded-full transition-colors ${
-                    preferences.analytics ? 'bg-blue-600' : 'bg-gray-300'
+                    preferences.analytics ? 'bg-red-600' : 'bg-gray-300'
                   }`}
                 >
                   <div className={`w-4 h-4 bg-white rounded-full transition-transform ${
@@ -198,7 +198,7 @@ export default function GDPRConsentBanner() {
                 <button
                   onClick={() => setPreferences(prev => ({ ...prev, marketing: !prev.marketing }))}
                   className={`w-12 h-6 rounded-full transition-colors ${
-                    preferences.marketing ? 'bg-blue-600' : 'bg-gray-300'
+                    preferences.marketing ? 'bg-red-600' : 'bg-gray-300'
                   }`}
                 >
                   <div className={`w-4 h-4 bg-white rounded-full transition-transform ${
@@ -218,7 +218,7 @@ export default function GDPRConsentBanner() {
               </button>
               <button
                 onClick={handleAcceptSelected}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
                 disabled={loading}
               >
                 {loading ? 'Saving...' : 'Save Preferences'}

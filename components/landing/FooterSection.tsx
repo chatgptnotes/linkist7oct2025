@@ -145,12 +145,12 @@ const FooterSection = () => {
                     onChange={(e) => setEmailSubscription(e.target.value)}
                     placeholder="Enter your email"
                     required
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all pr-12"
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all pr-12"
                   />
                   <motion.button
                     type="submit"
                     disabled={isLoading || isSubscribed}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-md transition-colors"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 rounded-md transition-colors"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -280,7 +280,7 @@ const FooterSection = () => {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 transition-all"
+                  className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-red-600 transition-all"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   whileTap={{ scale: 0.9 }}
                   aria-label={social.label}

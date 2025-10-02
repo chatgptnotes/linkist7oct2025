@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Truck, CreditCard, Shield, ArrowLeft } from 'lucide-react';
+import PinVerificationModal from '@/components/PinVerificationModal';
 
 const checkoutSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -26,15 +27,17 @@ type CheckoutForm = z.infer<typeof checkoutSchema>;
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const [cardConfig, setCardConfig] = useState<{ 
-    fullName?: string; 
-    firstName?: string; 
+  const [cardConfig, setCardConfig] = useState<{
+    fullName?: string;
+    firstName?: string;
     lastName?: string;
     baseMaterial?: string;
     color?: string;
     [key: string]: any;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pendingOrderData, setPendingOrderData] = useState<any>(null);
   // const [step, setStep] = useState<'shipping' | 'payment' | 'review'>('shipping');
 
   const {
@@ -123,6 +126,69 @@ export default function CheckoutPage() {
 
   const pricing = calculatePricing();
 
+  const verifyPin = async (pin: string): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/account/set-pin', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pin }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // PIN verified successfully, proceed with order
+        if (pendingOrderData) {
+          await createOrder(pendingOrderData);
+        }
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('❌ PIN verification error:', error);
+      return false;
+    }
+  };
+
+  const createOrder = async (orderPayload: any) => {
+    try {
+      console.log('📤 Checkout: Sending order to API:', orderPayload);
+
+      // Create order via API
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderPayload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || errorData.error || 'Failed to create order');
+      }
+
+      const result = await response.json();
+      console.log('✅ Checkout: Order created successfully:', result.order);
+
+      // Save order data to localStorage for success page
+      localStorage.setItem('currentOrder', JSON.stringify(result.order));
+
+      // Close PIN modal and redirect
+      setShowPinModal(false);
+      router.push('/nfc/success');
+    } catch (error) {
+      console.error('❌ Checkout: Order processing error:', error);
+      setShowPinModal(false);
+      alert(`Order creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const processOrder = async (formData: CheckoutForm) => {
     setIsLoading(true);
     try {
@@ -161,34 +227,16 @@ export default function CheckoutPage() {
         isFounderMember: formData.isFounderMember
       };
 
-      console.log('📤 Checkout: Sending order to API:', orderPayload);
+      console.log('📤 Checkout: Order prepared, showing PIN verification modal');
 
-      // Create order via API
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderPayload),
-      });
+      // Store order payload and show PIN modal
+      setPendingOrderData(orderPayload);
+      setShowPinModal(true);
+      setIsLoading(false);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to create order');
-      }
-
-      const result = await response.json();
-      console.log('✅ Checkout: Order created successfully:', result.order);
-
-      // Save order data to localStorage for success page
-      localStorage.setItem('currentOrder', JSON.stringify(result.order));
-      
-      // Redirect to success page
-      router.push('/nfc/success');
     } catch (error) {
       console.error('❌ Checkout: Order processing error:', error);
-      alert(`Order creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
+      alert(`Order preparation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsLoading(false);
     }
   };
@@ -508,6 +556,18 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {/* PIN Verification Modal */}
+      <PinVerificationModal
+        isOpen={showPinModal}
+        onClose={() => {
+          setShowPinModal(false);
+          setPendingOrderData(null);
+          setIsLoading(false);
+        }}
+        onVerify={verifyPin}
+        loading={isLoading}
+      />
     </div>
   );
 }

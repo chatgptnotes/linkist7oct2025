@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     // Create mock order data for testing
     const mockOrderData: OrderData = {
-      orderNumber: 'TEST-' + Date.now(),
+      orderNumber: 'LNK-TEST-' + Date.now(),
       customerName: 'John Test Customer',
       email: testEmail,
       cardConfig: {
