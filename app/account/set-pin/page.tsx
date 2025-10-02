@@ -6,8 +6,8 @@ import { Check, X } from 'lucide-react';
 
 export default function SetPinPage() {
   const router = useRouter();
-  const [pin, setPin] = useState(['', '', '', '', '', '']);
-  const [confirmPin, setConfirmPin] = useState(['', '', '', '', '', '']);
+  const [pin, setPin] = useState(['', '', '', '']);
+  const [confirmPin, setConfirmPin] = useState(['', '', '', '']);
   const [step, setStep] = useState<'create' | 'confirm'>('create');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +26,7 @@ export default function SetPinPage() {
     }
 
     // Auto-focus next input
-    if (value && index < 5) {
+    if (value && index < 3) {
       const nextInput = document.getElementById(
         isConfirm ? `confirm-pin-${index + 1}` : `pin-${index + 1}`
       );
@@ -34,8 +34,8 @@ export default function SetPinPage() {
     }
 
     // Auto-submit on last digit for confirm step
-    if (isConfirm && index === 5 && value) {
-      setTimeout(() => handleSubmit([...confirmPin.slice(0, 5), value]), 100);
+    if (isConfirm && index === 3 && value) {
+      setTimeout(() => handleSubmit([...confirmPin.slice(0, 3), value]), 100);
     }
   };
 
@@ -59,8 +59,8 @@ export default function SetPinPage() {
 
   const handleContinue = () => {
     const pinValue = pin.join('');
-    if (pinValue.length !== 6) {
-      setError('Please enter a 6-digit PIN');
+    if (pinValue.length !== 4) {
+      setError('Please enter a 4-digit PIN');
       return;
     }
     setError('');
@@ -71,14 +71,14 @@ export default function SetPinPage() {
     const pinValue = pin.join('');
     const confirmPinValue = confirmPinArray ? confirmPinArray.join('') : confirmPin.join('');
 
-    if (confirmPinValue.length !== 6) {
-      setError('Please enter all 6 digits');
+    if (confirmPinValue.length !== 4) {
+      setError('Please enter all 4 digits');
       return;
     }
 
     if (pinValue !== confirmPinValue) {
       setError('PINs do not match');
-      setConfirmPin(['', '', '', '', '', '']);
+      setConfirmPin(['', '', '', '']);
       const firstInput = document.getElementById('confirm-pin-0');
       firstInput?.focus();
       return;
@@ -147,7 +147,7 @@ export default function SetPinPage() {
             </h1>
             <p className="text-gray-600 text-lg">
               {step === 'create'
-                ? 'Create a 6-digit PIN to secure your account'
+                ? 'Create a 4-digit PIN to secure your account'
                 : 'Re-enter your PIN to confirm'}
             </p>
           </div>
@@ -192,7 +192,7 @@ export default function SetPinPage() {
           {/* Continue Button */}
           <button
             onClick={step === 'create' ? handleContinue : () => handleSubmit()}
-            disabled={loading || (step === 'create' ? pin.join('').length !== 6 : confirmPin.join('').length !== 6)}
+            disabled={loading || (step === 'create' ? pin.join('').length !== 4 : confirmPin.join('').length !== 4)}
             className="w-full bg-red-600 text-white text-lg font-semibold px-6 py-4 rounded-xl hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
           >
             {loading ? (
@@ -210,7 +210,7 @@ export default function SetPinPage() {
             <button
               onClick={() => {
                 setStep('create');
-                setConfirmPin(['', '', '', '', '', '']);
+                setConfirmPin(['', '', '', '']);
                 setError('');
               }}
               className="w-full mt-4 text-gray-600 hover:text-gray-900 font-medium py-3"

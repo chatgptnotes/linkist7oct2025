@@ -78,8 +78,9 @@ export default function WelcomeToLinkist() {
           mobile: `${formData.countryCode}${formData.mobileNumber}`
         }));
 
-        // Redirect to account set-pin page
-        router.push('/account/set-pin');
+        // Redirect to mobile verification with phone number
+        const fullPhone = `${formData.countryCode}${formData.mobileNumber}`;
+        router.push(`/verify-mobile?phone=${encodeURIComponent(fullPhone)}`);
       } else {
         const data = await response.json();
         showToast(data.error || 'Failed to save profile', 'error');
