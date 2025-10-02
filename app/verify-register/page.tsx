@@ -47,7 +47,9 @@ export default function VerifyRegisterPage() {
         showToast('Account created successfully!', 'success');
         // Clear registration data from localStorage
         localStorage.removeItem('registrationData');
-        // Redirect to welcome page as per Figma flow
+        // Mark as new user for onboarding
+        localStorage.removeItem('userOnboarded');
+        // Redirect to welcome page for first-time users
         router.push('/welcome-to-linkist');
       } else {
         showToast(data.error || 'Invalid verification code', 'error');

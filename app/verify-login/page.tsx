@@ -43,8 +43,18 @@ export default function VerifyLoginPage() {
         showToast('Login successful!', 'success');
         // Clear login email from localStorage
         localStorage.removeItem('loginEmail');
+
+        // Check if user has completed onboarding
+        const isNewUser = !localStorage.getItem('userOnboarded');
+
         // Get return URL and redirect
-        const returnUrl = localStorage.getItem('returnUrl') || '/account';
+        let returnUrl = localStorage.getItem('returnUrl') || '/account';
+
+        // If it's a new user (first time login), redirect to welcome page
+        if (isNewUser && returnUrl === '/account') {
+          returnUrl = '/welcome-to-linkist';
+        }
+
         localStorage.removeItem('returnUrl');
 
         // Use window.location for hard redirect to ensure session cookie is picked up

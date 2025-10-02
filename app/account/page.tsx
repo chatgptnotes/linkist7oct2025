@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Package, Truck, CheckCircle, Clock, User, Settings, CreditCard, Mail, AlertCircle } from 'lucide-react';
+import { Package, Truck, CheckCircle, Clock, User, Settings, CreditCard, Mail, AlertCircle, Edit2, Shield, Download, Trash2, Save, X } from 'lucide-react';
 
 interface User {
   id: string;
@@ -296,18 +296,33 @@ export default function AccountPage() {
               )}
 
               <nav className="space-y-1.5 sm:space-y-2">
-                <a href="#orders" className="flex items-center space-x-2 sm:space-x-3 text-black bg-gray-100 rounded-lg px-2.5 sm:px-3 py-2 text-sm sm:text-base min-h-[44px]">
+                <button
+                  onClick={() => setActiveTab('orders')}
+                  className={`w-full flex items-center space-x-2 sm:space-x-3 rounded-lg px-2.5 sm:px-3 py-2 text-sm sm:text-base min-h-[44px] ${
+                    activeTab === 'orders' ? 'text-black bg-gray-100' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
                   <Package className="h-3.5 sm:h-4 w-3.5 sm:w-4" />
                   <span>My Orders</span>
-                </a>
-                <a href="#profile" className="flex items-center space-x-2 sm:space-x-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg px-2.5 sm:px-3 py-2 text-sm sm:text-base min-h-[44px]">
+                </button>
+                <button
+                  onClick={() => setActiveTab('profile')}
+                  className={`w-full flex items-center space-x-2 sm:space-x-3 rounded-lg px-2.5 sm:px-3 py-2 text-sm sm:text-base min-h-[44px] ${
+                    activeTab === 'profile' ? 'text-black bg-gray-100' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
                   <Settings className="h-3.5 sm:h-4 w-3.5 sm:w-4" />
                   <span>Profile Settings</span>
-                </a>
-                <a href="#billing" className="flex items-center space-x-2 sm:space-x-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg px-2.5 sm:px-3 py-2 text-sm sm:text-base min-h-[44px]">
+                </button>
+                <button
+                  onClick={() => setActiveTab('billing')}
+                  className={`w-full flex items-center space-x-2 sm:space-x-3 rounded-lg px-2.5 sm:px-3 py-2 text-sm sm:text-base min-h-[44px] ${
+                    activeTab === 'billing' ? 'text-black bg-gray-100' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
                   <CreditCard className="h-3.5 sm:h-4 w-3.5 sm:w-4" />
                   <span>Billing</span>
-                </a>
+                </button>
                 {user?.role === 'admin' && (
                   <Link href="/admin" className="flex items-center space-x-2 sm:space-x-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg px-2.5 sm:px-3 py-2 text-sm sm:text-base min-h-[44px]">
                     <Settings className="h-3.5 sm:h-4 w-3.5 sm:w-4" />
@@ -321,11 +336,12 @@ export default function AccountPage() {
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Orders Section */}
-            <div id="orders" className="bg-white rounded-lg shadow">
-              <div className="p-4 sm:p-6 border-b border-gray-200">
-                <h1 className="text-xl sm:text-2xl font-bold">My Orders</h1>
-                <p className="text-sm sm:text-base text-gray-600 mt-1">Track your NFC card orders and delivery status</p>
-              </div>
+            {activeTab === 'orders' && (
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-4 sm:p-6 border-b border-gray-200">
+                  <h1 className="text-xl sm:text-2xl font-bold">My Orders</h1>
+                  <p className="text-sm sm:text-base text-gray-600 mt-1">Track your NFC card orders and delivery status</p>
+                </div>
 
               <div className="p-4 sm:p-6">
                 {orders.length === 0 ? (
@@ -453,6 +469,314 @@ export default function AccountPage() {
                 )}
               </div>
             </div>
+            )}
+
+            {/* Profile Settings Section */}
+            {activeTab === 'profile' && (
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-4 sm:p-6 border-b border-gray-200">
+                  <h1 className="text-xl sm:text-2xl font-bold">Profile Settings</h1>
+                  <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your personal information and preferences</p>
+                </div>
+
+                <div className="p-4 sm:p-6">
+                  <form className="space-y-6">
+                    {/* Personal Information */}
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                          <input
+                            type="text"
+                            defaultValue={user?.first_name || ''}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                          <input
+                            type="text"
+                            defaultValue={user?.last_name || ''}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                          <div className="flex items-center">
+                            <input
+                              type="email"
+                              defaultValue={user?.email || ''}
+                              disabled
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                            />
+                            {user?.email_verified && (
+                              <CheckCircle className="ml-2 h-5 w-5 text-green-500" />
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                          <input
+                            type="tel"
+                            defaultValue={user?.phone_number || ''}
+                            placeholder="+1 (555) 000-0000"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Security Settings */}
+                    <div className="border-t pt-6">
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Security</h3>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <Shield className="h-5 w-5 text-gray-400" />
+                            <div>
+                              <p className="font-medium text-gray-900">Two-Factor Authentication</p>
+                              <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-lg hover:bg-red-50"
+                          >
+                            Enable
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                          <div>
+                            <p className="font-medium text-gray-900">Change Password</p>
+                            <p className="text-sm text-gray-600">Update your password regularly for better security</p>
+                          </div>
+                          <button
+                            type="button"
+                            className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                          >
+                            Update
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Privacy Settings */}
+                    <div className="border-t pt-6">
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Privacy</h3>
+                      <div className="space-y-4">
+                        <label className="flex items-center space-x-3">
+                          <input type="checkbox" className="h-4 w-4 text-red-600 rounded" />
+                          <span className="text-sm text-gray-700">Allow marketing emails</span>
+                        </label>
+                        <label className="flex items-center space-x-3">
+                          <input type="checkbox" className="h-4 w-4 text-red-600 rounded" defaultChecked />
+                          <span className="text-sm text-gray-700">Allow order status notifications</span>
+                        </label>
+                        <label className="flex items-center space-x-3">
+                          <input type="checkbox" className="h-4 w-4 text-red-600 rounded" />
+                          <span className="text-sm text-gray-700">Share usage analytics</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Account Actions */}
+                    <div className="border-t pt-6">
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">Account Actions</h3>
+                      <div className="space-y-4">
+                        <button
+                          type="button"
+                          className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                        >
+                          <Download className="h-4 w-4" />
+                          <span>Download My Data</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span>Delete Account</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Save Button */}
+                    <div className="flex justify-end space-x-3 pt-6 border-t">
+                      <button
+                        type="button"
+                        className="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center space-x-2"
+                      >
+                        <Save className="h-4 w-4" />
+                        <span>Save Changes</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* Billing Section */}
+            {activeTab === 'billing' && (
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-4 sm:p-6 border-b border-gray-200">
+                  <h1 className="text-xl sm:text-2xl font-bold">Billing & Payments</h1>
+                  <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your payment methods and billing information</p>
+                </div>
+
+                <div className="p-4 sm:p-6">
+                  {/* Payment Methods */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Methods</h3>
+                    <div className="space-y-4">
+                      {/* Saved Card */}
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start space-x-3">
+                            <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded px-3 py-1 text-xs font-bold">
+                              VISA
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">•••• •••• •••• 4242</p>
+                              <p className="text-sm text-gray-600">Expires 12/2025</p>
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-2">
+                                Default
+                              </span>
+                            </div>
+                          </div>
+                          <button className="text-red-600 hover:text-red-700 text-sm font-medium">Remove</button>
+                        </div>
+                      </div>
+
+                      {/* Add New Card */}
+                      <button className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors">
+                        <CreditCard className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                        <span className="text-sm font-medium text-gray-700">Add Payment Method</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Billing Address */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Billing Address</h3>
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+                          <input
+                            type="text"
+                            placeholder="123 Main St"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Apartment/Suite</label>
+                          <input
+                            type="text"
+                            placeholder="Apt 4B"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                          <input
+                            type="text"
+                            placeholder="San Francisco"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                          <input
+                            type="text"
+                            placeholder="CA"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">ZIP/Postal Code</label>
+                          <input
+                            type="text"
+                            placeholder="94102"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                          <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                            <option>United States</option>
+                            <option>Canada</option>
+                            <option>United Kingdom</option>
+                            <option>Australia</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Billing History */}
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Billing History</h3>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Oct 1, 2025</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Premium NFC Card Bundle</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$49.99</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Paid</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <button className="text-red-600 hover:text-red-700 font-medium flex items-center space-x-1">
+                                <Download className="h-4 w-4" />
+                                <span>Download</span>
+                              </button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Sep 15, 2025</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Digital Profile Setup</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$24.99</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Paid</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <button className="text-red-600 hover:text-red-700 font-medium flex items-center space-x-1">
+                                <Download className="h-4 w-4" />
+                                <span>Download</span>
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  <div className="flex justify-end space-x-3 mt-6 pt-6 border-t">
+                    <button className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                      Save Billing Info
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

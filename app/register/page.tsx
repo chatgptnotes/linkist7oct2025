@@ -79,7 +79,12 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (response.ok) {
-        showToast('Verification code sent to your email!', 'success');
+        // Show OTP in popup if available (for development/demo)
+        if (data.devOtp) {
+          alert(`📧 Your verification code is:\n\n${data.devOtp}\n\nPlease copy this code for the next step.`);
+        } else {
+          showToast('Verification code sent to your email!', 'success');
+        }
         // Store registration data for verification
         localStorage.setItem('registrationData', JSON.stringify({
           firstName: formData.firstName,

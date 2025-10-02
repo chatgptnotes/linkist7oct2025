@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import Logo from './Logo';
+import UserProfileDropdown from './UserProfileDropdown';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
     // Check if user is logged in by checking for session cookie
@@ -18,6 +20,13 @@ export default function Navbar() {
         if (response.ok) {
           const data = await response.json();
           setIsLoggedIn(data.isAuthenticated);
+          if (data.isAuthenticated && data.user) {
+            setUserData({
+              email: data.user.email,
+              firstName: data.user.first_name,
+              lastName: data.user.last_name,
+            });
+          }
         }
       } catch (error) {
         setIsLoggedIn(false);
@@ -93,23 +102,12 @@ export default function Navbar() {
                 Templates
               </Link>
               <Link
-                href="/account"
-                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
-              >
-                Dashboard
-              </Link>
-              <Link
                 href="/product-selection"
                 className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
               >
                 New Card
               </Link>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-base font-semibold transition-colors duration-300"
-              >
-                Logout
-              </button>
+              <UserProfileDropdown user={userData} />
             </>
           )}
         </div>
@@ -186,6 +184,32 @@ export default function Navbar() {
               </>
             ) : (
               <>
+                {/* User Profile Section */}
+                <div className="border-b border-gray-200 pb-4 mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white font-semibold">
+                      {userData?.firstName && userData?.lastName
+                        ? `${userData.firstName[0]}${userData.lastName[0]}`.toUpperCase()
+                        : userData?.email?.[0].toUpperCase() || 'U'}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">
+                        {userData?.firstName && userData?.lastName
+                          ? `${userData.firstName} ${userData.lastName}`
+                          : userData?.email?.split('@')[0] || 'User'}
+                      </p>
+                      <p className="text-sm text-gray-500">{userData?.email}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <Link
+                  href="/account"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  My Account
+                </Link>
                 <Link
                   href="/templates"
                   className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
@@ -194,25 +218,32 @@ export default function Navbar() {
                   Templates
                 </Link>
                 <Link
-                  href="/account"
-                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Dashboard
-                </Link>
-                <Link
                   href="/product-selection"
                   className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   New Card
                 </Link>
+                <Link
+                  href="/account#profile"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Profile Settings
+                </Link>
+                <Link
+                  href="/account#billing"
+                  className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Billing
+                </Link>
                 <button
                   onClick={() => {
                     handleLogout();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="block w-full bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-300 text-center"
+                  className="block w-full bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-300 text-center mt-4"
                 >
                   Logout
                 </button>

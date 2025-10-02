@@ -70,8 +70,16 @@ export default function WelcomeToLinkist() {
         // Mark as onboarded
         localStorage.setItem('userOnboarded', 'true');
 
-        // Redirect to verify mobile
-        router.push('/verify-mobile');
+        // Store user profile data
+        localStorage.setItem('userProfile', JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          country: formData.country,
+          mobile: `${formData.countryCode}${formData.mobileNumber}`
+        }));
+
+        // Redirect to account set-pin page
+        router.push('/account/set-pin');
       } else {
         const data = await response.json();
         showToast(data.error || 'Failed to save profile', 'error');
