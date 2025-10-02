@@ -106,16 +106,9 @@ export default function SetPinPage() {
       setSuccess(true);
       localStorage.setItem('pinSet', 'true');
 
-      const productSelection = localStorage.getItem('productSelection');
-
+      // Redirect to product selection as per Figma flow
       setTimeout(() => {
-        if (productSelection === 'physical-digital') {
-          router.push('/nfc/configure');
-        } else if (productSelection === 'digital-only') {
-          router.push('/nfc/digital-profile');
-        } else {
-          router.push('/account');
-        }
+        router.push('/product-selection');
       }, 2000);
 
     } catch (err) {

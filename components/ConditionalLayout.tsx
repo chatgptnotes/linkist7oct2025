@@ -67,14 +67,17 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     );
   }
 
-  // For normal routes (home page), render with navbar and footer
+  // Check if it's the landing page (which has its own footer)
+  const isLandingPage = pathname === '/landing';
+
+  // For normal routes (home page), render with navbar and footer (except landing page)
   return (
     <>
       <Navbar />
       <main className="pt-16 flex-grow min-h-0">
         {children}
       </main>
-      <Footer />
+      {!isLandingPage && <Footer />}
     </>
   );
 }

@@ -18,25 +18,13 @@ export default function ProductSelectionPage() {
     // Store selection
     localStorage.setItem('productSelection', selectedProduct);
 
-    // Route to appropriate flow based on verification status
-    const mobileVerified = localStorage.getItem('mobileVerified') === 'true';
-    const pinSet = localStorage.getItem('pinSet') === 'true';
-
-    if (!mobileVerified) {
-      // First step: verify mobile number
-      router.push('/verify-mobile');
-    } else if (!pinSet) {
-      // Second step: set PIN
-      router.push('/account/set-pin');
+    // As per Figma flow, this page comes after PIN setup, so go directly to product flow
+    if (selectedProduct === 'physical-digital') {
+      // Go to NFC card configurator
+      router.push('/nfc/configure');
     } else {
-      // All verification complete, go to product flow
-      if (selectedProduct === 'physical-digital') {
-        // Go to NFC card configurator
-        router.push('/nfc/configure');
-      } else {
-        // Go to digital profile setup
-        router.push('/nfc/digital-profile');
-      }
+      // Go to digital profile setup
+      router.push('/nfc/digital-profile');
     }
   };
 
