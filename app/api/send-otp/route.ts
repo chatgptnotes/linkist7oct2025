@@ -96,10 +96,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Verification code sent successfully',
-      // 🚨 TEMPORARY: Show OTP in response for testing (email not configured)
-      // TODO: Remove this once RESEND_API_KEY is configured in production
-      devOtp: otp,
-      note: 'OTP displayed because email service is not configured'
+      // For development/testing purposes, include the OTP in response
+      // Remove this in production!
+      devOtp: process.env.NODE_ENV === 'development' ? otp : undefined
     });
 
   } catch (error) {
