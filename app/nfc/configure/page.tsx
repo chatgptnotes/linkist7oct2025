@@ -337,16 +337,11 @@ export default function ConfigureNewPage() {
                 <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
                   {/* Linkist Logo Center */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="flex items-center space-x-3 mb-2">
-                      {/* Red Boomerang Logo */}
-                      <svg width="38" height="32" viewBox="0 0 336 278" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style={{ transform: 'rotate(169deg)' }}>
-                        {/* Main boomerang shape */}
-                        <path d="M0.253254 263.138C8.77347 348.169 327.038 368.66 336.02 277.78C326.399 183.047 173.286 238.54 168.136 199.656C168.136 155.192 252.125 37.271 194.351 4.33764C127.497 -33.0187 -6.60376 180.9 0.253254 263.138Z" fill="#FF0000"/>
-                        {/* Shadow/depth overlay */}
-                        <path d="M155.719 242.282C162.364 308.591 410.585 324.57 417.59 253.7C410.087 179.826 290.67 223.1 286.654 192.777C286.654 158.104 352.158 66.146 307.099 40.464C254.958 11.333 150.371 178.151 155.719 242.282Z" fill="#9C1B1B"/>
-                      </svg>
-                      <span className="text-white text-2xl font-semibold">Linkist</span>
-                    </div>
+                    <img
+                      src="/logo_linkist.png"
+                      alt="Linkist"
+                      className="h-8 w-auto mb-2"
+                    />
                     <div className="text-gray-400 text-sm font-medium tracking-wider">FOUNDING MEMBER</div>
                   </div>
                   
