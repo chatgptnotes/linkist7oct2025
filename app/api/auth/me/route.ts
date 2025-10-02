@@ -5,26 +5,30 @@ import { RBAC } from '@/lib/rbac';
 export async function GET(request: NextRequest) {
   try {
     const authSession = await getCurrentUser(request);
-    const user = authSession?.user;
-    
-    if (!user) {
+
+    console.log('🔍 /api/auth/me - authSession:', authSession);
+
+    if (!authSession.isAuthenticated || !authSession.user) {
+      console.log('❌ /api/auth/me - Not authenticated');
       return NextResponse.json(
-        { error: 'Not authenticated' },
+        { error: 'Not authenticated', isAuthenticated: false },
         { status: 401 }
       );
     }
+
+    const user = authSession.user;
 
     // Get user permissions for frontend use
     const permissions = RBAC.getUserPermissions(user);
     const canAccessAdmin = RBAC.canAccessAdmin(user);
 
+    console.log('✅ /api/auth/me - User authenticated:', user.email);
+
     return NextResponse.json({
+      isAuthenticated: true,
       user: {
         id: user.id,
         email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        phone_number: user.phone_number,
         email_verified: user.email_verified,
         mobile_verified: user.mobile_verified,
         role: user.role,
@@ -37,9 +41,9 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error getting user info:', error);
+    console.error('❌ /api/auth/me error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', isAuthenticated: false },
       { status: 500 }
     );
   }
