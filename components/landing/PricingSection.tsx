@@ -271,7 +271,7 @@ const PricingSection = () => {
                     </Link>
                   ) : (
                     <Link
-                      href={`/checkout?plan=${tier.id}`}
+                      href="/nfc/configure"
                       className={`block w-full rounded-full ${
                         tier.popular
                           ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg hover:shadow-xl'

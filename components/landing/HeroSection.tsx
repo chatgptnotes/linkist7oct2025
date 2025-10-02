@@ -121,7 +121,7 @@ const HeroSection = () => {
             className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Link
-              href="/signup"
+              href="/nfc/configure"
               className="group relative inline-flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:shadow-xl transform transition hover:scale-105"
             >
               Pre-Order Your Card
