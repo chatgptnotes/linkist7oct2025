@@ -94,7 +94,7 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
     // Check for custom session cookie (from OTP login)
     const customSessionId = request.cookies.get('session')?.value
     if (customSessionId) {
-      const sessionData = SessionStore.get(customSessionId)
+      const sessionData = await SessionStore.get(customSessionId)
 
       if (sessionData) {
         const sessionUser: AuthUser = {

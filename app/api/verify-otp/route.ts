@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user session using new session store
-    const sessionId = SessionStore.create(user.id, email, user.role);
+    const sessionId = await SessionStore.create(user.id, email, user.role);
     console.log('🔍 Created session:', sessionId, 'for user:', user.email, 'role:', user.role);
     
     // Clean up the OTP after successful verification
