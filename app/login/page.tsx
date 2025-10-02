@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Mail, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
 import Logo from '@/components/Logo';
 
@@ -11,13 +11,9 @@ export default function LoginPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: ''
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // Get return URL from query params
   const [returnUrl, setReturnUrl] = useState('/account');
 
   useEffect(() => {
@@ -33,8 +29,6 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // For now, we'll use email OTP verification as the login method
-      // In a full implementation, you'd verify the password here
       const response = await fetch('/api/send-otp', {
         method: 'POST',
         headers: {
@@ -107,61 +101,9 @@ export default function LoginPage() {
                   placeholder="Enter your email"
                 />
               </div>
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="appearance-none block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
-                  placeholder="Enter your password"
-                />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <button
-                    type="button"
-                    className="text-gray-400 hover:text-gray-500"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                  Remember me
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <a href="#" className="font-medium text-red-600 hover:text-red-500">
-                  Forgot your password?
-                </a>
-              </div>
+              <p className="mt-2 text-sm text-gray-500">
+                We'll send you a verification code to sign in
+              </p>
             </div>
 
             <div>
@@ -180,7 +122,7 @@ export default function LoginPage() {
                     Sending verification code...
                   </div>
                 ) : (
-                  'Sign in'
+                  'Send Verification Code'
                 )}
               </button>
             </div>
