@@ -301,16 +301,31 @@ export default function ConfigureNewPage() {
                     </div>
                   </div>
                   
-                  {/* User Initials and Name */}
+                  {/* User Initials or Name */}
                   <div className="absolute bottom-6 left-6">
-                    <div className="text-white text-2xl font-light mb-1">
-                      {(formData.firstName?.substring(0, 1) || 'B').toUpperCase()}{(formData.lastName?.substring(0, 1) || 'T').toUpperCase()}
-                    </div>
-                    {(formData.firstName?.trim() || formData.lastName?.trim()) && (
-                      <div className="text-white text-xs font-medium">
-                        {formData.firstName?.trim()} {formData.lastName?.trim()}
-                      </div>
-                    )}
+                    {(() => {
+                      const firstName = formData.firstName?.trim() || '';
+                      const lastName = formData.lastName?.trim() || '';
+
+                      // Check if both are single characters (initials only)
+                      const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+
+                      if (isSingleCharOnly) {
+                        // Show only initials (large)
+                        return (
+                          <div className="text-white text-2xl font-light">
+                            {(firstName || 'B').toUpperCase()}{(lastName || 'K').toUpperCase()}
+                          </div>
+                        );
+                      } else {
+                        // Show full name
+                        return (
+                          <div className="text-white text-base font-medium">
+                            {firstName} {lastName}
+                          </div>
+                        );
+                      }
+                    })()}
                   </div>
                 </div>
                 <div className="text-center text-sm text-gray-600">Front</div>
