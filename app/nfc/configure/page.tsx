@@ -337,13 +337,13 @@ export default function ConfigureNewPage() {
                 <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
                   {/* Linkist Logo Center */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <div className="w-6 h-6 bg-red-500 rounded flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">L</span>
+                    <div className="flex items-center space-x-3 mb-2">
+                      <div className="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">L</span>
                       </div>
-                      <span className="text-white text-xl font-semibold">Linkist</span>
+                      <span className="text-white text-2xl font-semibold">Linkist</span>
                     </div>
-                    <div className="text-gray-400 text-sm font-medium">FOUNDING MEMBER</div>
+                    <div className="text-gray-400 text-sm font-medium tracking-wider">FOUNDING MEMBER</div>
                   </div>
                   
                   {/* NFC Symbol bottom right */}
