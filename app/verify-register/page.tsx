@@ -47,8 +47,8 @@ export default function VerifyRegisterPage() {
         showToast('Account created successfully!', 'success');
         // Clear registration data from localStorage
         localStorage.removeItem('registrationData');
-        // Redirect to account page
-        router.push('/account');
+        // Redirect new users to welcome page for onboarding
+        router.push('/welcome-to-linkist');
       } else {
         showToast(data.error || 'Invalid verification code', 'error');
       }

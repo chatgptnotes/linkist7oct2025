@@ -70,8 +70,8 @@ export default function WelcomeToLinkist() {
         // Mark as onboarded
         localStorage.setItem('userOnboarded', 'true');
 
-        // Redirect to verify mobile
-        router.push('/verify-mobile');
+        // Redirect to product selection to choose card
+        router.push('/product-selection');
       } else {
         const data = await response.json();
         showToast(data.error || 'Failed to save profile', 'error');
