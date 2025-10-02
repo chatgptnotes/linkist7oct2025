@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Globe } from 'lucide-react';
+import { useToast } from '@/components/ToastProvider';
 
 export default function WelcomeToLinkist() {
   const router = useRouter();
+  const { showToast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
   const [formData, setFormData] = useState({
     country: 'India',
     countryCode: '+91',
@@ -15,20 +19,74 @@ export default function WelcomeToLinkist() {
     lastName: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Check if user is authenticated
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.isAuthenticated && data.user?.email) {
+            setEmail(data.user.email);
+          } else {
+            router.push('/login');
+          }
+        } else {
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        router.push('/login');
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
-    // Save user data to localStorage or API
-    localStorage.setItem('userOnboarded', 'true');
-    localStorage.setItem('userCountry', formData.country);
-    localStorage.setItem('userMobile', `${formData.countryCode}${formData.mobileNumber}`);
-    localStorage.setItem('userName', `${formData.firstName} ${formData.lastName}`);
+    try {
+      // Save user profile data
+      const response = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          country: formData.country,
+          mobile: `${formData.countryCode}${formData.mobileNumber}`,
+          onboarded: true
+        }),
+      });
 
-    // Redirect to verify mobile or next step
-    router.push('/verify-mobile');
+      if (response.ok) {
+        showToast('Profile saved successfully!', 'success');
+
+        // Mark as onboarded
+        localStorage.setItem('userOnboarded', 'true');
+
+        // Redirect to verify mobile
+        router.push('/verify-mobile');
+      } else {
+        const data = await response.json();
+        showToast(data.error || 'Failed to save profile', 'error');
+      }
+    } catch (error) {
+      console.error('Profile save error:', error);
+      showToast('An error occurred. Please try again.', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
+    // Log out and redirect
+    await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/');
   };
 
@@ -178,15 +236,24 @@ export default function WelcomeToLinkist() {
             <button
               type="button"
               onClick={handleReject}
-              className="px-8 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors"
+              disabled={loading}
+              className="px-8 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Reject
             </button>
             <button
               type="submit"
-              className="px-8 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors"
+              disabled={loading}
+              className="px-8 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Agree & Continue
+              {loading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Saving...
+                </div>
+              ) : (
+                'Agree & Continue'
+              )}
             </button>
           </div>
         </form>
