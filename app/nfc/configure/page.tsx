@@ -340,7 +340,7 @@ export default function ConfigureNewPage() {
                     <img
                       src="/logo_linkist.png"
                       alt="Linkist"
-                      className="h-8 w-auto mb-2"
+                      className="h-16 w-auto mb-3"
                     />
                     <div className="text-gray-400 text-sm font-medium tracking-wider">FOUNDING MEMBER</div>
                   </div>
