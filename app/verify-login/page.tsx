@@ -46,7 +46,9 @@ export default function VerifyLoginPage() {
         // Get return URL and redirect
         const returnUrl = localStorage.getItem('returnUrl') || '/account';
         localStorage.removeItem('returnUrl');
-        router.push(returnUrl);
+
+        // Use window.location for hard redirect to ensure session cookie is picked up
+        window.location.href = returnUrl;
       } else {
         showToast(data.error || 'Invalid verification code', 'error');
       }

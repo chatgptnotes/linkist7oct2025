@@ -61,28 +61,24 @@ export default function AccountPage() {
 
   const checkAuthAndLoadData = async () => {
     try {
-      // For now, we'll use email from localStorage or prompt user
-      // In production, this would come from your auth system
-      let userEmail = localStorage.getItem('userEmail');
-      
-      if (!userEmail) {
-        // Try to get from any existing order data
-        const currentOrder = localStorage.getItem('currentOrder');
-        if (currentOrder) {
-          const order = JSON.parse(currentOrder);
-          userEmail = order.email;
-          if (userEmail) {
-            localStorage.setItem('userEmail', userEmail);
-          }
-        }
-      }
+      // Check if user is authenticated via API
+      const authResponse = await fetch('/api/auth/me');
 
-      if (!userEmail) {
-        // No user data found, redirect to landing
-        router.push('/landing?auth=required');
+      if (!authResponse.ok || authResponse.status === 401) {
+        // Not authenticated, redirect to login
+        router.push('/login?returnUrl=/account');
         return;
       }
 
+      const authData = await authResponse.json();
+
+      if (!authData.isAuthenticated || !authData.user?.email) {
+        // Not authenticated, redirect to login
+        router.push('/login?returnUrl=/account');
+        return;
+      }
+
+      const userEmail = authData.user.email;
       console.log('🔍 Loading account data for:', userEmail);
 
       // Load account data from API
