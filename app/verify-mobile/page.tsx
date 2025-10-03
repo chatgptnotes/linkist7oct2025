@@ -232,7 +232,11 @@ function VerifyMobileContent() {
               <button
                 onClick={handleSendOtp}
                 disabled={sendingOtp || !phone}
-                className="w-full bg-red-600 text-white text-lg font-semibold px-6 py-4 rounded-xl hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                className="w-full text-lg font-semibold px-6 py-4 rounded-xl transition-colors disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                style={{
+                  backgroundColor: sendingOtp || !phone ? '#D1D5DB' : '#DC2626',
+                  color: '#FFFFFF'
+                }}
               >
                 {sendingOtp ? (
                   <div className="flex items-center justify-center">
@@ -279,7 +283,11 @@ function VerifyMobileContent() {
               <button
                 onClick={() => handleVerifyOtp()}
                 disabled={loading || otp.join('').length !== 6}
-                className="w-full bg-red-600 text-white text-lg font-semibold px-6 py-4 rounded-xl hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                className="w-full text-lg font-semibold px-6 py-4 rounded-xl transition-colors disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                style={{
+                  backgroundColor: loading || otp.join('').length !== 6 ? '#D1D5DB' : '#DC2626',
+                  color: '#FFFFFF'
+                }}
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
@@ -348,7 +356,8 @@ function VerifyMobileContent() {
                   router.push('/verify-login');
                 }
               }}
-              className="w-full bg-red-600 text-white text-lg font-semibold px-6 py-4 rounded-xl hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
+              className="w-full text-lg font-semibold px-6 py-4 rounded-xl transition-colors shadow-lg hover:shadow-xl"
+              style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
             >
               Verify Email Instead
             </button>

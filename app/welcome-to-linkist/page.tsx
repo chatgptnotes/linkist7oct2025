@@ -258,14 +258,16 @@ export default function WelcomeToLinkist() {
               type="button"
               onClick={handleReject}
               disabled={loading}
-              className="px-8 py-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: '#6B7280', color: '#FFFFFF' }}
             >
               Reject
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
             >
               {loading ? (
                 <div className="flex items-center">
