@@ -171,18 +171,18 @@ export default function ProductSelectionPage() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Title Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-4">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Choose Your Linkist Experience
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Select the perfect plan for your professional networking needs
           </p>
 
           {!isPhysicalCardAllowed && (
-            <div className="mt-6 inline-flex items-center gap-2 bg-amber-50 text-amber-800 px-4 py-2 rounded-lg">
+            <div className="mt-4 inline-flex items-center gap-2 bg-amber-50 text-amber-800 px-4 py-2 rounded-lg">
               <Globe className="w-5 h-5" />
               <span className="text-sm font-medium">
                 Physical cards are currently not available in {userCountry}
@@ -192,7 +192,7 @@ export default function ProductSelectionPage() {
         </div>
 
         {/* Product Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           {productOptions.map((option) => (
             <div
               key={option.id}
@@ -225,25 +225,25 @@ export default function ProductSelectionPage() {
                 </div>
               )}
 
-              <div className="p-8">
+              <div className="p-5">
                 {/* Icon */}
-                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 ${
+                <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-4 ${
                   option.popular && !option.disabled ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'
                 }`}>
                   {option.icon}
                 </div>
 
                 {/* Title & Subtitle */}
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <h3 className="text-lg font-bold text-gray-900 mb-1">
                   {option.title}
                 </h3>
-                <p className="text-sm text-gray-600 mb-6">
+                <p className="text-sm text-gray-600 mb-4">
                   {option.subtitle}
                 </p>
 
                 {/* Price */}
-                <div className="mb-6">
-                  <p className="text-3xl font-bold text-gray-900">
+                <div className="mb-4">
+                  <p className="text-2xl font-bold text-gray-900">
                     {option.price.split(' ')[2]}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
@@ -252,7 +252,7 @@ export default function ProductSelectionPage() {
                 </div>
 
                 {/* Features */}
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-2 mb-6">
                   {option.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
@@ -297,7 +297,7 @@ export default function ProductSelectionPage() {
         </div>
 
         {/* Comparison Note */}
-        <div className="bg-gray-50 rounded-xl p-6 text-center">
+        <div className="bg-gray-50 rounded-xl p-4 text-center">
           <p className="text-gray-600">
             Need help choosing? All plans include a 30-day money-back guarantee.
           </p>
@@ -307,7 +307,7 @@ export default function ProductSelectionPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-8 flex items-center justify-center gap-4">
+        <div className="mt-6 flex items-center justify-center gap-4">
           <button
             onClick={() => router.back()}
             className="px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition-colors"

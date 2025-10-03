@@ -29,7 +29,9 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                       pathname.startsWith('/thank-you') ||
                       pathname.startsWith('/account') ||
                       pathname.startsWith('/verify-email') ||
-                      pathname.startsWith('/nfc/');
+                      pathname.startsWith('/nfc/') ||
+                      pathname.startsWith('/product-selection') ||
+                      pathname.startsWith('/choose-plan');
 
   useEffect(() => {
     // Check authentication status
@@ -100,14 +102,14 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     );
   }
 
-  // Check if it's the landing page (which has its own footer)
-  const isLandingPage = pathname === '/landing';
+  // Check if it's the landing or home page (which has its own footer and navbar)
+  const isLandingPage = pathname === '/landing' || pathname === '/';
 
-  // For normal routes (home page), render with navbar and footer (except landing page)
+  // For normal routes, render with navbar and footer (except landing/home page)
   return (
     <>
-      <Navbar />
-      <main className="pt-16 flex-grow min-h-0">
+      {!isLandingPage && <Navbar />}
+      <main className={`${!isLandingPage ? 'pt-16' : ''} flex-grow min-h-0`}>
         {children}
       </main>
       {!isLandingPage && <Footer />}
