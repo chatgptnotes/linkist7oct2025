@@ -1,0 +1,64 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]: "🚀 DEVELOPMENT MODE: Role-based Login Testing Enabled - Use Dev Helper (bottom-right)"
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - heading "Create Account" [level=2] [ref=e9]
+      - paragraph [ref=e10]: Join us today and get started
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]: Account Type
+        - generic [ref=e14]:
+          - img
+          - combobox "Account Type" [ref=e15]:
+            - option "❤️ Personal Patient"
+            - option "🏥 Clinic Administrator" [selected]
+            - option "👑 Super Administrator"
+        - generic [ref=e17]:
+          - img [ref=e18]
+          - text: Clinic Admin manages patients, reports and clinic data
+      - generic [ref=e22]:
+        - generic [ref=e23]: Clinic Name / Contact Person
+        - generic [ref=e24]:
+          - img
+          - textbox "Clinic Name / Contact Person" [ref=e25]
+      - generic [ref=e26]:
+        - generic [ref=e27]: Email Address
+        - generic [ref=e28]:
+          - img
+          - textbox "Email Address" [ref=e29]
+      - generic [ref=e30]:
+        - generic [ref=e31]: Password
+        - generic [ref=e32]:
+          - img
+          - textbox "Password" [ref=e33]
+          - button [ref=e34] [cursor=pointer]:
+            - img [ref=e35] [cursor=pointer]
+      - generic [ref=e38]:
+        - generic [ref=e39]: Confirm Password
+        - generic [ref=e40]:
+          - img
+          - textbox "Confirm Password" [ref=e41]
+          - button [ref=e42] [cursor=pointer]:
+            - img [ref=e43] [cursor=pointer]
+      - generic [ref=e46]:
+        - checkbox "I agree to the Terms and Conditions and Privacy Policy" [ref=e48]
+        - generic [ref=e50]:
+          - text: I agree to the
+          - link "Terms and Conditions" [ref=e51] [cursor=pointer]:
+            - /url: /terms
+          - text: and
+          - link "Privacy Policy" [ref=e52] [cursor=pointer]:
+            - /url: /privacy
+      - button "Create Account" [ref=e53] [cursor=pointer]:
+        - generic [ref=e54] [cursor=pointer]: Create Account
+    - paragraph [ref=e56]:
+      - text: Already have an account?
+      - link "Sign in here" [ref=e57] [cursor=pointer]:
+        - /url: /login
+  - button "Dev Mode super_admin" [ref=e60] [cursor=pointer]:
+    - generic [ref=e63] [cursor=pointer]: Dev Mode
+    - generic [ref=e64] [cursor=pointer]: super_admin
+```

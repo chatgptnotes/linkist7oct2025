@@ -1,0 +1,74 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e4]: "🚀 DEVELOPMENT MODE: Role-based Login Testing Enabled - Use Dev Helper (bottom-right)"
+  - generic [ref=e6]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - img [ref=e12]
+        - generic [ref=e15]: 30-day money back
+      - generic [ref=e16]:
+        - img [ref=e17]
+        - generic [ref=e22]: +26,000 members
+      - generic [ref=e23]:
+        - img [ref=e24]
+        - generic [ref=e29]: Free shipping
+    - navigation [ref=e30]:
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - img [ref=e34]
+          - generic [ref=e37]: NeuroSense360
+          - generic [ref=e38]: by LBL
+        - generic [ref=e39]:
+          - link "🧠 LBW Portal" [ref=e40] [cursor=pointer]:
+            - /url: /lbw
+          - link "🚀 Updates" [ref=e41] [cursor=pointer]:
+            - /url: /lbw-updates
+          - link "📋 Assessments" [ref=e42] [cursor=pointer]:
+            - /url: /assessments
+          - link "👥 Coaching" [ref=e43] [cursor=pointer]:
+            - /url: /coaching
+          - link "For clinicians" [ref=e44] [cursor=pointer]:
+            - /url: "#clinicians"
+          - link "How it works" [ref=e45] [cursor=pointer]:
+            - /url: "#how-it-works"
+    - generic [ref=e46]:
+      - generic [ref=e49]:
+        - heading "Guided, personalized brain training." [level=1] [ref=e50]:
+          - text: Guided, personalized
+          - generic [ref=e51]: brain training.
+        - paragraph [ref=e52]: "#1 at-home neurofeedback platform. Built for clinicians and consumers."
+        - generic [ref=e53]:
+          - button "I want it for myself" [ref=e54] [cursor=pointer]
+          - button "I want it for my clinic" [ref=e55] [cursor=pointer]
+      - img [ref=e57]
+    - generic [ref=e60]:
+      - heading "How it works" [level=2] [ref=e62]
+      - generic [ref=e63]:
+        - generic [ref=e65]:
+          - generic [ref=e66]: "Step 1:"
+          - heading "Understand your brain's activity" [level=3] [ref=e67]
+        - generic [ref=e69]:
+          - generic [ref=e70]: "Step 2:"
+          - heading "Connect with your Neuro Coach" [level=3] [ref=e71]
+        - generic [ref=e73]:
+          - generic [ref=e74]: "Step 3:"
+          - heading "Train your brain" [level=3] [ref=e75]
+        - generic [ref=e77]:
+          - generic [ref=e78]: "Step 4:"
+          - heading "Live a healthy, focused life" [level=3] [ref=e79]
+    - generic [ref=e81]:
+      - heading "Transform your mental wellness" [level=2] [ref=e82]
+      - paragraph [ref=e83]: Experience the power of neurofeedback technology guided by professional therapists. Our scientifically-backed approach helps you achieve lasting improvements in focus, calm, and overall cognitive performance.
+    - contentinfo [ref=e84]:
+      - generic [ref=e86]:
+        - generic [ref=e87]:
+          - img [ref=e88]
+          - generic [ref=e91]: NeuroSense360
+          - generic [ref=e92]: by Limitless Brain Lab
+        - paragraph [ref=e94]: © 2024 Limitless Brain Lab. All rights reserved.
+  - button "Dev Mode super_admin" [ref=e97] [cursor=pointer]:
+    - generic [ref=e100] [cursor=pointer]: Dev Mode
+    - generic [ref=e101] [cursor=pointer]: super_admin
+```
