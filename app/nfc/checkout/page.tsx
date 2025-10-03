@@ -318,12 +318,13 @@ export default function CheckoutPage() {
           <div className="flex justify-between items-center h-16">
             <button
               onClick={() => router.push('/nfc/configure')}
-              className="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors bg-gray-50 hover:bg-blue-50 px-3 py-2 rounded-lg"
+              className="flex items-center space-x-2 transition-colors px-3 py-2 rounded-lg"
+              style={{ backgroundColor: '#F3F4F6', color: '#374151' }}
             >
               <ArrowLeft className="h-5 w-5" />
               <span>Back to Design</span>
             </button>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Checkout</h1>
+            <h1 className="text-xl font-bold" style={{ color: '#1F2937' }}>Checkout</h1>
             <div className="w-24"></div> {/* Spacer for centering */}
           </div>
         </div>
@@ -413,7 +414,8 @@ export default function CheckoutPage() {
                   <button
                     type="button"
                     onClick={() => setShowMap(!showMap)}
-                    className="flex items-center space-x-2 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="flex items-center space-x-2 text-sm px-3 py-1.5 rounded-lg transition-colors"
+                    style={{ backgroundColor: '#2563EB', color: '#FFFFFF' }}
                   >
                     <MapPin className="h-4 w-4" />
                     <span>{showMap ? 'Hide Map' : 'Use Map'}</span>
@@ -578,7 +580,8 @@ export default function CheckoutPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="w-full py-4 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
+                style={{ backgroundColor: '#2563EB', color: '#FFFFFF' }}
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>

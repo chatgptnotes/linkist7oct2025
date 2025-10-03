@@ -306,14 +306,32 @@ export default function ProductSelectionPage() {
           </p>
         </div>
 
-        {/* Back Button */}
-        <div className="mt-8 text-center">
+        {/* Action Buttons */}
+        <div className="mt-8 flex items-center justify-center gap-4">
           <button
             onClick={() => router.back()}
-            className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+            className="px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition-colors"
           >
             ← Go Back
           </button>
+
+          {selectedProduct && (
+            <button
+              onClick={handleConfirmSelection}
+              disabled={loading}
+              className="px-8 py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl"
+              style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
+            >
+              {loading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Processing...
+                </div>
+              ) : (
+                'Continue →'
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -41,7 +41,7 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
 
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [useCurrentLocation, setUseCurrentLocation] = useState(true); // Default to true
+  const [useCurrentLocation, setUseCurrentLocation] = useState(false); // Start unchecked, user will check it
   const [locationError, setLocationError] = useState('');
   const [showInitialTip, setShowInitialTip] = useState(true);
   const [addressData, setAddressData] = useState<AddressData>({
@@ -86,15 +86,13 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
       }
     });
 
-    // Auto-get current location on mount (since useCurrentLocation defaults to true)
+    // Only use initial address if provided, don't auto-get location
     if (initialAddress?.latitude && initialAddress?.longitude) {
       map.current.setView([initialAddress.latitude, initialAddress.longitude], 15);
       marker.current.setLatLng([initialAddress.latitude, initialAddress.longitude]);
       reverseGeocode(initialAddress.latitude, initialAddress.longitude);
-    } else {
-      // Automatically try to get current location on mount
-      getCurrentLocation();
     }
+    // Don't automatically get current location - let user trigger it by checking the checkbox
 
     // Cleanup
     return () => {
@@ -195,15 +193,19 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
     setLocationError('');
 
     if (!navigator.geolocation) {
-      setLocationError('Geolocation is not supported by your browser');
-      setUseCurrentLocation(false);
+      setLocationError('❌ Geolocation is not supported by your browser');
       return;
     }
 
+    console.log('🌍 Requesting current location...');
     setIsLoading(true);
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude } = position.coords;
+        console.log('✅ Location received:', position.coords);
+        const { latitude, longitude, accuracy } = position.coords;
+        console.log(`📍 Lat: ${latitude}, Lng: ${longitude}, Accuracy: ${accuracy}m`);
+
         if (map.current && marker.current) {
           map.current.setView([latitude, longitude], 16);
           marker.current.setLatLng([latitude, longitude]);
@@ -214,6 +216,7 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
         setShowInitialTip(false);
       },
       (error) => {
+        console.error('❌ Geolocation error:', error);
         let errorMsg = 'Unable to get location';
         let showSettings = false;
 
@@ -264,7 +267,8 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
               }
               showSettings = true;
             } else {
-              errorMsg = 'Location information unavailable. Please check your network connection.';
+              // Desktop/Laptop error message
+              errorMsg = '❌ Location unavailable on Desktop/Laptop:\n\n💻 Browser may not be able to detect your location because:\n• WiFi location services are disabled\n• You\'re using a VPN or proxy\n• Your computer\'s location services are off\n\n✅ Try these solutions:\n\n1. Click the 🔒 lock icon in your browser address bar\n2. Find "Location" and select "Allow"\n3. Refresh the page and try again\n\n💡 OR use the Search box below:\n• Type your address or area name\n• Click "Search" to find your location\n• Then drag the marker to adjust position\n\n⚡ Quick tip: The search method works better on desktop!';
             }
             break;
           case error.TIMEOUT:
@@ -272,12 +276,13 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
             break;
         }
         setLocationError(errorMsg);
-        setUseCurrentLocation(false);
+        // Don't uncheck the checkbox - keep it checked so user can retry
+        // setUseCurrentLocation(false);
         setIsLoading(false);
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 30000, // Increased to 30 seconds
         maximumAge: 0
       }
     );
@@ -351,18 +356,22 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
       )}
 
       {/* Current Location Checkbox */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+      <div className="border rounded-lg p-3" style={{ backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' }}>
         <label className="flex items-start space-x-3 cursor-pointer">
           <input
             type="checkbox"
             checked={useCurrentLocation}
             onChange={(e) => handleUseCurrentLocationChange(e.target.checked)}
             disabled={isLoading}
-            className="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            className="mt-1 h-5 w-5 rounded focus:ring-2"
+            style={{
+              accentColor: '#2563EB',
+              cursor: isLoading ? 'not-allowed' : 'pointer'
+            }}
           />
           <div className="flex-1">
-            <span className="font-medium text-gray-900">Use my current location</span>
-            <p className="text-sm text-gray-600 mt-0.5">
+            <span className="font-medium" style={{ color: '#111827' }}>Use my current location</span>
+            <p className="text-sm mt-0.5" style={{ color: '#4B5563' }}>
               Automatically detect your location from GPS/mobile signal
             </p>
             {locationError && (
@@ -374,7 +383,7 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
 
                   if (line.startsWith('📱')) {
                     className = 'font-semibold text-red-700 mt-3 mb-1';
-                  } else if (line.startsWith('📍') || line.startsWith('📡')) {
+                  } else if (line.startsWith('📍') || line.startsWith('📡') || line.startsWith('❌')) {
                     className = 'font-bold text-red-800 text-base mb-2';
                   } else if (line.startsWith('💡') || line.startsWith('⚡') || line.startsWith('✅')) {
                     className = 'text-amber-700 bg-amber-50 p-2 rounded mt-3 text-xs';
@@ -392,8 +401,8 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
                     </div>
                   );
                 })}
-                {isMobileDevice() && (
-                  <div className="mt-4 flex gap-2">
+                <div className="mt-4 flex gap-2">
+                  {isMobileDevice() && (
                     <button
                       type="button"
                       onClick={() => {
@@ -425,22 +434,35 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
                           alert('On iPhone/iPad:\n\n1. Press the Home button or swipe up\n2. Find and tap the Settings app (gray gear icon)\n3. Look for "Privacy & Security" → "Location Services"\n\nOr try: Settings → Safari → Location');
                         }
                       }}
-                      className="flex-1 text-xs bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 transition-colors font-medium"
+                      className="flex-1 text-xs px-3 py-2 rounded transition-colors font-medium"
+                      style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
                     >
                       📲 Open Device Settings
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLocationError('');
-                        setUseCurrentLocation(false);
-                      }}
-                      className="text-xs bg-gray-200 text-gray-700 px-3 py-2 rounded hover:bg-gray-300 transition-colors"
-                    >
-                      Dismiss
-                    </button>
-                  </div>
-                )}
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLocationError('');
+                      getCurrentLocation(); // Retry
+                    }}
+                    className="flex-1 text-xs px-3 py-2 rounded transition-colors font-medium"
+                    style={{ backgroundColor: '#2563EB', color: '#FFFFFF' }}
+                  >
+                    🔄 Retry
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLocationError('');
+                      setUseCurrentLocation(false);
+                    }}
+                    className="text-xs px-3 py-2 rounded transition-colors"
+                    style={{ backgroundColor: '#E5E7EB', color: '#374151' }}
+                  >
+                    Dismiss
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -470,7 +492,8 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
           type="button"
           onClick={searchAddress}
           disabled={isLoading || !searchQuery.trim()}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          style={{ backgroundColor: '#2563EB', color: '#FFFFFF' }}
         >
           {isLoading ? 'Searching...' : 'Search'}
         </button>
