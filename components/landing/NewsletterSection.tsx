@@ -2,10 +2,25 @@
 
 import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, CheckCircle, AlertCircle, Loader2, Gift, Sparkles, TrendingUp } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { z } from 'zod';
 import type { NewsletterFormState, NewsletterSubscriptionRequest } from '@/types/newsletter';
+import EmailIcon from '@mui/icons-material/Email';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import LoopIcon from '@mui/icons-material/Loop';
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+
+// Icon aliases
+const Mail = EmailIcon;
+const CheckCircle = CheckCircleIcon;
+const AlertCircle = ErrorOutlineIcon;
+const Loader2 = LoopIcon;
+const Gift = CardGiftcardIcon;
+const Sparkles = AutoAwesomeIcon;
+const TrendingUp = TrendingUpIcon;
 
 // Email validation schema
 const emailSchema = z.object({

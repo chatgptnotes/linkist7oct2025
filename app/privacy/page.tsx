@@ -1,6 +1,19 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shield, Mail, Eye, Trash2, Download } from 'lucide-react';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SecurityIcon from '@mui/icons-material/Security';
+import EmailIcon from '@mui/icons-material/Email';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+
+// Icon aliases
+const ArrowLeft = ArrowBackIcon;
+const Shield = SecurityIcon;
+const Mail = EmailIcon;
+const Eye = VisibilityIcon;
+const Trash2 = DeleteIcon;
+const Download = CloudDownloadIcon;
 
 export default function PrivacyPolicyPage() {
   return (

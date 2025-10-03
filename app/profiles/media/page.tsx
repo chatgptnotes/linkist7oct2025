@@ -2,25 +2,42 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Upload,
-  X,
-  Image as ImageIcon,
-  Video,
-  File,
-  Trash2,
-  Edit2,
-  Download,
-  Eye,
-  Grid,
-  List,
-  Search,
-  Filter,
-  ChevronLeft,
-  Check,
-  FolderPlus,
-  MoreVertical
-} from 'lucide-react';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloseIcon from '@mui/icons-material/Close';
+import ImageIconMUI from '@mui/icons-material/Image';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import GridViewIcon from '@mui/icons-material/GridView';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import CheckIcon from '@mui/icons-material/Check';
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+
+// Icon aliases
+const Upload = CloudUploadIcon;
+const X = CloseIcon;
+const ImageIcon = ImageIconMUI;
+const Video = VideocamIcon;
+const File = InsertDriveFileIcon;
+const Trash2 = DeleteIcon;
+const Edit2 = EditIcon;
+const Download = CloudDownloadIcon;
+const Eye = VisibilityIcon;
+const Grid = GridViewIcon;
+const List = ViewListIcon;
+const Search = SearchIcon;
+const Filter = FilterListIcon;
+const ChevronLeft = ChevronLeftIcon;
+const Check = CheckIcon;
+const FolderPlus = CreateNewFolderIcon;
+const MoreVertical = MoreVertIcon;
 
 interface MediaItem {
   id: string;

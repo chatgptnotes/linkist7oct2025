@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Check } from 'lucide-react';
+import CheckIcon from '@mui/icons-material/Check';
+
+// Icon aliases
+const Check = CheckIcon;
 
 // Define types for our configuration
 type BaseMaterial = 'pvc' | 'wood' | 'metal';
@@ -184,18 +187,15 @@ export default function NFCCardConfigurator({
                   ${!isAvailable
                     ? 'opacity-40 cursor-not-allowed border-gray-100 bg-gray-50'
                     : isSelected
-                      ? 'border-red-500 bg-red-50'
+                      ? 'border-red-500 bg-red-50 ring-2 ring-red-200 shadow-md'
                       : 'border-gray-200 hover:border-gray-300 bg-white cursor-pointer'
                   }
                 `}
               >
-                <div className="flex items-center justify-between">
-                  <span className={`text-sm font-medium ${!isAvailable ? 'text-gray-400' : 'text-gray-900'}`}>
+                <div className="flex items-center justify-center">
+                  <span className={`text-sm font-medium ${!isAvailable ? 'text-gray-400' : isSelected ? 'text-red-600' : 'text-gray-900'}`}>
                     {texture.label}
                   </span>
-                  {isSelected && isAvailable && (
-                    <Check className="h-4 w-4 text-red-500" />
-                  )}
                 </div>
               </button>
             );
@@ -224,25 +224,28 @@ export default function NFCCardConfigurator({
                   ${!isAvailable
                     ? 'opacity-40 cursor-not-allowed border-gray-100 bg-gray-50'
                     : isSelected
-                      ? 'border-red-500 bg-red-50'
+                      ? 'border-red-500 bg-red-50 ring-2 ring-red-200 shadow-md'
                       : 'border-gray-200 hover:border-gray-300 bg-white cursor-pointer'
                   }
                 `}
               >
                 <div className="flex flex-col items-center space-y-2">
                   <div
-                    className={`w-10 h-10 rounded-full border-2 ${!isAvailable ? 'border-gray-200' : 'border-gray-300'}`}
+                    className={`w-10 h-10 rounded-full border-4 transition-all ${
+                      !isAvailable
+                        ? 'border-gray-200'
+                        : isSelected
+                          ? 'border-red-500 scale-110'
+                          : 'border-gray-300'
+                    }`}
                     style={{
                       backgroundColor: colour.hex,
                       opacity: !isAvailable ? 0.4 : 1
                     }}
                   />
-                  <span className={`text-xs font-medium ${!isAvailable ? 'text-gray-400' : 'text-gray-700'}`}>
+                  <span className={`text-xs font-medium ${!isAvailable ? 'text-gray-400' : isSelected ? 'text-red-600' : 'text-gray-700'}`}>
                     {colour.label}
                   </span>
-                  {isSelected && isAvailable && (
-                    <Check className="h-4 w-4 text-red-500" />
-                  )}
                 </div>
               </button>
             );

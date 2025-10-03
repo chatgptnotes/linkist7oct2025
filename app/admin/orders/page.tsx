@@ -3,24 +3,40 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AdminLayout from '../components/AdminLayout';
-import { 
-  Search, 
-  Filter,
-  Eye,
-  Mail,
-  Truck,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  RefreshCw,
-  Download,
-  Edit,
-  MoreHorizontal,
-  Package,
-  User,
-  Calendar,
-  DollarSign
-} from 'lucide-react';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EmailIcon from '@mui/icons-material/Email';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import EditIcon from '@mui/icons-material/Edit';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import PersonIcon from '@mui/icons-material/Person';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+
+// Icon aliases
+const Search = SearchIcon;
+const Filter = FilterListIcon;
+const Eye = VisibilityIcon;
+const Mail = EmailIcon;
+const Truck = LocalShippingIcon;
+const CheckCircle = CheckCircleIcon;
+const Clock = AccessTimeIcon;
+const AlertCircle = ErrorOutlineIcon;
+const RefreshCw = RefreshIcon;
+const Download = CloudDownloadIcon;
+const Edit = EditIcon;
+const MoreHorizontal = MoreHorizIcon;
+const Package = Inventory2Icon;
+const User = PersonIcon;
+const Calendar = CalendarTodayIcon;
+const DollarSign = AttachMoneyIcon;
 
 interface Order {
   id: string;

@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Check } from 'lucide-react';
+import CheckIcon from '@mui/icons-material/Check';
+
+// Icon aliases
+const Check = CheckIcon;
 
 export default function PreviewPage() {
   const router = useRouter();

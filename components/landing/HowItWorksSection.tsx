@@ -1,7 +1,18 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { UserPlus, CreditCard, Palette, User, Share2 } from 'lucide-react';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import PaletteIcon from '@mui/icons-material/Palette';
+import PersonIcon from '@mui/icons-material/Person';
+import ShareIcon from '@mui/icons-material/Share';
+
+// Icon aliases
+const UserPlus = PersonAddIcon;
+const CreditCard = CreditCardIcon;
+const Palette = PaletteIcon;
+const User = PersonIcon;
+const Share2 = ShareIcon;
 
 interface Step {
   number: string;

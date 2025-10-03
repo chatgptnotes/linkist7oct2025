@@ -2,12 +2,15 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { LogOut } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import Logo from './Logo';
 import UserProfileDropdown from './UserProfileDropdown';
+import LogoutIcon from '@mui/icons-material/Logout';
+
+// Icon aliases
+const LogOut = LogoutIcon;
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;

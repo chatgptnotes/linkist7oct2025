@@ -3,22 +3,36 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Heart,
-  Send,
-  Linkedin,
-  Twitter,
-  Instagram,
-  Youtube,
-  Shield,
-  CreditCard,
-  Truck,
-  Award,
-  CheckCircle
-} from 'lucide-react';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import SendIcon from '@mui/icons-material/Send';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import XIcon from '@mui/icons-material/X';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import SecurityIcon from '@mui/icons-material/Security';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+// Icon aliases
+const Mail = EmailIcon;
+const Phone = PhoneIcon;
+const MapPin = LocationOnIcon;
+const Heart = FavoriteIcon;
+const Send = SendIcon;
+const Linkedin = LinkedInIcon;
+const Twitter = XIcon;
+const Instagram = InstagramIcon;
+const Youtube = YouTubeIcon;
+const Shield = SecurityIcon;
+const CreditCard = CreditCardIcon;
+const Truck = LocalShippingIcon;
+const Award = EmojiEventsIcon;
+const CheckCircle = CheckCircleIcon;
 
 const FooterSection = () => {
   const currentYear = new Date().getFullYear();

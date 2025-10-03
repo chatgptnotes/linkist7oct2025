@@ -1,10 +1,41 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, User, Mail, Phone, Calendar, Package, Filter, ChevronLeft, Download, UserPlus, Eye, MoreVertical, Edit, Trash2, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import AdminLayout from '../components/AdminLayout';
 import { type Order } from '@/lib/order-store';
+import SearchIcon from '@mui/icons-material/Search';
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+
+// Icon aliases
+const Search = SearchIcon;
+const User = PersonIcon;
+const Mail = EmailIcon;
+const Phone = PhoneIcon;
+const Calendar = CalendarTodayIcon;
+const Package = Inventory2Icon;
+const Filter = FilterListIcon;
+const ChevronLeft = ChevronLeftIcon;
+const Download = CloudDownloadIcon;
+const UserPlus = PersonAddIcon;
+const Eye = VisibilityIcon;
+const MoreVertical = MoreVertIcon;
+const Edit = EditIcon;
+const Trash2 = DeleteIcon;
+const MapPin = LocationOnIcon;
 
 interface Customer {
   email: string;

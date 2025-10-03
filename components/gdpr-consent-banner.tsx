@@ -1,8 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Shield, Settings } from 'lucide-react';
 import Link from 'next/link';
+import CloseIcon from '@mui/icons-material/Close';
+import SecurityIcon from '@mui/icons-material/Security';
+import SettingsIcon from '@mui/icons-material/Settings';
+
+// Icon aliases
+const X = CloseIcon;
+const Shield = SecurityIcon;
+const Settings = SettingsIcon;
 
 interface ConsentPreferences {
   essential: boolean;

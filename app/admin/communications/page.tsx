@@ -1,21 +1,33 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Mail, 
-  Send, 
-  MessageSquare, 
-  Users, 
-  Calendar, 
-  Filter,
-  Search,
-  Plus,
-  Eye,
-  Reply,
-  Archive,
-  Trash2
-} from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
+import EmailIcon from '@mui/icons-material/Email';
+import SendIcon from '@mui/icons-material/Send';
+import MessageIcon from '@mui/icons-material/Message';
+import GroupsIcon from '@mui/icons-material/Groups';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ReplyIcon from '@mui/icons-material/Reply';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+// Icon aliases
+const Mail = EmailIcon;
+const Send = SendIcon;
+const MessageSquare = MessageIcon;
+const Users = GroupsIcon;
+const Calendar = CalendarTodayIcon;
+const Filter = FilterListIcon;
+const Search = SearchIcon;
+const Plus = AddIcon;
+const Eye = VisibilityIcon;
+const Reply = ReplyIcon;
+const Archive = ArchiveIcon;
+const Trash2 = DeleteIcon;
 
 interface Communication {
   id: string;

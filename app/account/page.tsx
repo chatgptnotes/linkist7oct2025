@@ -3,7 +3,38 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Package, Truck, CheckCircle, Clock, User, Settings, CreditCard, Mail, AlertCircle, Edit2, Shield, Download, Trash2, Save, X } from 'lucide-react';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import EmailIcon from '@mui/icons-material/Email';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import SecurityIcon from '@mui/icons-material/Security';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
+import CloseIcon from '@mui/icons-material/Close';
+
+// Icon aliases
+const Package = Inventory2Icon;
+const Truck = LocalShippingIcon;
+const CheckCircle = CheckCircleIcon;
+const Clock = AccessTimeIcon;
+const User = PersonIcon;
+const Settings = SettingsIcon;
+const CreditCard = CreditCardIcon;
+const Mail = EmailIcon;
+const AlertCircle = ErrorOutlineIcon;
+const Edit2 = EditIcon;
+const Shield = SecurityIcon;
+const Download = CloudDownloadIcon;
+const Trash2 = DeleteIcon;
+const Save = SaveIcon;
+const X = CloseIcon;
 
 interface User {
   id: string;

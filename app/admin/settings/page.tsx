@@ -2,28 +2,48 @@
 
 import { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { 
-  Settings, 
-  Save, 
-  Upload, 
-  Mail, 
-  CreditCard, 
-  Shield, 
-  Globe, 
-  Palette, 
-  Bell,
-  Database,
-  Key,
-  Users,
-  Package,
-  Truck,
-  Eye,
-  EyeOff,
-  Check,
-  X,
-  RefreshCw,
-  AlertTriangle
-} from 'lucide-react';
+import SettingsIcon from '@mui/icons-material/Settings';
+import SaveIcon from '@mui/icons-material/Save';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import EmailIcon from '@mui/icons-material/Email';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import SecurityIcon from '@mui/icons-material/Security';
+import LanguageIcon from '@mui/icons-material/Language';
+import PaletteIcon from '@mui/icons-material/Palette';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import StorageIcon from '@mui/icons-material/Storage';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import GroupsIcon from '@mui/icons-material/Groups';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import WarningIcon from '@mui/icons-material/Warning';
+
+// Icon aliases
+const Settings = SettingsIcon;
+const Save = SaveIcon;
+const Upload = CloudUploadIcon;
+const Mail = EmailIcon;
+const CreditCard = CreditCardIcon;
+const Shield = SecurityIcon;
+const Globe = LanguageIcon;
+const Palette = PaletteIcon;
+const Bell = NotificationsIcon;
+const Database = StorageIcon;
+const Key = VpnKeyIcon;
+const Users = GroupsIcon;
+const Package = Inventory2Icon;
+const Truck = LocalShippingIcon;
+const Eye = VisibilityIcon;
+const EyeOff = VisibilityOffIcon;
+const Check = CheckIcon;
+const X = CloseIcon;
+const RefreshCw = RefreshIcon;
+const AlertTriangle = WarningIcon;
 
 interface SystemSettings {
   general: {

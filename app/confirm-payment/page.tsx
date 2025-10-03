@@ -3,7 +3,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronDown, Lock, CreditCard, HelpCircle } from 'lucide-react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import LockIcon from '@mui/icons-material/Lock';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+
+// Icon aliases
+const ChevronDown = ExpandMoreIcon;
+const Lock = LockIcon;
+const CreditCard = CreditCardIcon;
+const HelpCircle = HelpOutlineIcon;
 
 export default function ConfirmPaymentPage() {
   const router = useRouter();

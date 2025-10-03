@@ -3,7 +3,20 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight, Sparkles, CreditCard, Smartphone, Globe, Award } from 'lucide-react';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import SmartphoneIcon from '@mui/icons-material/Smartphone';
+import LanguageIcon from '@mui/icons-material/Language';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+
+// Icon aliases
+const ChevronRight = ChevronRightIcon;
+const Sparkles = AutoAwesomeIcon;
+const CreditCard = CreditCardIcon;
+const Smartphone = SmartphoneIcon;
+const Globe = LanguageIcon;
+const Award = EmojiEventsIcon;
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);

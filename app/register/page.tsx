@@ -3,9 +3,22 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, Eye, EyeOff, User, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
 import Logo from '@/components/Logo';
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import PersonIcon from '@mui/icons-material/Person';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+// Icon aliases
+const Mail = EmailIcon;
+const Lock = LockIcon;
+const Eye = VisibilityIcon;
+const EyeOff = VisibilityOffIcon;
+const User = PersonIcon;
+const ArrowLeft = ArrowBackIcon;
 
 export default function RegisterPage() {
   const router = useRouter();

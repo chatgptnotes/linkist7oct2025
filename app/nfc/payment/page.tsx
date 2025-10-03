@@ -3,9 +3,26 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { CreditCard, Lock, Shield, Check, ChevronLeft, Smartphone, Ticket, AlertCircle } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import QRCode from 'qrcode';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import LockIcon from '@mui/icons-material/Lock';
+import SecurityIcon from '@mui/icons-material/Security';
+import CheckIcon from '@mui/icons-material/Check';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import SmartphoneIcon from '@mui/icons-material/Smartphone';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+
+// Icon aliases
+const CreditCard = CreditCardIcon;
+const Lock = LockIcon;
+const Shield = SecurityIcon;
+const Check = CheckIcon;
+const ChevronLeft = ChevronLeftIcon;
+const Smartphone = SmartphoneIcon;
+const Ticket = ConfirmationNumberIcon;
+const AlertCircle = ErrorOutlineIcon;
 
 // Initialize Stripe (you'll need to add your publishable key)
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -315,29 +332,16 @@ export default function NFCPaymentPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <button
-                onClick={() => router.back()}
-                className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <Image
-                src="/logo_linkist.png"
-                alt="Linkist"
-                width={100}
-                height={33}
-                priority
-              />
-            </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <Lock className="w-4 h-4 mr-2 text-green-500" />
-              <span>Secure Checkout</span>
-            </div>
+      {/* Simplified Header - Linkist Logo Only */}
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-center">
+            <a href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+              <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">L</span>
+              </div>
+              <span className="text-2xl font-bold text-gray-900">Linkist</span>
+            </a>
           </div>
         </div>
       </header>
@@ -354,11 +358,11 @@ export default function NFCPaymentPage() {
               <div className="flex gap-2 mb-6">
                 <button
                   onClick={() => setPaymentMethod('card')}
-                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                    paymentMethod === 'card'
-                      ? 'bg-black text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className="flex-1 py-3 px-4 rounded-lg font-medium transition-all"
+                  style={{
+                    backgroundColor: paymentMethod === 'card' ? '#000000' : '#F3F4F6',
+                    color: paymentMethod === 'card' ? '#FFFFFF' : '#374151'
+                  }}
                 >
                   <CreditCard className="w-5 h-5 inline mr-2" />
                   Pay with Card
@@ -367,11 +371,11 @@ export default function NFCPaymentPage() {
                 {isIndia && (
                   <button
                     onClick={() => setPaymentMethod('upi')}
-                    className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                      paymentMethod === 'upi'
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                    className="flex-1 py-3 px-4 rounded-lg font-medium transition-all"
+                    style={{
+                      backgroundColor: paymentMethod === 'upi' ? '#9333EA' : '#F3F4F6',
+                      color: paymentMethod === 'upi' ? '#FFFFFF' : '#374151'
+                    }}
                   >
                     <Smartphone className="w-5 h-5 inline mr-2" />
                     UPI
@@ -380,11 +384,11 @@ export default function NFCPaymentPage() {
 
                 <button
                   onClick={() => setPaymentMethod('voucher')}
-                  className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
-                    paymentMethod === 'voucher'
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className="flex-1 py-3 px-4 rounded-lg font-medium transition-all"
+                  style={{
+                    backgroundColor: paymentMethod === 'voucher' ? '#16A34A' : '#F3F4F6',
+                    color: paymentMethod === 'voucher' ? '#FFFFFF' : '#374151'
+                  }}
                 >
                   <Ticket className="w-5 h-5 inline mr-2" />
                   Voucher
@@ -398,18 +402,20 @@ export default function NFCPaymentPage() {
                     <h3 className="text-sm font-medium text-gray-700 mb-3">Express Checkout</h3>
                     <div className="grid grid-cols-2 gap-3">
                       <button
-                        className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors bg-black text-white hover:bg-gray-900"
+                        className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg transition-colors font-medium"
+                        style={{ backgroundColor: '#000000', color: '#FFFFFF' }}
                         onClick={() => alert('Apple Pay integration coming soon!')}
                       >
                         <span className="text-xl mr-2">🍎</span>
-                        <span className="font-medium">Pay</span>
+                        <span>Pay</span>
                       </button>
                       <button
-                        className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                        className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg transition-colors font-medium"
+                        style={{ backgroundColor: '#FFFFFF', color: '#000000' }}
                         onClick={() => alert('Google Pay integration coming soon!')}
                       >
                         <span className="text-xl mr-2 font-bold">G</span>
-                        <span className="font-medium">Google Pay</span>
+                        <span>Google Pay</span>
                       </button>
                     </div>
                   </div>
@@ -575,7 +581,8 @@ export default function NFCPaymentPage() {
                       />
                       <button
                         onClick={validateVoucher}
-                        className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                        className="px-6 py-3 rounded-lg transition-colors"
+                        style={{ backgroundColor: '#111827', color: '#FFFFFF' }}
                       >
                         Apply
                       </button>
@@ -616,7 +623,8 @@ export default function NFCPaymentPage() {
                             setVoucherCode(code);
                             validateVoucher();
                           }}
-                          className="px-3 py-1 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50"
+                          className="px-3 py-1 border border-gray-300 rounded text-sm"
+                          style={{ backgroundColor: '#FFFFFF', color: '#000000' }}
                         >
                           {code}
                         </button>
@@ -630,7 +638,11 @@ export default function NFCPaymentPage() {
               <button
                 onClick={handlePayment}
                 disabled={processing}
-                className="w-full mt-6 bg-red-600 text-white py-4 rounded-xl font-semibold text-lg hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="w-full mt-6 py-4 rounded-xl font-semibold text-lg transition-colors disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: processing ? '#D1D5DB' : '#DC2626',
+                  color: '#FFFFFF'
+                }}
               >
                 {processing ? (
                   <div className="flex items-center justify-center">
@@ -717,6 +729,24 @@ export default function NFCPaymentPage() {
           </div>
         </div>
       </div>
+
+      {/* Simplified Footer Navigation */}
+      <footer className="bg-black text-white border-t border-white/10 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-white text-xl font-bold">Linkist</div>
+            <div className="flex gap-6 flex-wrap justify-center text-sm">
+              <a href="/privacy" className="text-white/70 hover:text-red-500 transition-colors">Privacy Policy</a>
+              <a href="/terms" className="text-white/70 hover:text-red-500 transition-colors">Terms of Service</a>
+              <a href="/security" className="text-white/70 hover:text-red-500 transition-colors">Security</a>
+              <a href="/accessibility" className="text-white/70 hover:text-red-500 transition-colors">Accessibility</a>
+            </div>
+            <div className="text-white/50 text-sm">
+              © {new Date().getFullYear()} Linkist Inc. All rights reserved.
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

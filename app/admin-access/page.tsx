@@ -3,7 +3,20 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Shield, Key, ChevronRight, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
+import SecurityIcon from '@mui/icons-material/Security';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+// Icon aliases
+const Shield = SecurityIcon;
+const Key = VpnKeyIcon;
+const ChevronRight = ChevronRightIcon;
+const AlertCircle = ErrorOutlineIcon;
+const CheckCircle = CheckCircleIcon;
+const ArrowLeft = ArrowBackIcon;
 
 export default function AdminAccessPage() {
   const [pin, setPin] = useState('');

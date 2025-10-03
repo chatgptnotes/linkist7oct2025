@@ -2,8 +2,19 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, X, Sparkles, TrendingUp, Building2 } from 'lucide-react';
 import Link from 'next/link';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import BusinessIcon from '@mui/icons-material/Business';
+
+// Icon aliases
+const Check = CheckIcon;
+const X = CloseIcon;
+const Sparkles = AutoAwesomeIcon;
+const TrendingUp = TrendingUpIcon;
+const Building2 = BusinessIcon;
 
 interface PricingTier {
   id: string;

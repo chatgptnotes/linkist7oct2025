@@ -3,7 +3,16 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Check, ArrowLeft, RefreshCw } from 'lucide-react';
+import EmailIcon from '@mui/icons-material/Email';
+import CheckIcon from '@mui/icons-material/Check';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import RefreshIcon from '@mui/icons-material/Refresh';
+
+// Icon aliases
+const Mail = EmailIcon;
+const Check = CheckIcon;
+const ArrowLeft = ArrowBackIcon;
+const RefreshCw = RefreshIcon;
 
 function VerifyEmailContent() {
   const router = useRouter();

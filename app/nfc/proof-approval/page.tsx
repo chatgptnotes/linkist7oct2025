@@ -3,9 +3,20 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle, XCircle, Edit, ShoppingCart } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
 import { cartUtils, safeLocalStorage } from '@/lib/cart-utils';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import EditIcon from '@mui/icons-material/Edit';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+
+// Icon aliases
+const ArrowLeft = ArrowBackIcon;
+const CheckCircle = CheckCircleIcon;
+const XCircle = CancelIcon;
+const Edit = EditIcon;
+const ShoppingCart = ShoppingCartIcon;
 
 interface CardConfig {
   fullName: string;

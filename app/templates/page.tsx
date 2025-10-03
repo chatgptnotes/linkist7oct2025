@@ -3,24 +3,40 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import {
-  Briefcase,
-  Palette,
-  Code,
-  Heart,
-  Camera,
-  Music,
-  Zap,
-  Globe,
-  Award,
-  Users,
-  Sparkles,
-  TrendingUp,
-  Check,
-  Eye,
-  Download,
-  Share2
-} from 'lucide-react';
+import WorkIcon from '@mui/icons-material/Work';
+import PaletteIcon from '@mui/icons-material/Palette';
+import CodeIcon from '@mui/icons-material/Code';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
+import LanguageIcon from '@mui/icons-material/Language';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import GroupsIcon from '@mui/icons-material/Groups';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import CheckIcon from '@mui/icons-material/Check';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import ShareIcon from '@mui/icons-material/Share';
+
+// Icon aliases
+const Briefcase = WorkIcon;
+const Palette = PaletteIcon;
+const Code = CodeIcon;
+const Heart = FavoriteIcon;
+const Camera = CameraAltIcon;
+const Music = MusicNoteIcon;
+const Zap = FlashOnIcon;
+const Globe = LanguageIcon;
+const Award = EmojiEventsIcon;
+const Users = GroupsIcon;
+const Sparkles = AutoAwesomeIcon;
+const TrendingUp = TrendingUpIcon;
+const Check = CheckIcon;
+const Eye = VisibilityIcon;
+const Download = CloudDownloadIcon;
+const Share2 = ShareIcon;
 
 const templates = [
   {

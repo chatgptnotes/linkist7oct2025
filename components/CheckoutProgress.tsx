@@ -1,7 +1,10 @@
 'use client';
 
-import { Check } from 'lucide-react';
 import { motion } from 'framer-motion';
+import CheckIcon from '@mui/icons-material/Check';
+
+// Icon aliases
+const Check = CheckIcon;
 
 interface Step {
   id: string;

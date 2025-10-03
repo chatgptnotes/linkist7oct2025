@@ -1,22 +1,34 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Package, 
-  Users, 
-  DollarSign, 
-  TrendingUp, 
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  Eye,
-  ArrowUpRight,
-  ArrowDownRight,
-  Calendar,
-  RefreshCw
-} from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import GroupsIcon from '@mui/icons-material/Groups';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WarningIcon from '@mui/icons-material/Warning';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import NorthEastIcon from '@mui/icons-material/NorthEast';
+import SouthEastIcon from '@mui/icons-material/SouthEast';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import RefreshIcon from '@mui/icons-material/Refresh';
+
+// Icon aliases
+const Package = Inventory2Icon;
+const Users = GroupsIcon;
+const DollarSign = AttachMoneyIcon;
+const TrendingUp = TrendingUpIcon;
+const Clock = AccessTimeIcon;
+const CheckCircle = CheckCircleIcon;
+const AlertTriangle = WarningIcon;
+const Eye = VisibilityIcon;
+const ArrowUpRight = NorthEastIcon;
+const ArrowDownRight = SouthEastIcon;
+const Calendar = CalendarTodayIcon;
+const RefreshCw = RefreshIcon;
 
 interface DashboardStats {
   totalOrders: number;

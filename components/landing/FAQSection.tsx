@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Minus } from 'lucide-react';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+
+// Icon aliases
+const Plus = AddIcon;
+const Minus = RemoveIcon;
 
 interface FAQItem {
   question: string;

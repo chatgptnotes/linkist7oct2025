@@ -3,7 +3,14 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Logo from '@/components/Logo';
-import { Check, X, RefreshCw } from 'lucide-react';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import RefreshIcon from '@mui/icons-material/Refresh';
+
+// Icon aliases
+const Check = CheckIcon;
+const X = CloseIcon;
+const RefreshCw = RefreshIcon;
 
 function VerifyMobileContent() {
   const router = useRouter();

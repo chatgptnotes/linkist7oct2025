@@ -2,7 +2,22 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Download, Trash2, Mail, Shield, AlertCircle, CheckCircle } from 'lucide-react';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EmailIcon from '@mui/icons-material/Email';
+import SecurityIcon from '@mui/icons-material/Security';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+// Icon aliases
+const ArrowLeft = ArrowBackIcon;
+const Download = CloudDownloadIcon;
+const Trash2 = DeleteIcon;
+const Mail = EmailIcon;
+const Shield = SecurityIcon;
+const AlertCircle = ErrorOutlineIcon;
+const CheckCircle = CheckCircleIcon;
 
 export default function PrivacyManagePage() {
   const [email, setEmail] = useState('');

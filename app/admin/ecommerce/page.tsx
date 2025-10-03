@@ -1,23 +1,36 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  ShoppingCart, 
-  CreditCard, 
-  TrendingUp, 
-  DollarSign, 
-  Package,
-  Users,
-  Calendar,
-  Filter,
-  Search,
-  Download,
-  RefreshCw,
-  ArrowUpRight,
-  ArrowDownRight
-} from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import GroupsIcon from '@mui/icons-material/Groups';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import SearchIcon from '@mui/icons-material/Search';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import NorthEastIcon from '@mui/icons-material/NorthEast';
+import SouthEastIcon from '@mui/icons-material/SouthEast';
+
+// Icon aliases
+const ShoppingCart = ShoppingCartIcon;
+const CreditCard = CreditCardIcon;
+const TrendingUp = TrendingUpIcon;
+const DollarSign = AttachMoneyIcon;
+const Package = Inventory2Icon;
+const Users = GroupsIcon;
+const Calendar = CalendarTodayIcon;
+const Filter = FilterListIcon;
+const Search = SearchIcon;
+const Download = CloudDownloadIcon;
+const RefreshCw = RefreshIcon;
+const ArrowUpRight = NorthEastIcon;
+const ArrowDownRight = SouthEastIcon;
 
 interface EcommerceStats {
   totalSales: number;

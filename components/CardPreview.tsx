@@ -1,9 +1,26 @@
 'use client';
 
 import { useRef } from 'react';
-import { Phone, Mail, Globe, Linkedin, Twitter, Instagram, Facebook, Download } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import PhoneIcon from '@mui/icons-material/Phone';
+import EmailIcon from '@mui/icons-material/Email';
+import LanguageIcon from '@mui/icons-material/Language';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import XIcon from '@mui/icons-material/X';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+
+// Icon aliases
+const Phone = PhoneIcon;
+const Mail = EmailIcon;
+const Globe = LanguageIcon;
+const Linkedin = LinkedInIcon;
+const Twitter = XIcon;
+const Instagram = InstagramIcon;
+const Facebook = FacebookIcon;
+const Download = CloudDownloadIcon;
 
 interface CardPreviewProps {
   config: {

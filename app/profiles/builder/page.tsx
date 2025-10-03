@@ -2,36 +2,64 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import {
-  ArrowLeft,
-  ArrowRight,
-  User,
-  Briefcase,
-  Link2,
-  Image,
-  Settings,
-  Eye,
-  Save,
-  Check,
-  Upload,
-  Plus,
-  X,
-  Globe,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Building,
-  GraduationCap,
-  Award,
-  FileText,
-  Github,
-  Linkedin,
-  Twitter,
-  Instagram,
-  Facebook,
-  Youtube
-} from 'lucide-react'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import PersonIcon from '@mui/icons-material/Person'
+import WorkIcon from '@mui/icons-material/Work'
+import LinkIcon from '@mui/icons-material/Link'
+import ImageIcon from '@mui/icons-material/Image'
+import SettingsIcon from '@mui/icons-material/Settings'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import SaveIcon from '@mui/icons-material/Save'
+import CheckIcon from '@mui/icons-material/Check'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import AddIcon from '@mui/icons-material/Add'
+import CloseIcon from '@mui/icons-material/Close'
+import LanguageIcon from '@mui/icons-material/Language'
+import EmailIcon from '@mui/icons-material/Email'
+import PhoneIcon from '@mui/icons-material/Phone'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
+import BusinessIcon from '@mui/icons-material/Business'
+import SchoolIcon from '@mui/icons-material/School'
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
+import DescriptionIcon from '@mui/icons-material/Description'
+import GitHubIcon from '@mui/icons-material/GitHub'
+import LinkedInIcon from '@mui/icons-material/LinkedIn'
+import XIcon from '@mui/icons-material/X'
+import InstagramIcon from '@mui/icons-material/Instagram'
+import FacebookIcon from '@mui/icons-material/Facebook'
+import YouTubeIcon from '@mui/icons-material/YouTube'
+
+// Icon aliases for backward compatibility
+const ArrowLeft = ArrowBackIcon
+const ArrowRight = ArrowForwardIcon
+const User = PersonIcon
+const Briefcase = WorkIcon
+const Link2 = LinkIcon
+const Image = ImageIcon
+const Settings = SettingsIcon
+const Eye = VisibilityIcon
+const Save = SaveIcon
+const Check = CheckIcon
+const Upload = CloudUploadIcon
+const Plus = AddIcon
+const X = CloseIcon
+const Globe = LanguageIcon
+const Mail = EmailIcon
+const Phone = PhoneIcon
+const MapPin = LocationOnIcon
+const Calendar = CalendarTodayIcon
+const Building = BusinessIcon
+const GraduationCap = SchoolIcon
+const Award = EmojiEventsIcon
+const FileText = DescriptionIcon
+const Github = GitHubIcon
+const Linkedin = LinkedInIcon
+const Twitter = XIcon
+const Instagram = InstagramIcon
+const Facebook = FacebookIcon
+const Youtube = YouTubeIcon
 
 const steps = [
   { id: 'basic', name: 'Basic Info', icon: User },
@@ -64,15 +92,26 @@ function ProfileBuilderContent() {
     // Basic Info
     firstName: '',
     lastName: '',
-    title: '',
-    bio: '',
     email: '',
+    alternateEmail: '',
     phone: '',
+    whatsapp: '',
     location: '',
-    profileImage: null as File | null,
 
-    // Professional
+    // Professional Information
+    jobTitle: '',
+    currentRole: '',
     company: '',
+    companyWebsite: '',
+    industry: '',
+    subDomain: '',
+
+    // Bio
+    bio: '',
+    professionalSummary: '',
+
+    // Professional (legacy)
+    title: '',
     position: '',
     experience: [] as Array<{
       company: string
@@ -93,6 +132,7 @@ function ProfileBuilderContent() {
     socialLinks: {} as Record<string, string>,
 
     // Media
+    profilePhoto: null as File | null,
     coverImage: null as File | null,
     gallery: [] as File[],
     documents: [] as File[],
@@ -134,27 +174,112 @@ function ProfileBuilderContent() {
     }
   }
 
+  const uploadImage = async (file: File, folder: string = 'profiles'): Promise<string | null> => {
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', folder)
+
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        return data.url
+      }
+      return null
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      return null
+    }
+  }
+
   const handleSave = async () => {
     setIsSubmitting(true)
 
     try {
-      // TODO: Save to Supabase
+      // Upload profile photo if exists
+      let profilePhotoUrl = null
+      if (profileData.profilePhoto) {
+        profilePhotoUrl = await uploadImage(profileData.profilePhoto, 'profiles')
+      }
+
+      // Upload cover image if exists
+      let coverImageUrl = null
+      if (profileData.coverImage) {
+        coverImageUrl = await uploadImage(profileData.coverImage, 'covers')
+      }
+
+      // Upload gallery images
+      const galleryUrls: string[] = []
+      for (const image of profileData.gallery) {
+        const url = await uploadImage(image, 'gallery')
+        if (url) galleryUrls.push(url)
+      }
+
+      // Upload documents
+      const documentUrls: string[] = []
+      for (const doc of profileData.documents) {
+        const url = await uploadImage(doc, 'documents')
+        if (url) documentUrls.push(url)
+      }
+
+      // Prepare data without File objects
+      const dataToSave = {
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        title: profileData.title,
+        bio: profileData.bio,
+        email: profileData.email,
+        alternateEmail: profileData.alternateEmail,
+        phone: profileData.phone,
+        whatsapp: profileData.whatsapp,
+        location: profileData.location,
+
+        // Professional Information
+        jobTitle: profileData.jobTitle,
+        currentRole: profileData.currentRole,
+        company: profileData.company,
+        companyWebsite: profileData.companyWebsite,
+        industry: profileData.industry,
+        subDomain: profileData.subDomain,
+        professionalSummary: profileData.professionalSummary,
+
+        position: profileData.position,
+        skills: profileData.skills,
+        socialLinks: profileData.socialLinks,
+        visibility: profileData.visibility,
+        customUrl: profileData.customUrl,
+        theme: profileData.theme,
+        allowContact: profileData.allowContact,
+        showAnalytics: profileData.showAnalytics,
+        profile_image_url: profilePhotoUrl,
+        cover_image_url: coverImageUrl,
+        gallery_urls: galleryUrls,
+        document_urls: documentUrls,
+        template,
+        id: profileId
+      }
+
       const response = await fetch('/api/profiles', {
         method: profileId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...profileData,
-          template,
-          id: profileId
-        })
+        body: JSON.stringify(dataToSave)
       })
 
       if (response.ok) {
         const data = await response.json()
         router.push(`/p/${data.profileId || profileId}`)
+      } else {
+        const error = await response.json()
+        console.error('Save error:', error)
+        alert('Failed to save profile: ' + (error.details || error.error))
       }
     } catch (error) {
       console.error('Error saving profile:', error)
+      alert('An error occurred while saving the profile')
     } finally {
       setIsSubmitting(false)
     }
@@ -195,15 +320,15 @@ function ProfileBuilderContent() {
       case 'basic':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold mb-6">Basic Information</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-900">Basic Information</h2>
 
             {/* Profile Image Upload */}
             <div className="flex items-center space-x-6">
               <div className="relative">
                 <div className="h-24 w-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
-                  {profileData.profileImage ? (
+                  {profileData.profilePhoto ? (
                     <img
-                      src={URL.createObjectURL(profileData.profileImage)}
+                      src={URL.createObjectURL(profileData.profilePhoto)}
                       alt="Profile"
                       className="h-full w-full object-cover"
                     />
@@ -219,14 +344,14 @@ function ProfileBuilderContent() {
                     className="hidden"
                     onChange={(e) => {
                       if (e.target.files?.[0]) {
-                        setProfileData({ ...profileData, profileImage: e.target.files[0] })
+                        setProfileData({ ...profileData, profilePhoto: e.target.files[0] })
                       }
                     }}
                   />
                 </label>
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-700">Profile Photo</p>
+                <p className="text-sm font-medium text-gray-900">Profile Photo</p>
                 <p className="text-xs text-gray-500">Upload a professional photo. Recommended: 400x400px</p>
               </div>
             </div>
@@ -240,7 +365,7 @@ function ProfileBuilderContent() {
                   type="text"
                   value={profileData.firstName}
                   onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="John"
                 />
               </div>
@@ -252,35 +377,10 @@ function ProfileBuilderContent() {
                   type="text"
                   value={profileData.lastName}
                   onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="Doe"
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Professional Title
-              </label>
-              <input
-                type="text"
-                value={profileData.title}
-                onChange={(e) => setProfileData({ ...profileData, title: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
-                placeholder="Senior Software Engineer"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Bio
-              </label>
-              <textarea
-                value={profileData.bio}
-                onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent h-32 resize-none"
-                placeholder="Tell us about yourself..."
-              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -293,10 +393,26 @@ function ProfileBuilderContent() {
                   type="email"
                   value={profileData.email}
                   onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="john@example.com"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <Mail className="inline h-4 w-4 mr-1" />
+                  Alternate Email
+                </label>
+                <input
+                  type="email"
+                  value={profileData.alternateEmail}
+                  onChange={(e) => setProfileData({ ...profileData, alternateEmail: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  placeholder="alternate@example.com"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <Phone className="inline h-4 w-4 mr-1" />
@@ -306,8 +422,110 @@ function ProfileBuilderContent() {
                   type="tel"
                   value={profileData.phone}
                   onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                   placeholder="+1 (555) 123-4567"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <Phone className="inline h-4 w-4 mr-1" />
+                  WhatsApp Number
+                </label>
+                <input
+                  type="tel"
+                  value={profileData.whatsapp}
+                  onChange={(e) => setProfileData({ ...profileData, whatsapp: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Current Job Title
+                </label>
+                <input
+                  type="text"
+                  value={profileData.jobTitle}
+                  onChange={(e) => setProfileData({ ...profileData, jobTitle: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  placeholder="e.g. Senior Product Manager"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Current Role
+                </label>
+                <input
+                  type="text"
+                  value={profileData.currentRole}
+                  onChange={(e) => setProfileData({ ...profileData, currentRole: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  placeholder="e.g. Product Lead"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Company Name
+                </label>
+                <input
+                  type="text"
+                  value={profileData.company}
+                  onChange={(e) => setProfileData({ ...profileData, company: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  placeholder="e.g. Acme Corp"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Company Website
+                </label>
+                <input
+                  type="url"
+                  value={profileData.companyWebsite}
+                  onChange={(e) => setProfileData({ ...profileData, companyWebsite: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  placeholder="https://company.com"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Industry
+                </label>
+                <select
+                  value={profileData.industry}
+                  onChange={(e) => setProfileData({ ...profileData, industry: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                >
+                  <option value="">Select Industry</option>
+                  <option value="technology">Technology</option>
+                  <option value="finance">Finance</option>
+                  <option value="healthcare">Healthcare</option>
+                  <option value="education">Education</option>
+                  <option value="retail">Retail</option>
+                  <option value="manufacturing">Manufacturing</option>
+                  <option value="consulting">Consulting</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sub Domain / Specialization
+                </label>
+                <input
+                  type="text"
+                  value={profileData.subDomain}
+                  onChange={(e) => setProfileData({ ...profileData, subDomain: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                  placeholder="e.g. SaaS, E-commerce"
                 />
               </div>
             </div>
@@ -321,9 +539,22 @@ function ProfileBuilderContent() {
                 type="text"
                 value={profileData.location}
                 onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                 placeholder="San Francisco, CA"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Professional Summary
+              </label>
+              <textarea
+                value={profileData.professionalSummary}
+                onChange={(e) => setProfileData({ ...profileData, professionalSummary: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent h-32 resize-none"
+                placeholder="Write a brief summary of your professional background, skills, and achievements..."
+              />
+              <p className="text-xs text-gray-500 mt-1">This will be displayed prominently on your profile</p>
             </div>
           </div>
         )
@@ -331,11 +562,11 @@ function ProfileBuilderContent() {
       case 'professional':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold mb-6">Professional Information</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-900">Professional Information</h2>
 
             {/* Current Position */}
             <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="font-medium mb-4 flex items-center">
+              <h3 className="font-medium mb-4 flex items-center text-gray-900">
                 <Building className="h-5 w-5 mr-2" />
                 Current Position
               </h3>
@@ -346,7 +577,7 @@ function ProfileBuilderContent() {
                     type="text"
                     value={profileData.company}
                     onChange={(e) => setProfileData({ ...profileData, company: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                     placeholder="Acme Corp"
                   />
                 </div>
@@ -356,7 +587,7 @@ function ProfileBuilderContent() {
                     type="text"
                     value={profileData.position}
                     onChange={(e) => setProfileData({ ...profileData, position: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
                     placeholder="Senior Developer"
                   />
                 </div>
@@ -365,14 +596,14 @@ function ProfileBuilderContent() {
 
             {/* Experience */}
             <div>
-              <h3 className="font-medium mb-4 flex items-center justify-between">
+              <h3 className="font-medium mb-4 flex items-center text-gray-900 justify-between">
                 <span className="flex items-center">
                   <Briefcase className="h-5 w-5 mr-2" />
                   Work Experience
                 </span>
                 <button
                   onClick={addExperience}
-                  className="text-sm text-blue-600 hover:text-blue-700 flex items-center"
+                  className="text-sm text-[#E02424] hover:text-[#C01E1E] flex items-center"
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Experience
@@ -380,14 +611,14 @@ function ProfileBuilderContent() {
               </h3>
               <div className="space-y-4">
                 {profileData.experience.map((exp, index) => (
-                  <div key={index} className="border rounded-lg p-4 relative">
+                  <div key={index} className="border border-gray-300 rounded-lg bg-white p-4 relative">
                     <button
                       onClick={() => {
                         const newExperience = [...profileData.experience]
                         newExperience.splice(index, 1)
                         setProfileData({ ...profileData, experience: newExperience })
                       }}
-                      className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+                      className="absolute top-2 right-2 text-gray-500 hover:text-[#E02424]"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -400,7 +631,7 @@ function ProfileBuilderContent() {
                           newExperience[index].company = e.target.value
                           setProfileData({ ...profileData, experience: newExperience })
                         }}
-                        className="px-3 py-2 border rounded-lg text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         placeholder="Company Name"
                       />
                       <input
@@ -411,7 +642,7 @@ function ProfileBuilderContent() {
                           newExperience[index].position = e.target.value
                           setProfileData({ ...profileData, experience: newExperience })
                         }}
-                        className="px-3 py-2 border rounded-lg text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         placeholder="Position"
                       />
                     </div>
@@ -424,7 +655,7 @@ function ProfileBuilderContent() {
                           newExperience[index].startDate = e.target.value
                           setProfileData({ ...profileData, experience: newExperience })
                         }}
-                        className="px-3 py-2 border rounded-lg text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                       />
                       <input
                         type="month"
@@ -434,7 +665,7 @@ function ProfileBuilderContent() {
                           newExperience[index].endDate = e.target.value
                           setProfileData({ ...profileData, experience: newExperience })
                         }}
-                        className="px-3 py-2 border rounded-lg text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                       />
                     </div>
                     <textarea
@@ -444,7 +675,7 @@ function ProfileBuilderContent() {
                         newExperience[index].description = e.target.value
                         setProfileData({ ...profileData, experience: newExperience })
                       }}
-                      className="w-full px-3 py-2 border rounded-lg text-sm h-20 resize-none"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm h-20 resize-none"
                       placeholder="Description of responsibilities..."
                     />
                   </div>
@@ -454,14 +685,14 @@ function ProfileBuilderContent() {
 
             {/* Education */}
             <div>
-              <h3 className="font-medium mb-4 flex items-center justify-between">
+              <h3 className="font-medium mb-4 flex items-center text-gray-900 justify-between">
                 <span className="flex items-center">
                   <GraduationCap className="h-5 w-5 mr-2" />
                   Education
                 </span>
                 <button
                   onClick={addEducation}
-                  className="text-sm text-blue-600 hover:text-blue-700 flex items-center"
+                  className="text-sm text-[#E02424] hover:text-[#C01E1E] flex items-center"
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Education
@@ -469,14 +700,14 @@ function ProfileBuilderContent() {
               </h3>
               <div className="space-y-4">
                 {profileData.education.map((edu, index) => (
-                  <div key={index} className="border rounded-lg p-4 relative">
+                  <div key={index} className="border border-gray-300 rounded-lg bg-white p-4 relative">
                     <button
                       onClick={() => {
                         const newEducation = [...profileData.education]
                         newEducation.splice(index, 1)
                         setProfileData({ ...profileData, education: newEducation })
                       }}
-                      className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+                      className="absolute top-2 right-2 text-gray-500 hover:text-[#E02424]"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -489,7 +720,7 @@ function ProfileBuilderContent() {
                           newEducation[index].institution = e.target.value
                           setProfileData({ ...profileData, education: newEducation })
                         }}
-                        className="px-3 py-2 border rounded-lg text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         placeholder="University Name"
                       />
                       <input
@@ -500,7 +731,7 @@ function ProfileBuilderContent() {
                           newEducation[index].degree = e.target.value
                           setProfileData({ ...profileData, education: newEducation })
                         }}
-                        className="px-3 py-2 border rounded-lg text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         placeholder="Degree (e.g., Bachelor's)"
                       />
                     </div>
@@ -513,7 +744,7 @@ function ProfileBuilderContent() {
                           newEducation[index].field = e.target.value
                           setProfileData({ ...profileData, education: newEducation })
                         }}
-                        className="px-3 py-2 border rounded-lg text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         placeholder="Field of Study"
                       />
                       <input
@@ -524,7 +755,7 @@ function ProfileBuilderContent() {
                           newEducation[index].graduationYear = e.target.value
                           setProfileData({ ...profileData, education: newEducation })
                         }}
-                        className="px-3 py-2 border rounded-lg text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         placeholder="Graduation Year"
                       />
                     </div>
@@ -535,7 +766,7 @@ function ProfileBuilderContent() {
 
             {/* Skills */}
             <div>
-              <h3 className="font-medium mb-4 flex items-center">
+              <h3 className="font-medium mb-4 flex items-center text-gray-900">
                 <Award className="h-5 w-5 mr-2" />
                 Skills
               </h3>
@@ -550,7 +781,7 @@ function ProfileBuilderContent() {
                 />
                 <button
                   onClick={addSkill}
-                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+                  className="px-4 py-2 bg-[#E02424] text-white rounded-lg hover:bg-[#C01E1E]"
                 >
                   Add
                 </button>
@@ -559,7 +790,7 @@ function ProfileBuilderContent() {
                 {profileData.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-gray-100 rounded-full text-sm flex items-center gap-1"
+                    className="px-3 py-1 bg-[#2C2C32] rounded-full text-sm flex items-center gap-1"
                   >
                     {skill}
                     <button
@@ -567,7 +798,7 @@ function ProfileBuilderContent() {
                         const newSkills = profileData.skills.filter((_, i) => i !== index)
                         setProfileData({ ...profileData, skills: newSkills })
                       }}
-                      className="ml-1 text-gray-500 hover:text-red-500"
+                      className="ml-1 text-gray-500 hover:text-[#E02424]"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -581,8 +812,8 @@ function ProfileBuilderContent() {
       case 'links':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold mb-6">Social Links</h2>
-            <p className="text-gray-600">Add your social media profiles and contact information</p>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-900">Social Links</h2>
+            <p className="text-gray-500">Add your social media profiles and contact information</p>
 
             <div className="space-y-4">
               {socialPlatforms.map((platform) => {
@@ -590,7 +821,7 @@ function ProfileBuilderContent() {
                 return (
                   <div key={platform.id} className="flex items-center gap-4">
                     <div className="w-40 flex items-center gap-2">
-                      <Icon className="h-5 w-5 text-gray-600" />
+                      <Icon className="h-5 w-5 text-gray-500" />
                       <span className="text-sm font-medium">{platform.name}</span>
                     </div>
                     <input
@@ -618,7 +849,7 @@ function ProfileBuilderContent() {
       case 'media':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold mb-6">Media & Documents</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-900">Media & Documents</h2>
 
             {/* Cover Image */}
             <div>
@@ -633,15 +864,15 @@ function ProfileBuilderContent() {
                     />
                     <button
                       onClick={() => setProfileData({ ...profileData, coverImage: null })}
-                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                      className="absolute top-2 right-2 bg-[#E02424] text-white p-1 rounded-full hover:bg-[#C01E1E]"
                     >
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                 ) : (
                   <label className="flex flex-col items-center justify-center cursor-pointer">
-                    <Upload className="h-12 w-12 text-gray-400 mb-3" />
-                    <p className="text-sm text-gray-600">Click to upload cover image</p>
+                    <Upload className="h-12 w-12 text-gray-500 mb-3" />
+                    <p className="text-sm text-gray-500">Click to upload cover image</p>
                     <p className="text-xs text-gray-500 mt-1">Recommended: 1920x600px</p>
                     <input
                       type="file"
@@ -674,14 +905,14 @@ function ProfileBuilderContent() {
                         const newGallery = profileData.gallery.filter((_, i) => i !== index)
                         setProfileData({ ...profileData, gallery: newGallery })
                       }}
-                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-2 right-2 bg-[#E02424] text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X className="h-3 w-3" />
                     </button>
                   </div>
                 ))}
                 <label className="border-2 border-dashed border-gray-300 rounded-lg h-32 flex items-center justify-center cursor-pointer hover:border-gray-400">
-                  <Plus className="h-8 w-8 text-gray-400" />
+                  <Plus className="h-8 w-8 text-gray-500" />
                   <input
                     type="file"
                     accept="image/*"
@@ -708,7 +939,7 @@ function ProfileBuilderContent() {
                 {profileData.documents.map((doc, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <FileText className="h-5 w-5 text-gray-600" />
+                      <FileText className="h-5 w-5 text-gray-500" />
                       <span className="text-sm">{doc.name}</span>
                     </div>
                     <button
@@ -724,8 +955,8 @@ function ProfileBuilderContent() {
                 ))}
                 <label className="block">
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-gray-400">
-                    <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">Upload documents (PDF, DOC, etc.)</p>
+                    <Upload className="h-8 w-8 text-gray-500 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">Upload documents (PDF, DOC, etc.)</p>
                     <input
                       type="file"
                       accept=".pdf,.doc,.docx,.txt"
@@ -751,11 +982,11 @@ function ProfileBuilderContent() {
       case 'settings':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold mb-6">Profile Settings</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-900">Profile Settings</h2>
 
             {/* Visibility */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-gray-900 mb-3">
                 Profile Visibility
               </label>
               <div className="space-y-2">
@@ -769,7 +1000,7 @@ function ProfileBuilderContent() {
                       onChange={(e) =>
                         setProfileData({ ...profileData, visibility: e.target.value as any })
                       }
-                      className="text-black"
+                      className="text-gray-900"
                     />
                     <div>
                       <p className="font-medium capitalize">{visibility}</p>
@@ -803,7 +1034,7 @@ function ProfileBuilderContent() {
 
             {/* Theme */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-gray-900 mb-3">
                 Profile Theme
               </label>
               <div className="grid grid-cols-3 gap-3">
@@ -813,7 +1044,7 @@ function ProfileBuilderContent() {
                     onClick={() => setProfileData({ ...profileData, theme: theme as any })}
                     className={`p-3 border rounded-lg capitalize ${
                       profileData.theme === theme
-                        ? 'border-black bg-black text-white'
+                        ? 'border-[#E02424] bg-[#E02424] text-white'
                         : 'border-gray-300 hover:border-gray-400'
                     }`}
                   >
@@ -857,10 +1088,10 @@ function ProfileBuilderContent() {
       case 'preview':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold mb-6">Profile Preview</h2>
+            <h2 className="text-2xl font-semibold mb-6 text-gray-900">Profile Preview</h2>
 
             {/* Preview Card */}
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-white border border-gray-300 rounded-xl shadow-lg overflow-hidden">
               {/* Cover Image */}
               <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative">
                 {profileData.coverImage && (
@@ -877,9 +1108,9 @@ function ProfileBuilderContent() {
                 {/* Avatar and Basic Info */}
                 <div className="flex items-start gap-4 -mt-12 mb-6">
                   <div className="h-24 w-24 bg-gray-200 rounded-full border-4 border-white overflow-hidden">
-                    {profileData.profileImage ? (
+                    {profileData.profilePhoto ? (
                       <img
-                        src={URL.createObjectURL(profileData.profileImage)}
+                        src={URL.createObjectURL(profileData.profilePhoto)}
                         alt="Profile"
                         className="h-full w-full object-cover"
                       />
@@ -890,10 +1121,10 @@ function ProfileBuilderContent() {
                     )}
                   </div>
                   <div className="flex-1 pt-12">
-                    <h3 className="text-2xl font-bold">
+                    <h3 className="text-2xl font-bold text-gray-900">
                       {profileData.firstName} {profileData.lastName}
                     </h3>
-                    <p className="text-gray-600">{profileData.title}</p>
+                    <p className="text-gray-500">{profileData.title}</p>
                     <p className="text-sm text-gray-500 mt-1">{profileData.location}</p>
                   </div>
                 </div>
@@ -901,20 +1132,20 @@ function ProfileBuilderContent() {
                 {/* Bio */}
                 {profileData.bio && (
                   <div className="mb-6">
-                    <p className="text-gray-700">{profileData.bio}</p>
+                    <p className="text-gray-900">{profileData.bio}</p>
                   </div>
                 )}
 
                 {/* Contact Info */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   {profileData.email && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
                       <Mail className="h-4 w-4" />
                       <span>{profileData.email}</span>
                     </div>
                   )}
                   {profileData.phone && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
                       <Phone className="h-4 w-4" />
                       <span>{profileData.phone}</span>
                     </div>
@@ -924,8 +1155,8 @@ function ProfileBuilderContent() {
                 {/* Current Position */}
                 {(profileData.company || profileData.position) && (
                   <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-semibold mb-2">Current Position</h4>
-                    <p className="text-sm">
+                    <h4 className="font-semibold mb-2 text-gray-900">Current Position</h4>
+                    <p className="text-sm text-gray-500">
                       {profileData.position} {profileData.company && `at ${profileData.company}`}
                     </p>
                   </div>
@@ -934,10 +1165,10 @@ function ProfileBuilderContent() {
                 {/* Skills */}
                 {profileData.skills.length > 0 && (
                   <div className="mb-6">
-                    <h4 className="font-semibold mb-3">Skills</h4>
+                    <h4 className="font-semibold mb-3 text-gray-900">Skills</h4>
                     <div className="flex flex-wrap gap-2">
                       {profileData.skills.map((skill, index) => (
-                        <span key={index} className="px-3 py-1 bg-gray-100 rounded-full text-sm">
+                        <span key={index} className="px-3 py-1 bg-[#2C2C32] rounded-full text-sm text-gray-900">
                           {skill}
                         </span>
                       ))}
@@ -958,7 +1189,7 @@ function ProfileBuilderContent() {
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                        className="p-2 bg-[#2C2C32] rounded-lg hover:bg-[#E02424] transition-colors text-gray-900"
                       >
                         <Icon className="h-5 w-5" />
                       </a>
@@ -972,7 +1203,7 @@ function ProfileBuilderContent() {
             <div className="flex gap-3">
               <button
                 onClick={() => window.open(`/p/preview?data=${encodeURIComponent(JSON.stringify(profileData))}`, '_blank')}
-                className="flex-1 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 py-3 border border-gray-300 bg-gray-50 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-gray-900"
               >
                 <Eye className="h-5 w-5" />
                 View Full Preview
@@ -980,10 +1211,10 @@ function ProfileBuilderContent() {
               <button
                 onClick={handleSave}
                 disabled={isSubmitting}
-                className="flex-1 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 py-3 bg-[#E02424] text-white rounded-lg hover:bg-[#C01E1E] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <Save className="h-5 w-5" />
-                {isSubmitting ? 'Saving...' : 'Save Profile'}
+                {isSubmitting ? 'Uploading & Saving...' : 'Save Profile'}
               </button>
             </div>
           </div>
@@ -1018,7 +1249,8 @@ function ProfileBuilderContent() {
               <button
                 onClick={handleSave}
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-[#E02424] text-white rounded-lg hover:bg-[#C01E1E] transition-colors disabled:opacity-50"
+                style={{ backgroundColor: '#E02424', color: '#FFFFFF' }}
               >
                 {isSubmitting ? 'Publishing...' : 'Publish Profile'}
               </button>
@@ -1042,7 +1274,7 @@ function ProfileBuilderContent() {
                     onClick={() => setCurrentStep(index)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                       isActive
-                        ? 'bg-black text-white'
+                        ? 'bg-[#E02424] text-white'
                         : isCompleted
                         ? 'bg-green-100 text-green-700'
                         : 'bg-gray-100 text-gray-500'
@@ -1091,7 +1323,8 @@ function ProfileBuilderContent() {
           {currentStep < steps.length - 1 ? (
             <button
               onClick={handleNext}
-              className="px-6 py-3 bg-black text-white rounded-lg flex items-center gap-2 hover:bg-gray-800"
+              className="px-6 py-3 bg-[#E02424] text-white rounded-lg flex items-center gap-2 hover:bg-[#C01E1E]"
+              style={{ backgroundColor: '#E02424', color: '#FFFFFF' }}
             >
               Next
               <ArrowRight className="h-5 w-5" />
@@ -1100,7 +1333,7 @@ function ProfileBuilderContent() {
             <button
               onClick={handleSave}
               disabled={isSubmitting}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg flex items-center gap-2 hover:bg-green-700 disabled:opacity-50"
+              className="px-6 py-3 bg-[#E02424] text-white rounded-lg flex items-center gap-2 hover:bg-[#C01E1E] disabled:opacity-50"
             >
               <Check className="h-5 w-5" />
               {isSubmitting ? 'Creating Profile...' : 'Create Profile'}
@@ -1118,7 +1351,7 @@ export default function ProfileBuilderPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading profile builder...</p>
+          <p className="mt-4 text-gray-500">Loading profile builder...</p>
         </div>
       </div>
     }>

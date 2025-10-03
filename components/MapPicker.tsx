@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { MapPin, Loader, Search } from 'lucide-react';
 
 // Types for address data
 interface AddressData {
@@ -26,6 +25,14 @@ interface MapPickerProps {
 }
 
 // Dynamically import Leaflet components to avoid SSR issues
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LoopIcon from '@mui/icons-material/Loop';
+import SearchIcon from '@mui/icons-material/Search';
+
+// Icon aliases
+const MapPin = LocationOnIcon;
+const Loader = LoopIcon;
+const Search = SearchIcon;
 const MapContainer = dynamic(
   () => import('react-leaflet').then((mod) => mod.MapContainer),
   { ssr: false }

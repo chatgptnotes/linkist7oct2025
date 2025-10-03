@@ -2,8 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { User, Users, X } from 'lucide-react';
+import PersonIcon from '@mui/icons-material/Person';
+import GroupsIcon from '@mui/icons-material/Groups';
+import CloseIcon from '@mui/icons-material/Close';
+
+const User = PersonIcon;
+const Users = GroupsIcon;
+const X = CloseIcon;
 
 export default function ChoosePlanPage() {
   const router = useRouter();
@@ -56,19 +61,6 @@ Team Size: ${formData.teamSize}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
-      <header className="px-6 py-4 border-b border-gray-100 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <Image
-            src="/logo_linkist.png"
-            alt="Linkist"
-            width={120}
-            height={40}
-            priority
-          />
-        </div>
-      </header>
-
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-6 py-12">
         <div className="text-center mb-12">

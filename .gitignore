@@ -42,3 +42,11 @@ coverage/
 tmp/
 temp/
 .vercel
+
+# Documentation files that may contain secrets
+FIX_VERIFY_SID.md
+TWILIO_QUICK_SETUP.md
+TWILIO_NAVIGATION_GUIDE.md
+SMS_ENABLE_KARO.md
+CONSOLE_OTP_GUIDE.md
+check-twilio-config.sh

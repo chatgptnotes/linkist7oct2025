@@ -3,9 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
 import Logo from '@/components/Logo';
+import EmailIcon from '@mui/icons-material/Email';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+// Icon aliases
+const Mail = EmailIcon;
+const ArrowLeft = ArrowBackIcon;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -115,6 +120,10 @@ export default function LoginPage() {
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
                 }`}
+                style={{
+                  backgroundColor: loading ? '#9CA3AF' : '#DC2626',
+                  color: '#FFFFFF'
+                }}
               >
                 {loading ? (
                   <div className="flex items-center">

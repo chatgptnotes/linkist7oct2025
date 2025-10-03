@@ -2,7 +2,16 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import StarIcon from '@mui/icons-material/Star';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
+
+// Icon aliases
+const Star = StarIcon;
+const ChevronLeft = ChevronLeftIcon;
+const ChevronRight = ChevronRightIcon;
+const Quote = FormatQuoteIcon;
 
 interface Testimonial {
   id: string;

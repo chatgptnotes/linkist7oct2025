@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check } from 'lucide-react';
+import CheckIcon from '@mui/icons-material/Check';
+
+// Icon aliases
+const Check = CheckIcon;
 
 // Define types for our configuration
 type BaseMaterial = 'pvc' | 'wood' | 'metal';
@@ -239,23 +242,16 @@ export default function ConfigureNewPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      {/* Modern Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-16 z-40 backdrop-blur-lg bg-opacity-90">
+      {/* Simplified Header - Linkist Logo Only */}
+      <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Configure Your NFC Card</h1>
-              <p className="text-sm text-gray-600 mt-1">Craft your perfect digital business card</p>
-            </div>
-            <div className="hidden sm:flex items-center space-x-2">
-              <div className="flex items-center space-x-1">
-                <div className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center text-xs font-semibold">1</div>
-                <div className="w-16 h-0.5 bg-gray-300"></div>
-                <div className="w-8 h-8 rounded-full bg-gray-300 text-gray-500 flex items-center justify-center text-xs font-semibold">2</div>
-                <div className="w-16 h-0.5 bg-gray-300"></div>
-                <div className="w-8 h-8 rounded-full bg-gray-300 text-gray-500 flex items-center justify-center text-xs font-semibold">3</div>
+          <div className="flex items-center justify-center">
+            <a href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+              <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">L</span>
               </div>
-            </div>
+              <span className="text-2xl font-bold text-gray-900">Linkist</span>
+            </a>
           </div>
         </div>
       </div>
@@ -376,19 +372,16 @@ export default function ConfigureNewPage() {
                           key={texture.value}
                           onClick={() => handleTextureChange(texture.value)}
                           disabled={!isAvailable}
-                          className={`relative p-3 border rounded-lg transition-all ${
+                          className={`relative p-3 border-2 rounded-lg transition-all ${
                             !isAvailable
                               ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-100'
                               : isSelected
-                                ? 'border-red-500 bg-red-50 shadow-sm'
+                                ? 'border-red-500 bg-red-50 shadow-md ring-2 ring-red-200'
                                 : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                           }`}
                         >
-                          {isSelected && isAvailable && (
-                            <Check className="absolute top-1 right-1 h-3 w-3 text-red-500" />
-                          )}
                           <div className="text-center">
-                            <h4 className={`text-xs font-medium ${!isAvailable ? 'text-gray-500' : 'text-gray-900'}`}>
+                            <h4 className={`text-xs font-medium ${!isAvailable ? 'text-gray-500' : isSelected ? 'text-red-600' : 'text-gray-900'}`}>
                               {texture.label}
                             </h4>
                           </div>
@@ -414,9 +407,9 @@ export default function ConfigureNewPage() {
                           className={`relative group ${!isAvailable ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                           <div
-                            className={`w-14 h-14 rounded-xl border-3 transition-all ${
+                            className={`w-14 h-14 rounded-xl border-4 transition-all ${
                               isSelected && isAvailable
-                                ? 'border-red-500 scale-110 shadow-lg'
+                                ? 'border-red-500 scale-110 shadow-lg ring-4 ring-red-200'
                                 : !isAvailable
                                   ? 'border-gray-200 opacity-50'
                                   : 'border-gray-300 hover:scale-105'
@@ -425,15 +418,9 @@ export default function ConfigureNewPage() {
                               backgroundColor: colour.hex,
                               opacity: !isAvailable ? 0.5 : 1
                             }}
-                          >
-                            {isSelected && isAvailable && (
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <Check className="h-6 w-6 text-white drop-shadow-lg" />
-                              </div>
-                            )}
-                          </div>
+                          />
                           <span className={`text-xs mt-1 block text-center font-medium ${
-                            !isAvailable ? 'text-gray-500' : 'text-gray-700'
+                            !isAvailable ? 'text-gray-500' : isSelected ? 'text-red-600' : 'text-gray-700'
                           }`}>
                             {colour.label}
                           </span>
@@ -676,6 +663,24 @@ export default function ConfigureNewPage() {
           </div>
         </div>
       </div>
+
+      {/* Simplified Footer Navigation */}
+      <footer className="bg-black text-white border-t border-white/10 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-white text-xl font-bold">Linkist</div>
+            <div className="flex gap-6 flex-wrap justify-center text-sm">
+              <a href="/privacy" className="text-white/70 hover:text-red-500 transition-colors">Privacy Policy</a>
+              <a href="/terms" className="text-white/70 hover:text-red-500 transition-colors">Terms of Service</a>
+              <a href="/security" className="text-white/70 hover:text-red-500 transition-colors">Security</a>
+              <a href="/accessibility" className="text-white/70 hover:text-red-500 transition-colors">Accessibility</a>
+            </div>
+            <div className="text-white/50 text-sm">
+              © {new Date().getFullYear()} Linkist Inc. All rights reserved.
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

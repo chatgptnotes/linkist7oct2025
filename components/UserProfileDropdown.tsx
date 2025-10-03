@@ -3,17 +3,26 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  User,
-  Settings,
-  CreditCard,
-  HelpCircle,
-  LogOut,
-  ChevronDown,
-  Package,
-  Shield,
-  Bell
-} from 'lucide-react';
+import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import LogoutIcon from '@mui/icons-material/Logout';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import SecurityIcon from '@mui/icons-material/Security';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+
+// Icon aliases
+const User = PersonIcon;
+const Settings = SettingsIcon;
+const CreditCard = CreditCardIcon;
+const HelpCircle = HelpOutlineIcon;
+const LogOut = LogoutIcon;
+const ChevronDown = ExpandMoreIcon;
+const Package = Inventory2Icon;
+const Shield = SecurityIcon;
+const Bell = NotificationsIcon;
 
 interface UserProfileDropdownProps {
   user?: {

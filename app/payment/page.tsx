@@ -3,8 +3,19 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { CreditCard, Lock, Shield, Check, ChevronLeft } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import LockIcon from '@mui/icons-material/Lock';
+import SecurityIcon from '@mui/icons-material/Security';
+import CheckIcon from '@mui/icons-material/Check';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+
+// Icon aliases
+const CreditCard = CreditCardIcon;
+const Lock = LockIcon;
+const Shield = SecurityIcon;
+const Check = CheckIcon;
+const ChevronLeft = ChevronLeftIcon;
 
 interface OrderItem {
   id: string;
@@ -398,6 +409,10 @@ export default function PaymentPage() {
                 onClick={handlePayment}
                 disabled={processing}
                 className="w-full bg-red-600 text-white py-4 rounded-xl font-semibold text-lg hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: processing ? '#d1d5db' : '#dc2626',
+                  color: '#ffffff'
+                }}
               >
                 {processing ? (
                   <div className="flex items-center justify-center">

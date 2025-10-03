@@ -2,8 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { Check, CreditCard, Smartphone, User, Globe } from 'lucide-react';
+import CheckIcon from '@mui/icons-material/Check';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import SmartphoneIcon from '@mui/icons-material/Smartphone';
+import PersonIcon from '@mui/icons-material/Person';
+import LanguageIcon from '@mui/icons-material/Language';
+
+const Check = CheckIcon;
+const CreditCard = CreditCardIcon;
+const Smartphone = SmartphoneIcon;
+const User = PersonIcon;
+const Globe = LanguageIcon;
 import { useToast } from '@/components/ToastProvider';
 
 interface ProductOption {
@@ -157,19 +166,6 @@ export default function ProductSelectionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header */}
-      <header className="px-6 py-4 border-b border-gray-100 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <Image
-            src="/logo_linkist.png"
-            alt="Linkist"
-            width={120}
-            height={40}
-            priority
-          />
-        </div>
-      </header>
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Title Section */}

@@ -4,22 +4,36 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { RBAC, Permission, usePermissions } from '@/lib/rbac';
-import { 
-  LayoutDashboard, 
-  Package, 
-  Users, 
-  ShoppingCart,
-  FileText,
-  BarChart3,
-  UserCheck,
-  Mail,
-  Settings,
-  CreditCard,
-  Menu,
-  X,
-  LogOut,
-  User
-} from 'lucide-react';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import GroupsIcon from '@mui/icons-material/Groups';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import DescriptionIcon from '@mui/icons-material/Description';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import EmailIcon from '@mui/icons-material/Email';
+import SettingsIcon from '@mui/icons-material/Settings';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
+
+// Icon aliases
+const LayoutDashboard = DashboardIcon;
+const Package = Inventory2Icon;
+const Users = GroupsIcon;
+const ShoppingCart = ShoppingCartIcon;
+const FileText = DescriptionIcon;
+const BarChart = BarChartIcon;
+const UserCheck = PersonAddAlt1Icon;
+const Mail = EmailIcon;
+const Settings = SettingsIcon;
+const CreditCard = CreditCardIcon;
+const Menu = MenuIcon;
+const X = CloseIcon;
+const LogOut = LogoutIcon;
+const User = PersonIcon;
 
 interface AuthUser {
   id: string;
@@ -71,7 +85,7 @@ const navigationItems = [
   {
     name: 'Analytics',
     href: '/admin/analytics',
-    icon: BarChart3,
+    icon: BarChart,
     permission: Permission.VIEW_STATS,
   },
   {

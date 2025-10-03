@@ -13,7 +13,7 @@ interface LogoProps {
 }
 
 export default function Logo({
-  href = '/landing',
+  href = '/',
   className = '',
   imageClassName = '',
   width = 120,

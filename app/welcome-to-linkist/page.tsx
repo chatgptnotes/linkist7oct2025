@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Globe } from 'lucide-react';
+import LanguageIcon from '@mui/icons-material/Language';
+
+const Globe = LanguageIcon;
 import { useToast } from '@/components/ToastProvider';
 
 export default function WelcomeToLinkist() {

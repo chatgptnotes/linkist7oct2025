@@ -1,7 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Lock, X, AlertCircle } from 'lucide-react';
+import LockIcon from '@mui/icons-material/Lock';
+import CloseIcon from '@mui/icons-material/Close';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+
+// Icon aliases
+const Lock = LockIcon;
+const X = CloseIcon;
+const AlertCircle = ErrorOutlineIcon;
 
 interface PinVerificationModalProps {
   isOpen: boolean;

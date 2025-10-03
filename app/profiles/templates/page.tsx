@@ -2,7 +2,37 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Check, Sparkles, Briefcase, Code, Camera, Music, Heart, Palette, Trophy, Mic, BookOpen, Coffee, Gamepad2 } from 'lucide-react'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CheckIcon from '@mui/icons-material/Check';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import WorkIcon from '@mui/icons-material/Work';
+import CodeIcon from '@mui/icons-material/Code';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import PaletteIcon from '@mui/icons-material/Palette';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import MicIcon from '@mui/icons-material/Mic';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import CoffeeIcon from '@mui/icons-material/Coffee';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+
+// Icon aliases
+const ArrowLeft = ArrowBackIcon;
+const Check = CheckIcon;
+const Sparkles = AutoAwesomeIcon;
+const Briefcase = WorkIcon;
+const Code = CodeIcon;
+const Camera = CameraAltIcon;
+const Music = MusicNoteIcon;
+const Heart = FavoriteIcon;
+const Palette = PaletteIcon;
+const Trophy = EmojiEventsIcon;
+const Mic = MicIcon;
+const BookOpen = MenuBookIcon;
+const Coffee = CoffeeIcon;
+const SportsEsports = SportsEsportsIcon;
+
 
 const templates = [
   {
@@ -99,7 +129,7 @@ const templates = [
     id: 'gamer',
     name: 'Gamer',
     description: 'Level up your gaming presence',
-    icon: Gamepad2,
+    icon: SportsEsports,
     color: 'bg-violet-500',
     features: ['Stream Schedule', 'Gaming Stats', 'Clan Info', 'Tournament History'],
     popular: false

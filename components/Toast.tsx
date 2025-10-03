@@ -1,7 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CheckCircle, X } from 'lucide-react';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CloseIcon from '@mui/icons-material/Close';
+
+// Icon aliases
+const CheckCircle = CheckCircleIcon;
+const X = CloseIcon;
 
 interface ToastProps {
   message: string;

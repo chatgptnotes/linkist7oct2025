@@ -3,21 +3,33 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import {
-  Crown,
-  Star,
-  Check,
-  Zap,
-  Gift,
-  Users,
-  Trophy,
-  Sparkles,
-  Lock,
-  Shield,
-  TrendingUp,
-  Heart
-} from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
+import StarsIcon from '@mui/icons-material/Stars';
+import StarIcon from '@mui/icons-material/Star';
+import CheckIcon from '@mui/icons-material/Check';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
+import GroupsIcon from '@mui/icons-material/Groups';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import LockIcon from '@mui/icons-material/Lock';
+import SecurityIcon from '@mui/icons-material/Security';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
+// Icon aliases
+const Crown = StarsIcon;
+const Star = StarIcon;
+const Check = CheckIcon;
+const Zap = FlashOnIcon;
+const Gift = CardGiftcardIcon;
+const Users = GroupsIcon;
+const Trophy = EmojiEventsIcon;
+const Sparkles = AutoAwesomeIcon;
+const Lock = LockIcon;
+const Shield = SecurityIcon;
+const TrendingUp = TrendingUpIcon;
+const Heart = FavoriteIcon;
 
 export default function FoundingMemberPage() {
   const router = useRouter();

@@ -1,27 +1,45 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Users, 
-  Search, 
-  Filter, 
-  Plus, 
-  MoreVertical, 
-  Edit, 
-  Trash2, 
-  Shield, 
-  ShieldCheck,
-  Mail,
-  Phone,
-  Calendar,
-  UserPlus,
-  UserMinus,
-  Eye,
-  EyeOff,
-  Download,
-  Upload
-} from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
+import GroupsIcon from '@mui/icons-material/Groups';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import AddIcon from '@mui/icons-material/Add';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SecurityIcon from '@mui/icons-material/Security';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+
+// Icon aliases
+const Users = GroupsIcon;
+const Search = SearchIcon;
+const Filter = FilterListIcon;
+const Plus = AddIcon;
+const MoreVertical = MoreVertIcon;
+const Edit = EditIcon;
+const Trash2 = DeleteIcon;
+const Shield = SecurityIcon;
+const ShieldCheck = VerifiedUserIcon;
+const Mail = EmailIcon;
+const Phone = PhoneIcon;
+const Calendar = CalendarTodayIcon;
+const UserPlus = PersonAddIcon;
+const UserMinus = PersonRemoveIcon;
+const Eye = VisibilityIcon;
+const EyeOff = VisibilityOffIcon;
+const Download = CloudDownloadIcon;
+const Upload = CloudUploadIcon;
 
 interface User {
   id: string;

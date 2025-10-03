@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     const isDevelopment = process.env.NODE_ENV !== 'production';
 
     // Send OTP via Resend
-    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 're_c1tpEyD8_NKFusih9vKVQknRAQfmFcWCv') {
+    if (process.env.RESEND_API_KEY) {
       try {
         const emailResult = await sendOTPEmail({
           to: email,

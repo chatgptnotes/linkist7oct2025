@@ -1,23 +1,37 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  FileText, 
-  Search, 
-  Filter, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Eye,
-  Calendar,
-  User,
-  Tag,
-  Globe,
-  Image,
-  Video,
-  MoreVertical
-} from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
+import DescriptionIcon from '@mui/icons-material/Description';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import PersonIcon from '@mui/icons-material/Person';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import LanguageIcon from '@mui/icons-material/Language';
+import ImageIcon from '@mui/icons-material/Image';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+
+// Icon aliases
+const FileText = DescriptionIcon;
+const Search = SearchIcon;
+const Filter = FilterListIcon;
+const Plus = AddIcon;
+const Edit = EditIcon;
+const Trash2 = DeleteIcon;
+const Eye = VisibilityIcon;
+const Calendar = CalendarTodayIcon;
+const User = PersonIcon;
+const Tag = LocalOfferIcon;
+const Globe = LanguageIcon;
+const Image = ImageIcon;
+const Video = VideocamIcon;
+const MoreVertical = MoreVertIcon;
 
 interface ContentItem {
   id: string;

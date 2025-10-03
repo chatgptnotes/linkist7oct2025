@@ -3,34 +3,59 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  User,
-  Mail,
-  Phone,
-  Globe,
-  Linkedin,
-  Twitter,
-  Instagram,
-  Facebook,
-  Youtube,
-  Github,
-  MapPin,
-  Briefcase,
-  Building,
-  Calendar,
-  Save,
-  ArrowRight,
-  Upload,
-  X,
-  Check,
-  Plus,
-  Trash2,
-  Eye,
-  Copy,
-  Share2,
-  QrCode
-} from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import LanguageIcon from '@mui/icons-material/Language';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import XIcon from '@mui/icons-material/X';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import WorkIcon from '@mui/icons-material/Work';
+import BusinessIcon from '@mui/icons-material/Business';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import SaveIcon from '@mui/icons-material/Save';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ShareIcon from '@mui/icons-material/Share';
+import QrCodeIcon from '@mui/icons-material/QrCode';
+
+// Icon aliases
+const User = PersonIcon;
+const Mail = EmailIcon;
+const Phone = PhoneIcon;
+const Globe = LanguageIcon;
+const Linkedin = LinkedInIcon;
+const Twitter = XIcon;
+const Instagram = InstagramIcon;
+const Facebook = FacebookIcon;
+const Youtube = YouTubeIcon;
+const Github = GitHubIcon;
+const MapPin = LocationOnIcon;
+const Briefcase = WorkIcon;
+const Building = BusinessIcon;
+const Calendar = CalendarTodayIcon;
+const Save = SaveIcon;
+const ArrowRight = ArrowForwardIcon;
+const Upload = CloudUploadIcon;
+const X = CloseIcon;
+const Check = CheckIcon;
+const Plus = AddIcon;
+const Trash2 = DeleteIcon;
+const Eye = VisibilityIcon;
+const Copy = ContentCopyIcon;
+const Share2 = ShareIcon;
+const QrCode = QrCodeIcon;
 
 interface SocialLink {
   platform: string;

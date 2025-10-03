@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
 import { SupabaseMobileOTPStore, generateMobileOTP, cleanExpiredOTPs } from '@/lib/supabase-otp-store';
-import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
+import { rateLimitMiddleware, RateLimits, getClientIdentifier } from '@/lib/rate-limit';
+import { checkSpamAndBots } from '@/lib/spam-detection';
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -34,6 +35,36 @@ export async function POST(request: NextRequest) {
         { success: false, error: 'Please enter a valid mobile number (10-15 digits)' },
         { status: 400 }
       );
+    }
+
+    // Check for spam and bot activity
+    const ipAddress = getClientIdentifier(request);
+    const userAgent = request.headers.get('user-agent');
+
+    const spamCheck = await checkSpamAndBots(mobile, ipAddress, userAgent);
+
+    if (!spamCheck.allowed) {
+      console.warn(`🚫 Blocked OTP request - Phone: ${mobile}, IP: ${ipAddress}, Reason: ${spamCheck.reason}, Risk Score: ${spamCheck.riskScore}`);
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: spamCheck.reason || 'Request blocked',
+          retryAfter: spamCheck.retryAfter,
+          riskScore: spamCheck.riskScore,
+        },
+        {
+          status: 429,
+          headers: spamCheck.retryAfter
+            ? { 'Retry-After': spamCheck.retryAfter.toString() }
+            : {},
+        }
+      );
+    }
+
+    // Log elevated risk but allow
+    if (spamCheck.riskScore > 30) {
+      console.warn(`⚠️ Elevated risk score: ${spamCheck.riskScore} for phone ${mobile} from IP ${ipAddress}`);
     }
 
     // Validate Twilio credentials

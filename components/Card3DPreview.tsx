@@ -2,7 +2,26 @@
 
 import { useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { QrCode, Wifi, Smartphone, Globe, Mail, Phone, Linkedin, Instagram, Twitter } from 'lucide-react';
+import QrCodeIcon from '@mui/icons-material/QrCode';
+import WifiIcon from '@mui/icons-material/Wifi';
+import SmartphoneIcon from '@mui/icons-material/Smartphone';
+import LanguageIcon from '@mui/icons-material/Language';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import XIcon from '@mui/icons-material/X';
+
+// Icon aliases
+const QrCode = QrCodeIcon;
+const Wifi = WifiIcon;
+const Smartphone = SmartphoneIcon;
+const Globe = LanguageIcon;
+const Mail = EmailIcon;
+const Phone = PhoneIcon;
+const Linkedin = LinkedInIcon;
+const Instagram = InstagramIcon;
+const Twitter = XIcon;
 
 interface Card3DPreviewProps {
   cardData: {

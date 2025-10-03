@@ -2,8 +2,11 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Zap } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
+
+// Icon aliases
+const Zap = FlashOnIcon;
 
 interface ExpressCheckoutProps {
   amount: number;

@@ -3,22 +3,35 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  Plus,
-  Eye,
-  Edit3,
-  Trash2,
-  MoreVertical,
-  QrCode,
-  Share2,
-  BarChart3,
-  Users,
-  MousePointer,
-  TrendingUp,
-  Copy,
-  ExternalLink
-} from 'lucide-react';
 import Image from 'next/image';
+import AddIcon from '@mui/icons-material/Add';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import QrCodeIcon from '@mui/icons-material/QrCode';
+import ShareIcon from '@mui/icons-material/Share';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import GroupsIcon from '@mui/icons-material/Groups';
+import MouseIcon from '@mui/icons-material/Mouse';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+
+// Icon aliases
+const Plus = AddIcon;
+const Eye = VisibilityIcon;
+const Edit = EditIcon;
+const Trash2 = DeleteIcon;
+const MoreVertical = MoreVertIcon;
+const QrCode = QrCodeIcon;
+const Share2 = ShareIcon;
+const BarChart = BarChartIcon;
+const Users = GroupsIcon;
+const MousePointer = MouseIcon;
+const TrendingUp = TrendingUpIcon;
+const Copy = ContentCopyIcon;
+const ExternalLink = OpenInNewIcon;
 
 interface Profile {
   id: string;
@@ -267,14 +280,14 @@ export default function ProfileDashboard() {
                           href={`/profiles/builder?id=${profile.id}`}
                           className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                         >
-                          <Edit3 className="h-4 w-4 mr-2" />
+                          <Edit className="h-4 w-4 mr-2" />
                           Edit Profile
                         </Link>
                         <Link
                           href={`/profiles/${profile.id}/analytics`}
                           className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                         >
-                          <BarChart3 className="h-4 w-4 mr-2" />
+                          <BarChart className="h-4 w-4 mr-2" />
                           View Analytics
                         </Link>
                         <button

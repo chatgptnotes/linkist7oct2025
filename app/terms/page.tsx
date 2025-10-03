@@ -1,6 +1,19 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, FileText, Scale, CreditCard, Truck, AlertTriangle } from 'lucide-react';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DescriptionIcon from '@mui/icons-material/Description';
+import ScaleIcon from '@mui/icons-material/Scale';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import WarningIcon from '@mui/icons-material/Warning';
+
+// Icon aliases
+const ArrowLeft = ArrowBackIcon;
+const FileText = DescriptionIcon;
+const Scale = ScaleIcon;
+const CreditCard = CreditCardIcon;
+const Truck = LocalShippingIcon;
+const AlertTriangle = WarningIcon;
 
 export default function TermsOfServicePage() {
   return (

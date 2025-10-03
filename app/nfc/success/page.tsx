@@ -3,8 +3,19 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle, Package, Truck, Mail, ArrowRight } from 'lucide-react';
 import Logo from '@/components/Logo';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import EmailIcon from '@mui/icons-material/Email';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+
+// Icon aliases
+const CheckCircle = CheckCircleIcon;
+const Package = Inventory2Icon;
+const Truck = LocalShippingIcon;
+const Mail = EmailIcon;
+const ArrowRight = ArrowForwardIcon;
 
 export default function SuccessPage() {
   const router = useRouter();

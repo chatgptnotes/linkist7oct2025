@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle } from 'lucide-react';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+// Icon aliases
+const CheckCircle = CheckCircleIcon;
 
 interface StepData {
   firstName: string;

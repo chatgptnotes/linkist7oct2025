@@ -3,8 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
+import EmailIcon from '@mui/icons-material/Email';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+// Icon aliases
+const Mail = EmailIcon;
+const ArrowLeft = ArrowBackIcon;
+const CheckCircle = CheckCircleIcon;
 
 export default function VerifyRegisterPage() {
   const router = useRouter();

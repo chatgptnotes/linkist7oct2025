@@ -5,11 +5,22 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Truck, CreditCard, Shield, ArrowLeft, MapPin } from 'lucide-react';
 import dynamic from 'next/dynamic';
 // PIN verification removed - no longer needed
 
 // Dynamically import MapPicker to avoid SSR issues
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import SecurityIcon from '@mui/icons-material/Security';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+
+// Icon aliases
+const Truck = LocalShippingIcon;
+const CreditCard = CreditCardIcon;
+const Shield = SecurityIcon;
+const ArrowLeft = ArrowBackIcon;
+const MapPin = LocationOnIcon;
 const MapPicker = dynamic(() => import('@/components/MapPickerSimple'), {
   ssr: false,
   loading: () => (
@@ -312,20 +323,16 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <button
-              onClick={() => router.push('/nfc/configure')}
-              className="flex items-center space-x-2 transition-colors px-3 py-2 rounded-lg"
-              style={{ backgroundColor: '#F3F4F6', color: '#374151' }}
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span>Back to Design</span>
-            </button>
-            <h1 className="text-xl font-bold" style={{ color: '#1F2937' }}>Checkout</h1>
-            <div className="w-24"></div> {/* Spacer for centering */}
+      {/* Simplified Header - Linkist Logo Only */}
+      <header className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-center">
+            <a href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+              <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">L</span>
+              </div>
+              <span className="text-2xl font-bold text-gray-900">Linkist</span>
+            </a>
           </div>
         </div>
       </header>
@@ -667,7 +674,23 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {/* PIN verification removed - orders are created directly */}
+      {/* Simplified Footer Navigation */}
+      <footer className="bg-black text-white border-t border-white/10 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-white text-xl font-bold">Linkist</div>
+            <div className="flex gap-6 flex-wrap justify-center text-sm">
+              <a href="/privacy" className="text-white/70 hover:text-red-500 transition-colors">Privacy Policy</a>
+              <a href="/terms" className="text-white/70 hover:text-red-500 transition-colors">Terms of Service</a>
+              <a href="/security" className="text-white/70 hover:text-red-500 transition-colors">Security</a>
+              <a href="/accessibility" className="text-white/70 hover:text-red-500 transition-colors">Accessibility</a>
+            </div>
+            <div className="text-white/50 text-sm">
+              © {new Date().getFullYear()} Linkist Inc. All rights reserved.
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -3,8 +3,21 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ShoppingCart, Minus, Plus, Trash2, CheckCircle } from 'lucide-react';
 import CartCardPreview from '@/components/CartCardPreview';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+// Icon aliases
+const ArrowLeft = ArrowBackIcon;
+const ShoppingCart = ShoppingCartIcon;
+const Minus = RemoveIcon;
+const Plus = AddIcon;
+const Trash2 = DeleteIcon;
+const CheckCircle = CheckCircleIcon;
 
 export default function CartPage() {
   const router = useRouter();

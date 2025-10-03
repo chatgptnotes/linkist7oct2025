@@ -3,12 +3,41 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  User, Mail, Phone, Briefcase, MapPin, Globe,
-  Linkedin, Twitter, Instagram, Facebook, Youtube,
-  Camera, Plus, ArrowRight, Save, Eye
-} from 'lucide-react';
 import Logo from '@/components/Logo';
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import WorkIcon from '@mui/icons-material/Work';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LanguageIcon from '@mui/icons-material/Language';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import XIcon from '@mui/icons-material/X';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import AddIcon from '@mui/icons-material/Add';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import SaveIcon from '@mui/icons-material/Save';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+
+// Icon aliases
+const User = PersonIcon;
+const Mail = EmailIcon;
+const Phone = PhoneIcon;
+const Briefcase = WorkIcon;
+const MapPin = LocationOnIcon;
+const Globe = LanguageIcon;
+const Linkedin = LinkedInIcon;
+const Twitter = XIcon;
+const Instagram = InstagramIcon;
+const Facebook = FacebookIcon;
+const Youtube = YouTubeIcon;
+const Camera = CameraAltIcon;
+const Plus = AddIcon;
+const ArrowRight = ArrowForwardIcon;
+const Save = SaveIcon;
+const Eye = VisibilityIcon;
 
 interface ProfileData {
   // Personal Info

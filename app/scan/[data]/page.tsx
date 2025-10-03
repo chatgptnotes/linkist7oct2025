@@ -2,7 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Phone, Mail, Globe, MapPin, Linkedin, Instagram, Twitter, Download, Share2 } from 'lucide-react';
+import PhoneIcon from '@mui/icons-material/Phone';
+import EmailIcon from '@mui/icons-material/Email';
+import LanguageIcon from '@mui/icons-material/Language';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import XIcon from '@mui/icons-material/X';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import ShareIcon from '@mui/icons-material/Share';
+
+// Icon aliases
+const Phone = PhoneIcon;
+const Mail = EmailIcon;
+const Globe = LanguageIcon;
+const MapPin = LocationOnIcon;
+const Linkedin = LinkedInIcon;
+const Instagram = InstagramIcon;
+const Twitter = XIcon;
+const Download = CloudDownloadIcon;
+const Share2 = ShareIcon;
 
 interface CardData {
   firstName: string;

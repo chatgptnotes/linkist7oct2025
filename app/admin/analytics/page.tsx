@@ -2,38 +2,37 @@
 
 import { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { 
-  TrendingUp, 
-  Users, 
-  Package, 
-  DollarSign,
-  Calendar,
-  Download,
-  Filter,
-  RefreshCw,
-  ArrowUpRight,
-  ArrowDownRight,
-  BarChart3,
-  PieChart as PieChartIcon,
-  Eye,
-  Target
-} from 'lucide-react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area
-} from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import GroupsIcon from '@mui/icons-material/Groups';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import NorthEastIcon from '@mui/icons-material/NorthEast';
+import SouthEastIcon from '@mui/icons-material/SouthEast';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import PieChartIcon from '@mui/icons-material/PieChart';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import GpsFixedIcon from '@mui/icons-material/GpsFixed';
+
+// Icon aliases
+const TrendingUp = TrendingUpIcon;
+const Users = GroupsIcon;
+const Package = Inventory2Icon;
+const DollarSign = AttachMoneyIcon;
+const Calendar = CalendarTodayIcon;
+const Download = CloudDownloadIcon;
+const Filter = FilterListIcon;
+const RefreshCw = RefreshIcon;
+const ArrowUpRight = NorthEastIcon;
+const ArrowDownRight = SouthEastIcon;
+const BarChart = BarChartIcon;
+const PieChart = PieChartIcon;
+const Eye = VisibilityIcon;
+const Target = GpsFixedIcon;
 
 interface AnalyticsData {
   revenue: {
@@ -141,7 +140,7 @@ export default function AnalyticsPage() {
       <AdminLayout>
         <div className="p-6">
           <div className="text-center py-12">
-            <BarChart3 className="mx-auto h-12 w-12 text-gray-400" />
+            <BarChart className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No analytics data</h3>
             <p className="mt-1 text-sm text-gray-500">Analytics data will appear here once you have orders.</p>
           </div>

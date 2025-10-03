@@ -1,20 +1,31 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  Package, 
-  Search, 
-  Filter, 
-  Plus, 
-  MoreVertical, 
-  Edit, 
-  Trash2, 
-  Eye,
-  Tag,
-  DollarSign,
-  Layers
-} from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import AddIcon from '@mui/icons-material/Add';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import LayersIcon from '@mui/icons-material/Layers';
+
+// Icon aliases
+const Package = Inventory2Icon;
+const Search = SearchIcon;
+const Filter = FilterListIcon;
+const Plus = AddIcon;
+const MoreVertical = MoreVertIcon;
+const Edit = EditIcon;
+const Trash2 = DeleteIcon;
+const Eye = VisibilityIcon;
+const Tag = LocalOfferIcon;
+const DollarSign = AttachMoneyIcon;
+const Layers = LayersIcon;
 
 interface Product {
   id: string;

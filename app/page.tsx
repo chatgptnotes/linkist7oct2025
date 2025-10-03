@@ -4,10 +4,32 @@ import { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
-import {
-  Brain, Target, TrendingUp, Users, Share2, Sparkles,
-  Check, ChevronDown, Calendar, Rocket, Zap, Shield
-} from 'lucide-react';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import TargetIcon from '@mui/icons-material/GpsFixed';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import GroupsIcon from '@mui/icons-material/Groups';
+import ShareIcon from '@mui/icons-material/Share';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import CheckIcon from '@mui/icons-material/Check';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
+import SecurityIcon from '@mui/icons-material/Security';
+
+// Icon aliases
+const Brain = PsychologyIcon;
+const Target = TargetIcon;
+const TrendingUp = TrendingUpIcon;
+const Users = GroupsIcon;
+const Share2 = ShareIcon;
+const Sparkles = AutoAwesomeIcon;
+const Check = CheckIcon;
+const ChevronDown = ExpandMoreIcon;
+const Calendar = CalendarTodayIcon;
+const Rocket = RocketLaunchIcon;
+const Zap = FlashOnIcon;
+const Shield = SecurityIcon;
 
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState('');

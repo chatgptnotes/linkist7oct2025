@@ -1,9 +1,18 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { MapPin, Loader, Search, Navigation } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LoopIcon from '@mui/icons-material/Loop';
+import SearchIcon from '@mui/icons-material/Search';
+import NavigationIcon from '@mui/icons-material/Navigation';
+
+// Icon aliases
+const MapPin = LocationOnIcon;
+const Loader = LoopIcon;
+const Search = SearchIcon;
+const Navigation = NavigationIcon;
 
 // Fix Leaflet icon issues
 delete (L.Icon.Default.prototype as any)._getIconUrl;

@@ -2,7 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Check, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import CheckIcon from '@mui/icons-material/Check';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import XIcon from '@mui/icons-material/X';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+
+// Icon aliases
+const Check = CheckIcon;
+const Facebook = FacebookIcon;
+const Twitter = XIcon;
+const Instagram = InstagramIcon;
+const Linkedin = LinkedInIcon;
 
 export default function ThankYouPage() {
   const [orderData, setOrderData] = useState<{

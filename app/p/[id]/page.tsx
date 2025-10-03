@@ -2,33 +2,56 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Globe,
-  Linkedin,
-  Twitter,
-  Instagram,
-  Facebook,
-  Youtube,
-  Github,
-  Download,
-  Share2,
-  QrCode,
-  Calendar,
-  Briefcase,
-  Award,
-  BookOpen,
-  Users,
-  Star,
-  ExternalLink,
-  MessageSquare,
-  Send,
-  ChevronDown
-} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LanguageIcon from '@mui/icons-material/Language';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import XIcon from '@mui/icons-material/X';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import ShareIcon from '@mui/icons-material/Share';
+import QrCodeIcon from '@mui/icons-material/QrCode';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import WorkIcon from '@mui/icons-material/Work';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import GroupsIcon from '@mui/icons-material/Groups';
+import StarIcon from '@mui/icons-material/Star';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import MessageIcon from '@mui/icons-material/Message';
+import SendIcon from '@mui/icons-material/Send';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+// Icon aliases
+const Mail = EmailIcon;
+const Phone = PhoneIcon;
+const MapPin = LocationOnIcon;
+const Globe = LanguageIcon;
+const Linkedin = LinkedInIcon;
+const Twitter = XIcon;
+const Instagram = InstagramIcon;
+const Facebook = FacebookIcon;
+const Youtube = YouTubeIcon;
+const Github = GitHubIcon;
+const Download = CloudDownloadIcon;
+const Share2 = ShareIcon;
+const QrCode = QrCodeIcon;
+const Calendar = CalendarTodayIcon;
+const Briefcase = WorkIcon;
+const Award = EmojiEventsIcon;
+const BookOpen = MenuBookIcon;
+const Users = GroupsIcon;
+const Star = StarIcon;
+const ExternalLink = OpenInNewIcon;
+const MessageSquare = MessageIcon;
+const Send = SendIcon;
+const ChevronDown = ExpandMoreIcon;
 
 interface ProfileData {
   // Personal Info

@@ -1,8 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { LogOut } from 'lucide-react';
 import { useState } from 'react';
+import LogoutIcon from '@mui/icons-material/Logout';
+
+// Icon aliases
+const LogOut = LogoutIcon;
 
 export default function LogoutButton() {
   const router = useRouter();

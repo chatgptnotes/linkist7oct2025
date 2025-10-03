@@ -3,28 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
-  ArrowLeft,
-  Eye,
-  MousePointer,
-  Share2,
-  Users,
-  TrendingUp,
-  TrendingDown,
-  Calendar,
-  Download,
-  Filter,
-  BarChart3,
-  PieChart,
-  Activity,
-  Globe,
-  Smartphone,
-  Monitor,
-  MapPin,
-  Clock,
-  Link2,
-  ExternalLink
-} from 'lucide-react';
-import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
@@ -38,6 +16,48 @@ import {
   Filler
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import MouseIcon from '@mui/icons-material/Mouse';
+import ShareIcon from '@mui/icons-material/Share';
+import GroupsIcon from '@mui/icons-material/Groups';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import PieChartIcon from '@mui/icons-material/PieChart';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
+import LanguageIcon from '@mui/icons-material/Language';
+import SmartphoneIcon from '@mui/icons-material/Smartphone';
+import MonitorIcon from '@mui/icons-material/Monitor';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import LinkIcon from '@mui/icons-material/Link';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+
+// Icon aliases
+const ArrowLeft = ArrowBackIcon;
+const Eye = VisibilityIcon;
+const MousePointer = MouseIcon;
+const Share2 = ShareIcon;
+const Users = GroupsIcon;
+const TrendingUp = TrendingUpIcon;
+const TrendingDown = TrendingDownIcon;
+const Calendar = CalendarTodayIcon;
+const Download = CloudDownloadIcon;
+const Filter = FilterListIcon;
+const BarChart = BarChartIcon;
+const PieChart = PieChartIcon;
+const Activity = ShowChartIcon;
+const Globe = LanguageIcon;
+const Smartphone = SmartphoneIcon;
+const Monitor = MonitorIcon;
+const MapPin = LocationOnIcon;
+const Clock = AccessTimeIcon;
+const Link2 = LinkIcon;
+const ExternalLink = OpenInNewIcon;
 
 ChartJS.register(
   CategoryScale,

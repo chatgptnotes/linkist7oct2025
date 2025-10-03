@@ -3,9 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Lock, ChevronDown } from 'lucide-react';
 import { useToast } from '@/components/ToastProvider';
 import { UserStore } from '@/lib/user-store';
+import LockIcon from '@mui/icons-material/Lock';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+// Icon aliases
+const Lock = LockIcon;
+const ChevronDown = ExpandMoreIcon;
 
 export default function CheckoutPage() {
   const router = useRouter();

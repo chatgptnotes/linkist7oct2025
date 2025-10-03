@@ -1,11 +1,40 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import {
-  Zap, Share2, QrCode, Link2, Download, Users,
-  BarChart3, Globe, Smartphone, CreditCard, Calendar,
-  Shield, Palette, Languages, Clock, TrendingUp
-} from 'lucide-react';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
+import ShareIcon from '@mui/icons-material/Share';
+import QrCodeIcon from '@mui/icons-material/QrCode';
+import LinkIcon from '@mui/icons-material/Link';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import GroupsIcon from '@mui/icons-material/Groups';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import LanguageIcon from '@mui/icons-material/Language';
+import SmartphoneIcon from '@mui/icons-material/Smartphone';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import SecurityIcon from '@mui/icons-material/Security';
+import PaletteIcon from '@mui/icons-material/Palette';
+import TranslateIcon from '@mui/icons-material/Translate';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+
+// Icon aliases
+const Zap = FlashOnIcon;
+const Share2 = ShareIcon;
+const QrCode = QrCodeIcon;
+const Link2 = LinkIcon;
+const Download = CloudDownloadIcon;
+const Users = GroupsIcon;
+const BarChart = BarChartIcon;
+const Globe = LanguageIcon;
+const Smartphone = SmartphoneIcon;
+const CreditCard = CreditCardIcon;
+const Calendar = CalendarTodayIcon;
+const Shield = SecurityIcon;
+const Palette = PaletteIcon;
+const Languages = TranslateIcon;
+const Clock = AccessTimeIcon;
+const TrendingUp = TrendingUpIcon;
 
 interface Feature {
   icon: React.ElementType;
@@ -45,7 +74,7 @@ const features: Feature[] = [
     gradient: "from-green-400 to-teal-500"
   },
   {
-    icon: BarChart3,
+    icon: BarChart,
     title: "Visitor Analytics",
     description: "Track who viewed your profile with detailed engagement metrics.",
     category: "Analytics",
