@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle, Package, Truck, Mail, ArrowRight, Calendar } from 'lucide-react';
+import { CheckCircle, Package, Truck, Mail, ArrowRight } from 'lucide-react';
 import Logo from '@/components/Logo';
 
 export default function SuccessPage() {
@@ -11,13 +11,58 @@ export default function SuccessPage() {
   const [orderData, setOrderData] = useState<{ orderNumber: string; cardConfig: { fullName: string }; shipping: { fullName: string; email: string; phone: string; addressLine1: string; addressLine2?: string; city: string; stateProvince?: string; postalCode: string; country: string; isFounderMember: boolean; quantity: number }; pricing: { total: number } } | null>(null);
 
   useEffect(() => {
-    const order = localStorage.getItem('currentOrder');
-    if (order) {
-      setOrderData(JSON.parse(order));
+    // First check for orderConfirmation from payment page
+    const orderConfirmation = localStorage.getItem('orderConfirmation');
+    if (orderConfirmation) {
+      const confirmation = JSON.parse(orderConfirmation);
+      // Convert to order format
+      const orderData = {
+        orderNumber: 'NFC' + Date.now().toString().slice(-8),
+        ...confirmation,
+        cardConfig: confirmation.cardConfig || { fullName: confirmation.customerName },
+        shipping: confirmation.shipping || {},
+        pricing: confirmation.pricing || { total: confirmation.amount }
+      };
+      setOrderData(orderData);
+      // Store the order data for page refreshes
+      localStorage.setItem('lastCompletedOrder', JSON.stringify(orderData));
+      // Clear the confirmation data
+      localStorage.removeItem('orderConfirmation');
+      localStorage.removeItem('pendingOrder');
     } else {
-      router.push('/landing');
+      // Check for last completed order (in case of page refresh)
+      const lastOrder = localStorage.getItem('lastCompletedOrder');
+      if (lastOrder) {
+        setOrderData(JSON.parse(lastOrder));
+      } else {
+        // Fallback to currentOrder if coming from old flow
+        const order = localStorage.getItem('currentOrder');
+        if (order) {
+          setOrderData(JSON.parse(order));
+        } else {
+          // Create a demo order for testing
+          console.log('No order data found, creating demo order for display');
+          const demoOrder = {
+            orderNumber: 'NFC' + Date.now().toString().slice(-8),
+            cardConfig: { fullName: 'Your Name' },
+            shipping: {
+              fullName: 'Customer Name',
+              email: 'customer@example.com',
+              phone: '+1 (555) 123-4567',
+              addressLine1: '123 Main Street',
+              city: 'Dubai',
+              country: 'United Arab Emirates',
+              postalCode: '00000',
+              isFounderMember: true
+            },
+            pricing: { total: 113.05 }
+          };
+          setOrderData(demoOrder);
+          // Don't redirect, just show the success page with demo data
+        }
+      }
     }
-  }, [router]);
+  }, []);
 
   if (!orderData) {
     return (
@@ -74,9 +119,9 @@ export default function SuccessPage() {
 
             <div className="space-y-4">
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                <span className="text-gray-600">Card Design</span>
+                <span className="text-gray-600">Card Name</span>
                 <span className="font-medium text-gray-900">
-                  B.T
+                  {orderData.cardConfig?.fullName || orderData.customerName || 'Custom Card'}
                 </span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
@@ -112,25 +157,26 @@ export default function SuccessPage() {
             <div className="space-y-4">
               <div className="pb-3 border-b border-gray-100">
                 <p className="text-sm text-gray-600 mb-1">Name:</p>
-                <p className="font-medium text-gray-900">B T</p>
+                <p className="font-medium text-gray-900">{orderData.shipping?.fullName || orderData.customerName || 'Customer'}</p>
               </div>
 
               <div className="pb-3 border-b border-gray-100">
                 <p className="text-sm text-gray-600 mb-1">Email:</p>
-                <p className="text-gray-900">{orderData.shipping?.email || 'customer@example.com'}</p>
+                <p className="text-gray-900">{orderData.shipping?.email || orderData.email || 'customer@example.com'}</p>
               </div>
 
               <div className="pb-3 border-b border-gray-100">
                 <p className="text-sm text-gray-600 mb-1">Phone:</p>
-                <p className="text-gray-900">{orderData.shipping?.phone || '+1 (555) 123-4567'}</p>
+                <p className="text-gray-900">{orderData.shipping?.phone || orderData.shipping?.phoneNumber || orderData.phoneNumber || '+1 (555) 123-4567'}</p>
               </div>
 
               <div>
                 <p className="text-sm text-gray-600 mb-2">Shipping Address:</p>
                 <div className="text-gray-900 leading-relaxed">
-                  <p className="font-medium">Kantee Road</p>
-                  <p>Nagpur, Maharashtra 440014</p>
-                  <p>IN</p>
+                  <p className="font-medium">{orderData.shipping?.addressLine1 || 'Address'}</p>
+                  {orderData.shipping?.addressLine2 && <p>{orderData.shipping.addressLine2}</p>}
+                  <p>{orderData.shipping?.city || 'City'}{orderData.shipping?.stateProvince ? `, ${orderData.shipping.stateProvince}` : ''} {orderData.shipping?.postalCode || ''}</p>
+                  <p>{orderData.shipping?.country || 'Country'}</p>
                 </div>
               </div>
             </div>
@@ -220,18 +266,11 @@ export default function SuccessPage() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mt-8">
           <Link
-            href="/nfc/configure"
-            className="flex-1 bg-black text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-800 transition text-center flex items-center justify-center"
+            href="/profiles/builder"
+            className="w-full bg-black text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-800 transition text-center flex items-center justify-center"
           >
-            Design Another Card
+            Start building Profile
             <ArrowRight className="h-5 w-5 ml-2" />
-          </Link>
-          <Link
-            href="/account"
-            className="flex-1 border border-gray-300 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition text-center flex items-center justify-center"
-          >
-            <Calendar className="h-5 w-5 mr-2" />
-            Track Your Order
           </Link>
         </div>
 

@@ -230,33 +230,16 @@ export default function CheckoutPage() {
 
   const createOrder = async (orderPayload: any) => {
     try {
-      console.log('📤 Checkout: Sending order to API:', orderPayload);
+      console.log('📤 Checkout: Preparing order for payment:', orderPayload);
 
-      // Create order via API
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderPayload),
-      });
+      // Store order data for payment page
+      localStorage.setItem('pendingOrder', JSON.stringify(orderPayload));
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || errorData.error || 'Failed to create order');
-      }
-
-      const result = await response.json();
-      console.log('✅ Checkout: Order created successfully:', result.order);
-
-      // Save order data to localStorage for success page
-      localStorage.setItem('currentOrder', JSON.stringify(result.order));
-
-      // Redirect to success page
-      router.push('/nfc/success');
+      // Redirect to payment page
+      router.push('/nfc/payment');
     } catch (error) {
-      console.error('❌ Checkout: Order processing error:', error);
-      alert(`Order creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('❌ Checkout: Error preparing order:', error);
+      alert(`Failed to proceed to payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
@@ -602,7 +585,7 @@ export default function CheckoutPage() {
                 ) : (
                   <CreditCard className="h-5 w-5 mr-2" />
                 )}
-                {isLoading ? 'Processing...' : `Pay $${pricing.total.toFixed(2)}`}
+                {isLoading ? 'Processing...' : `Continue to Payment`}
               </button>
             </form>
           </div>

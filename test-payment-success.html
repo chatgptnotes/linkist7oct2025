@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Payment Success Flow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            background: #000;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #333;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Payment → Success Flow</h1>
+
+    <h2>Simulate Payment Completion</h2>
+    <p>Click a button to simulate completing payment and going to success page:</p>
+
+    <button onclick="simulateCardPayment()">Simulate Card Payment Success</button>
+    <button onclick="simulateVoucherPayment()">Simulate Voucher Payment Success</button>
+    <button onclick="simulateUPIPayment()">Simulate UPI Payment Success</button>
+    <button onclick="goToSuccessDirectly()">Go to Success Page Directly</button>
+
+    <div id="status"></div>
+
+    <script>
+        const baseUrl = 'http://localhost:3002';
+
+        function simulateCardPayment() {
+            const orderData = {
+                customerName: 'John Doe',
+                email: 'john.doe@example.com',
+                shipping: {
+                    fullName: 'John Doe',
+                    email: 'john.doe@example.com',
+                    phone: '+971 50 123 4567',
+                    addressLine1: '123 Sheikh Zayed Road',
+                    addressLine2: 'Apt 456',
+                    city: 'Dubai',
+                    stateProvince: 'Dubai',
+                    postalCode: '12345',
+                    country: 'United Arab Emirates',
+                    isFounderMember: true
+                },
+                cardConfig: {
+                    fullName: 'John Doe',
+                    cardType: 'professional'
+                },
+                pricing: {
+                    subtotal: 99.00,
+                    shipping: 14.05,
+                    total: 113.05
+                },
+                paymentMethod: 'card',
+                paymentId: 'pi_simulated_' + Date.now(),
+                amount: 113.05,
+                timestamp: new Date().toISOString()
+            };
+
+            localStorage.setItem('orderConfirmation', JSON.stringify(orderData));
+            document.getElementById('status').innerHTML = '<p class="success">✅ Card payment data stored. Redirecting to success page...</p>';
+            setTimeout(() => {
+                window.location.href = baseUrl + '/nfc/success';
+            }, 1500);
+        }
+
+        function simulateVoucherPayment() {
+            const orderData = {
+                customerName: 'Jane Smith',
+                email: 'jane.smith@example.com',
+                shipping: {
+                    fullName: 'Jane Smith',
+                    email: 'jane.smith@example.com',
+                    phone: '+971 55 987 6543',
+                    addressLine1: '789 Jumeirah Beach Road',
+                    city: 'Dubai',
+                    country: 'United Arab Emirates',
+                    postalCode: '54321',
+                    isFounderMember: true
+                },
+                cardConfig: {
+                    fullName: 'Jane Smith',
+                    cardType: 'premium'
+                },
+                pricing: {
+                    subtotal: 99.00,
+                    shipping: 14.05,
+                    total: 113.05
+                },
+                paymentMethod: 'voucher',
+                voucherCode: 'FOUNDER50',
+                voucherDiscount: 50,
+                amount: 56.53,
+                timestamp: new Date().toISOString()
+            };
+
+            localStorage.setItem('orderConfirmation', JSON.stringify(orderData));
+            document.getElementById('status').innerHTML = '<p class="success">✅ Voucher payment data stored (50% off applied). Redirecting to success page...</p>';
+            setTimeout(() => {
+                window.location.href = baseUrl + '/nfc/success';
+            }, 1500);
+        }
+
+        function simulateUPIPayment() {
+            const orderData = {
+                customerName: 'Raj Patel',
+                email: 'raj.patel@example.com',
+                shipping: {
+                    fullName: 'Raj Patel',
+                    email: 'raj.patel@example.com',
+                    phone: '+91 98765 43210',
+                    addressLine1: '456 Business Bay',
+                    city: 'Dubai',
+                    country: 'United Arab Emirates',
+                    postalCode: '11111',
+                    isFounderMember: false
+                },
+                cardConfig: {
+                    fullName: 'Raj Patel',
+                    cardType: 'standard'
+                },
+                pricing: {
+                    subtotal: 99.00,
+                    shipping: 14.05,
+                    total: 113.05
+                },
+                paymentMethod: 'upi',
+                paymentId: 'upi_' + Date.now(),
+                amount: 113.05,
+                timestamp: new Date().toISOString()
+            };
+
+            localStorage.setItem('orderConfirmation', JSON.stringify(orderData));
+            document.getElementById('status').innerHTML = '<p class="success">✅ UPI payment data stored. Redirecting to success page...</p>';
+            setTimeout(() => {
+                window.location.href = baseUrl + '/nfc/success';
+            }, 1500);
+        }
+
+        function goToSuccessDirectly() {
+            window.location.href = baseUrl + '/nfc/success';
+        }
+    </script>
+</body>
+</html>
