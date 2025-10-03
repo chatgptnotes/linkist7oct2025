@@ -97,10 +97,69 @@
 /* Layout & Responsive Fixes */
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 body {
   overflow-x: hidden;
+  background-color: #ffffff;
+  color: #0a0a0a;
+}
+
+/* Force color consistency across all browsers and OS */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent browser/OS from overriding text colors */
+input,
+textarea,
+select,
+button {
+  color: inherit;
+  background-color: inherit;
+}
+
+/* Explicit colors for form elements to prevent OS overrides */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background-color: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
+/* Prevent dark mode from inverting colors */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light !important;
+  }
+
+  :root:not([data-theme="dark"]) body {
+    background-color: #ffffff !important;
+    color: #0a0a0a !important;
+  }
+
+  :root:not([data-theme="dark"]) input:not([type="checkbox"]):not([type="radio"]),
+  :root:not([data-theme="dark"]) textarea,
+  :root:not([data-theme="dark"]) select {
+    background-color: #ffffff !important;
+    color: #0a0a0a !important;
+  }
+}
+
+/* Fix for Windows High Contrast mode */
+@media (prefers-contrast: high) {
+  * {
+    color: inherit !important;
+    background-color: inherit !important;
+  }
 }
 
 /* Navbar & Footer Optimizations */
@@ -301,5 +360,161 @@ body {
   100% {
     width: 100%;
     background-color: #dc2626;
+  }
+}
+
+
+/* ========================================
+   OS/BROWSER COLOR COMPATIBILITY FIXES
+   Prevents white text on white background
+======================================== */
+
+/* Force explicit colors on all text elements */
+.bg-white {
+  background-color: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
+.text-white {
+  color: #ffffff !important;
+}
+
+.text-black {
+  color: #0a0a0a !important;
+}
+
+.text-gray-900 {
+  color: #111827 !important;
+}
+
+.text-gray-700 {
+  color: #374151 !important;
+}
+
+.text-gray-600 {
+  color: #4b5563 !important;
+}
+
+.text-gray-500 {
+  color: #6b7280 !important;
+}
+
+/* Ensure form fields always have correct colors */
+.bg-gray-50,
+.bg-gray-100 {
+  background-color: #f9fafb !important;
+  color: #0a0a0a !important;
+}
+
+/* Card elements */
+.bg-white .text-gray-900,
+.bg-white .text-gray-800,
+.bg-white .text-gray-700,
+.bg-white .text-gray-600 {
+  color: inherit !important;
+}
+
+/* Prevent color inversion on Safari/Webkit */
+@supports (-webkit-appearance: none) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+
+/* Fix for Edge/IE */
+@supports (-ms-ime-align: auto) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    background-color: #ffffff;
+    color: #0a0a0a;
+  }
+}
+
+/* Fix autofill colors */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #0a0a0a !important;
+}
+
+/* Ensure buttons maintain their colors */
+button.bg-black {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+button.bg-white {
+  background-color: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
+button.text-white {
+  color: #ffffff !important;
+}
+
+/* Links */
+a {
+  color: inherit;
+}
+
+a.text-blue-600 {
+  color: #2563eb !important;
+}
+
+/* Prevent color override in containers */
+.bg-white > *:not(.bg-black):not(.bg-gray-900):not(.text-white) {
+  color: #0a0a0a;
+}
+
+/* Modal and overlay fixes */
+.fixed.bg-white {
+  background-color: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
+/* Dropdown and select fixes */
+select option {
+  background-color: #ffffff;
+  color: #0a0a0a;
+}
+
+/* Table fixes */
+table {
+  background-color: inherit;
+  color: inherit;
+}
+
+td, th {
+  background-color: inherit;
+  color: inherit;
+}
+
+/* Label fixes */
+label {
+  color: #374151 !important;
+}
+
+/* Prevent forced colors mode issues */
+@media (forced-colors: active) {
+  * {
+    forced-color-adjust: none;
+  }
+}
+
+/* macOS Safari specific fixes */
+@supports (-webkit-backdrop-filter: blur(1px)) {
+  body {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea {
+    -webkit-appearance: none;
   }
 }
