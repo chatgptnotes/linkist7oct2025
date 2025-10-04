@@ -485,10 +485,12 @@ export default function PaymentPage() {
                   <span>Subtotal</span>
                   <span>{getCurrencySymbol()}{orderSummary.subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Shipping ({userCountry})</span>
-                  <span>{orderSummary.shipping === 0 ? 'Free' : `${getCurrencySymbol()}${orderSummary.shipping.toFixed(2)}`}</span>
-                </div>
+                {orderItem.id === 'physical-digital' && (
+                  <div className="flex justify-between text-gray-600">
+                    <span>Shipping ({userCountry})</span>
+                    <span>{orderSummary.shipping === 0 ? 'Free' : `${getCurrencySymbol()}${orderSummary.shipping.toFixed(2)}`}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-gray-600">
                   <span>VAT ({((orderSummary.vat / (orderSummary.subtotal + orderSummary.shipping)) * 100).toFixed(0)}%)</span>
                   <span>{getCurrencySymbol()}{orderSummary.vat.toFixed(2)}</span>

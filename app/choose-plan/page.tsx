@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import PersonIcon from '@mui/icons-material/Person';
 import GroupsIcon from '@mui/icons-material/Groups';
 import CloseIcon from '@mui/icons-material/Close';
+import Footer from '@/components/Footer';
 
 const User = PersonIcon;
 const Users = GroupsIcon;
@@ -227,6 +228,8 @@ Team Size: ${formData.teamSize}`;
           </div>
         </div>
       )}
+
+      <Footer />
     </div>
   );
 }

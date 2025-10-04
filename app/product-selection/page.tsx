@@ -7,6 +7,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import SmartphoneIcon from '@mui/icons-material/Smartphone';
 import PersonIcon from '@mui/icons-material/Person';
 import LanguageIcon from '@mui/icons-material/Language';
+import Footer from '@/components/Footer';
 
 const Check = CheckIcon;
 const CreditCard = CreditCardIcon;
@@ -107,7 +108,7 @@ export default function ProductSelectionPage() {
     },
     {
       id: 'digital-only',
-      title: 'Digital Profile Only',
+      title: 'Unlimited Profile Updates',
       subtitle: 'Without Linkist App & AI credits',
       price: `Starting from ${prices.digitalOnly}`,
       priceLabel: 'Basic',
@@ -115,7 +116,7 @@ export default function ProductSelectionPage() {
       features: [
         'Digital Business Card',
         'Basic Profile',
-        'Limited Updates (5/month)',
+        'Unlimited Profile Updates',
         'QR Code Generation',
         'Basic Analytics',
         'Community Support'
@@ -131,7 +132,7 @@ export default function ProductSelectionPage() {
       return;
     }
 
-    // Just select the card, don't navigate
+    // Just select the card, don't navigate yet
     setSelectedProduct(productId);
   };
 
@@ -146,21 +147,9 @@ export default function ProductSelectionPage() {
     // Store the selection
     localStorage.setItem('productSelection', selectedProduct);
 
-    // Navigate based on selection
+    // All cards redirect to NFC configuration
     setTimeout(() => {
-      switch (selectedProduct) {
-        case 'physical-digital':
-          // Physical card + app goes to NFC configuration
-          router.push('/nfc/configure');
-          break;
-        case 'digital-with-app':
-        case 'digital-only':
-          // Both digital options go to payment page
-          router.push('/payment');
-          break;
-        default:
-          router.push('/nfc/checkout');
-      }
+      router.push('/nfc/configure');
     }, 500);
   };
 
@@ -262,9 +251,11 @@ export default function ProductSelectionPage() {
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent card click when button is clicked
                     if (selectedProduct === option.id) {
-                      handleConfirmSelection(); // If already selected, confirm
+                      // If already selected, navigate
+                      handleConfirmSelection();
                     } else {
-                      handleCardClick(option.id); // Otherwise, select this card
+                      // Otherwise, just select this card
+                      handleCardClick(option.id);
                     }
                   }}
                   disabled={loading || option.disabled}
@@ -282,7 +273,7 @@ export default function ProductSelectionPage() {
                       Processing...
                     </div>
                   ) : selectedProduct === option.id ? (
-                    'Select This Plan ✓'
+                    'Continue →'
                   ) : (
                     'Select This Plan'
                   )}
@@ -290,16 +281,6 @@ export default function ProductSelectionPage() {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Comparison Note */}
-        <div className="bg-gray-50 rounded-xl p-4 text-center">
-          <p className="text-gray-600">
-            Need help choosing? All plans include a 30-day money-back guarantee.
-          </p>
-          <p className="text-sm text-gray-500 mt-2">
-            Prices may vary based on your location and selected features.
-          </p>
         </div>
 
         {/* Action Buttons */}
@@ -330,6 +311,8 @@ export default function ProductSelectionPage() {
           )}
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

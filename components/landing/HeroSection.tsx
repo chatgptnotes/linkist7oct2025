@@ -245,7 +245,7 @@ const HeroSection = () => {
               className="absolute -right-10 top-20 rounded-lg bg-white dark:bg-gray-800 p-3 shadow-lg"
             >
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-blue-500" />
+                <div className="h-2 w-2 rounded-full bg-red-500" />
                 <span className="text-sm font-medium">Analytics</span>
               </div>
             </motion.div>

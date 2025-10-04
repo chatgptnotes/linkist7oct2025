@@ -104,11 +104,9 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
 
     // Check for custom session cookie (from OTP login)
     const customSessionId = request.cookies.get('session')?.value
-    console.log('🔍 Checking custom session cookie:', customSessionId ? 'Found' : 'Not found')
 
     if (customSessionId) {
       const sessionData = await SessionStore.get(customSessionId)
-      console.log('🔍 Session data from DB:', sessionData ? 'Found' : 'Not found')
 
       if (sessionData) {
         const sessionUser: AuthUser = {
@@ -119,7 +117,6 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
           created_at: new Date(sessionData.createdAt).toISOString(),
         }
 
-        console.log('✅ Custom session valid for:', sessionData.email)
         return {
           user: sessionUser,
           isAuthenticated: true,
@@ -234,8 +231,6 @@ function requiresAuth(pathname: string): 'admin' | 'user' | 'none' {
 export async function authMiddleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  console.log(`🔐 Auth middleware: ${pathname}`)
-
   // Skip auth for public routes and static files
   if (
     pathname.startsWith('/_next/') ||
@@ -256,20 +251,15 @@ export async function authMiddleware(request: NextRequest) {
   const authRequirement = requiresAuth(pathname)
 
   if (authRequirement === 'none') {
-    console.log(`✅ Public route, continuing: ${pathname}`)
     return NextResponse.next()
   }
 
   // Get user authentication status
   const session = await getAuthenticatedUser(request)
-  
-  console.log(`🔍 Auth check: ${pathname}, required: ${authRequirement}, user: ${session.user?.email || 'none'}, admin: ${session.isAdmin}`)
 
   // Handle admin routes
   if (authRequirement === 'admin') {
     if (!session.isAdmin) {
-      console.log(`❌ Admin required for ${pathname}, redirecting to admin access`)
-      
       // For API routes, return 401
       if (pathname.startsWith('/api/')) {
         return Response.json(
@@ -283,17 +273,14 @@ export async function authMiddleware(request: NextRequest) {
       loginUrl.searchParams.set('returnUrl', pathname)
       return NextResponse.redirect(loginUrl)
     }
-    
+
     // Admin authenticated, allow access without Supabase session
-    console.log(`✅ Admin authenticated, allowing access to ${pathname}`)
     return NextResponse.next()
   }
 
   // Handle user routes
   if (authRequirement === 'user') {
     if (!session.isAuthenticated) {
-      console.log(`❌ Auth required for ${pathname}, redirecting to login`)
-      
       // For API routes, return 401
       if (pathname.startsWith('/api/')) {
         return Response.json(
@@ -309,8 +296,6 @@ export async function authMiddleware(request: NextRequest) {
     }
   }
 
-  console.log(`✅ Auth check passed for ${pathname}`)
-  
   // Update Supabase session
   const { response } = createMiddlewareClient(request)
   return response

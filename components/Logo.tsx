@@ -27,6 +27,7 @@ export default function Logo({
       width={width}
       height={height}
       className={imageClassName}
+      style={{ width: 'auto', height: 'auto' }}
       priority
     />
   );

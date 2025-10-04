@@ -6,6 +6,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
+import Footer from '@/components/Footer';
 // PIN verification removed - no longer needed
 
 // Dynamically import MapPicker to avoid SSR issues
@@ -39,7 +41,7 @@ const checkoutSchema = z.object({
   addressLine2: z.string().optional(),
   city: z.string().min(1, 'City is required'),
   stateProvince: z.string().optional(),
-  postalCode: z.string().min(1, 'Postal code is required'),
+  postalCode: z.string().optional(),
   country: z.string().min(1, 'Country is required'),
   quantity: z.number().min(1).max(10),
   isFounderMember: z.boolean(),
@@ -182,18 +184,25 @@ export default function CheckoutPage() {
     const basePrice = cardConfig?.baseMaterial ? materialPrices[cardConfig.baseMaterial] || 29 : 29;
     const subtotal = basePrice * quantity;
 
+    // Founder member discount (TODO: Fetch from admin settings)
+    const founderDiscountPercentage = 10; // 10% discount for founder members
+    const founderDiscount = isFounderMember ? (subtotal * founderDiscountPercentage) / 100 : 0;
+    const subtotalAfterDiscount = subtotal - founderDiscount;
+
     // Tax logic: 18% GST for India, 5% VAT for others
     const isIndia = watchedValues.country === 'IN';
     const taxRate = isIndia ? 0.18 : 0.05;
-    const taxAmount = subtotal * taxRate;
+    const taxAmount = subtotalAfterDiscount * taxRate;
 
     // Shipping is included in base price (no additional cost)
     const shippingCost = 0;
-    const total = subtotal + taxAmount + shippingCost;
+    const total = subtotalAfterDiscount + taxAmount + shippingCost;
 
     return {
       basePrice,
       subtotal,
+      founderDiscount,
+      founderDiscountPercentage,
       taxAmount,
       shippingCost,
       total,
@@ -323,20 +332,6 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Simplified Header - Linkist Logo Only */}
-      <header className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-center">
-            <a href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">L</span>
-              </div>
-              <span className="text-2xl font-bold text-gray-900">Linkist</span>
-            </a>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Order Form */}
@@ -422,7 +417,7 @@ export default function CheckoutPage() {
                     type="button"
                     onClick={() => setShowMap(!showMap)}
                     className="flex items-center space-x-2 text-sm px-3 py-1.5 rounded-lg transition-colors"
-                    style={{ backgroundColor: '#2563EB', color: '#FFFFFF' }}
+                    style={{ backgroundColor: '#ff0000', color: '#FFFFFF' }}
                   >
                     <MapPin className="h-4 w-4" />
                     <span>{showMap ? 'Hide Map' : 'Use Map'}</span>
@@ -552,43 +547,12 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Order Options */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-lg font-semibold mb-4">Order Options</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Quantity
-                    </label>
-                    <select
-                      {...register('quantity', { valueAsNumber: true })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                    >
-                      {[1, 2, 3, 4, 5, 10].map(num => (
-                        <option key={num} value={num}>{num} card{num > 1 ? 's' : ''}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex items-start">
-                    <input
-                      {...register('isFounderMember')}
-                      type="checkbox"
-                      className="mt-1 h-4 w-4 text-black border-gray-300 rounded focus:ring-black"
-                    />
-                    <label className="ml-3 text-sm text-gray-700">
-                      <span className="font-medium">Join as Founder Member</span>
-                      <p className="text-gray-500">Get 1 year free app access when we launch (normally $12/month)</p>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
               {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isLoading}
                 className="w-full py-4 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
-                style={{ backgroundColor: '#2563EB', color: '#FFFFFF' }}
+                style={{ backgroundColor: '#ff0000', color: '#FFFFFF' }}
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
@@ -651,8 +615,8 @@ export default function CheckoutPage() {
                 </div>
                 {isFounderMember && (
                   <div className="flex justify-between text-green-600">
-                    <span>Founder Member Benefits</span>
-                    <span>Included</span>
+                    <span>Founder Member Benefits ({pricing.founderDiscountPercentage}% off)</span>
+                    <span>-${pricing.founderDiscount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="border-t pt-3 flex justify-between font-semibold">
@@ -674,23 +638,7 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {/* Simplified Footer Navigation */}
-      <footer className="bg-black text-white border-t border-white/10 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-white text-xl font-bold">Linkist</div>
-            <div className="flex gap-6 flex-wrap justify-center text-sm">
-              <a href="/privacy" className="text-white/70 hover:text-red-500 transition-colors">Privacy Policy</a>
-              <a href="/terms" className="text-white/70 hover:text-red-500 transition-colors">Terms of Service</a>
-              <a href="/security" className="text-white/70 hover:text-red-500 transition-colors">Security</a>
-              <a href="/accessibility" className="text-white/70 hover:text-red-500 transition-colors">Accessibility</a>
-            </div>
-            <div className="text-white/50 text-sm">
-              © {new Date().getFullYear()} Linkist Inc. All rights reserved.
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

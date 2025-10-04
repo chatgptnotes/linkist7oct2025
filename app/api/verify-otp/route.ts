@@ -59,18 +59,14 @@ export async function POST(request: NextRequest) {
 
     // Get or create user account
     let user = UserStore.getByEmail(email);
-    
+
     if (!user) {
       // Create new user account
       user = UserStore.create(email);
-      console.log(`✅ New user account created: ${user.id} for ${email}`);
-    } else {
-      console.log(`✅ Existing user found: ${user.id} for ${email}`);
     }
 
     // Create user session using new session store
     const sessionId = await SessionStore.create(user.id, email, user.role);
-    console.log('🔍 Created session:', sessionId, 'for user:', user.email, 'role:', user.role);
     
     // Clean up the OTP after successful verification
     await SupabaseEmailOTPStore.delete(email);
@@ -98,12 +94,6 @@ export async function POST(request: NextRequest) {
     };
 
     response.cookies.set('session', sessionId, cookieOptions);
-
-    console.log('✅ Session cookie set:', {
-      sessionId,
-      cookieOptions,
-      nodeEnv: process.env.NODE_ENV
-    });
 
     return response;
 

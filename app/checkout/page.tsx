@@ -7,6 +7,7 @@ import { useToast } from '@/components/ToastProvider';
 import { UserStore } from '@/lib/user-store';
 import LockIcon from '@mui/icons-material/Lock';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Footer from '@/components/Footer';
 
 // Icon aliases
 const Lock = LockIcon;
@@ -943,6 +944,7 @@ export default function CheckoutPage() {
         </div>
       </div>
 
+      <Footer />
     </div>
   );
 }

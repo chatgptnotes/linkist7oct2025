@@ -6,6 +6,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import Footer from '@/components/Footer';
 
 // Icon aliases
 const ArrowLeft = ArrowBackIcon;
@@ -21,16 +22,16 @@ export default function PrivacyPolicyPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
-          <Link 
+          <Link
             href="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6"
+            className="inline-flex items-center text-red-500 hover:text-red-600 mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
-          
+
           <div className="flex items-center space-x-3 mb-4">
-            <Shield className="w-8 h-8 text-blue-600" />
+            <Shield className="w-8 h-8 text-red-500" />
             <h1 className="text-3xl font-bold text-gray-900">Privacy Policy</h1>
           </div>
           
@@ -99,7 +100,7 @@ export default function PrivacyPolicyPage() {
             
             <div className="grid md:grid-cols-2 gap-6">
               <div className="flex items-start space-x-3">
-                <Mail className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                <Mail className="w-6 h-6 text-red-600 mt-1 flex-shrink-0" />
                 <div>
                   <h3 className="font-medium text-gray-900 mb-1">Service Delivery</h3>
                   <p className="text-sm text-gray-700">
@@ -188,12 +189,12 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Your Privacy Rights</h2>
             
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-blue-50 rounded-lg p-4">
+              <div className="bg-red-50 rounded-lg p-4">
                 <div className="flex items-center space-x-2 mb-2">
-                  <Download className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-medium text-blue-900">Access & Portability</h3>
+                  <Download className="w-5 h-5 text-red-600" />
+                  <h3 className="font-medium text-red-900">Access & Portability</h3>
                 </div>
-                <p className="text-sm text-blue-800">
+                <p className="text-sm text-red-800">
                   Request a copy of all personal data we hold about you in a machine-readable format.
                 </p>
               </div>
@@ -232,11 +233,11 @@ export default function PrivacyPolicyPage() {
             <div className="mt-4 p-4 bg-gray-100 rounded-lg">
               <p className="text-sm text-gray-700">
                 <strong>To exercise these rights:</strong> Contact us at{' '}
-                <a href="mailto:privacy@linkist.ai" className="text-blue-600 hover:underline">
+                <a href="mailto:privacy@linkist.ai" className="text-red-500 hover:text-red-600">
                   privacy@linkist.ai
                 </a>{' '}
                 or use our{' '}
-                <Link href="/privacy/manage" className="text-blue-600 hover:underline">
+                <Link href="/privacy/manage" className="text-red-500 hover:text-red-600">
                   privacy management portal
                 </Link>.
               </p>
@@ -306,14 +307,14 @@ export default function PrivacyPolicyPage() {
           {/* Contact Information */}
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Contact Us</h2>
-            <div className="bg-blue-50 rounded-lg p-6">
-              <h3 className="font-medium text-blue-900 mb-3">Privacy Questions or Concerns?</h3>
-              <div className="space-y-2 text-blue-800">
+            <div className="bg-red-50 rounded-lg p-6">
+              <h3 className="font-medium text-red-900 mb-3">Privacy Questions or Concerns?</h3>
+              <div className="space-y-2 text-red-800">
                 <p><strong>Email:</strong> privacy@linkist.ai</p>
                 <p><strong>Data Protection Officer:</strong> dpo@linkist.ai</p>
                 <p><strong>Privacy Portal:</strong> <Link href="/privacy/manage" className="underline">linkist.ai/privacy/manage</Link></p>
               </div>
-              <p className="text-sm text-blue-700 mt-4">
+              <p className="text-sm text-red-700 mt-4">
                 We will respond to all privacy requests within 30 days.
               </p>
             </div>
@@ -338,6 +339,8 @@ export default function PrivacyPolicyPage() {
           </Link>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

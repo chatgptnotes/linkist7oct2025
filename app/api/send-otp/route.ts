@@ -79,18 +79,11 @@ export async function POST(request: NextRequest) {
           console.error('Email sending error:', error);
           throw error;
         }
-
-        console.log(`✅ Email sent successfully to ${email}:`, data?.id);
-      } else {
-        // Fallback to console logging for development/missing API key
-        console.log(`📧 OTP for ${email}: ${otp} (expires in 10 minutes)`);
-        console.log('⚠️  Set RESEND_API_KEY in .env.local to send real emails');
       }
     } catch (emailError) {
       console.error('Failed to send email:', emailError);
       // Continue execution - we'll still store the OTP for verification
       // In production, you might want to return an error here
-      console.log(`📧 Fallback - OTP for ${email}: ${otp} (expires in 10 minutes)`);
     }
 
     return NextResponse.json({

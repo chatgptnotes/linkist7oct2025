@@ -22,6 +22,7 @@ export default function VerifyLoginPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [devOtp, setDevOtp] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleSendOtp = async (emailToSend: string) => {
     try {
@@ -58,8 +59,17 @@ export default function VerifyLoginPage() {
       setEmail(emailParam);
       // Store it for the verification process
       localStorage.setItem('loginEmail', emailParam);
-      // Send OTP automatically
-      handleSendOtp(emailParam);
+
+      // Check if OTP was already sent for this email (prevent resend on refresh)
+      const otpSentKey = `email_otp_sent_${emailParam}`;
+      const alreadySent = sessionStorage.getItem(otpSentKey);
+
+      if (!alreadySent) {
+        // Mark as sent in sessionStorage
+        sessionStorage.setItem(otpSentKey, Date.now().toString());
+        // Send OTP automatically
+        handleSendOtp(emailParam);
+      }
     } else {
       // Try to get email from user profile (from onboarding)
       const userProfile = localStorage.getItem('userProfile');
@@ -113,25 +123,26 @@ export default function VerifyLoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        showToast('Login successful!', 'success');
+        showToast('Email verified successfully!', 'success');
+
         // Clear login email from localStorage
         localStorage.removeItem('loginEmail');
 
-        // Check if user has completed onboarding
-        const isNewUser = !localStorage.getItem('userOnboarded');
+        // Clear sessionStorage after successful verification
+        const otpSentKey = `email_otp_sent_${email}`;
+        sessionStorage.removeItem(otpSentKey);
 
-        // Get return URL and redirect
-        let returnUrl = localStorage.getItem('returnUrl') || '/account';
+        // Store email as verified
+        localStorage.setItem('verifiedEmail', email);
+        localStorage.setItem('emailVerified', 'true');
 
-        // If it's a new user (first time login), redirect to welcome page
-        if (isNewUser && returnUrl === '/account') {
-          returnUrl = '/welcome-to-linkist';
-        }
+        // Show success state
+        setSuccess(true);
 
-        localStorage.removeItem('returnUrl');
-
-        // Use window.location for hard redirect to ensure session cookie is picked up
-        window.location.href = returnUrl;
+        // Redirect to product selection (same as mobile OTP flow)
+        setTimeout(() => {
+          window.location.href = '/product-selection';
+        }, 2000);
       } else {
         showToast(data.error || 'Invalid verification code', 'error');
       }
@@ -144,6 +155,10 @@ export default function VerifyLoginPage() {
   };
 
   const handleResendCode = async () => {
+    // Clear sessionStorage for this email to allow resend
+    const otpSentKey = `email_otp_sent_${email}`;
+    sessionStorage.removeItem(otpSentKey);
+
     try {
       const response = await fetch('/api/send-otp', {
         method: 'POST',
@@ -168,6 +183,26 @@ export default function VerifyLoginPage() {
       showToast('Failed to resend code', 'error');
     }
   };
+
+  // Success screen (same as mobile verification)
+  if (success) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-10 h-10 text-green-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Email Verified!</h2>
+          <p className="text-gray-600 text-lg">
+            Your email has been successfully verified.
+          </p>
+          <div className="mt-6">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

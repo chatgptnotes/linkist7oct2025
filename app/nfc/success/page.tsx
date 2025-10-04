@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Logo from '@/components/Logo';
+import Footer from '@/components/Footer';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
@@ -28,7 +28,7 @@ export default function SuccessPage() {
       const confirmation = JSON.parse(orderConfirmation);
       // Convert to order format
       const orderData = {
-        orderNumber: 'NFC' + Date.now().toString().slice(-8),
+        orderNumber: 'LFND' + Math.random().toString(36).substring(2, 8).toUpperCase(),
         ...confirmation,
         cardConfig: confirmation.cardConfig || { fullName: confirmation.customerName },
         shipping: confirmation.shipping || {},
@@ -54,7 +54,7 @@ export default function SuccessPage() {
           // Create a demo order for testing
           console.log('No order data found, creating demo order for display');
           const demoOrder = {
-            orderNumber: 'NFC' + Date.now().toString().slice(-8),
+            orderNumber: 'LFND' + Math.random().toString(36).substring(2, 8).toUpperCase(),
             cardConfig: { fullName: 'Your Name' },
             shipping: {
               fullName: 'Customer Name',
@@ -88,24 +88,9 @@ export default function SuccessPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Logo width={140} height={45} />
-            <Link 
-              href="/account" 
-              className="text-gray-700 hover:text-gray-900"
-            >
-              My Account
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-16">
         {/* Success Message */}
-        <div className="text-center mb-12">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center mb-8">
           <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="h-12 w-12 text-white" />
           </div>
@@ -128,36 +113,49 @@ export default function SuccessPage() {
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h3 className="text-xl font-bold mb-6">Order Details</h3>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
                 <span className="text-gray-600">Card Name</span>
                 <span className="font-medium text-gray-900">
-                  {orderData.cardConfig?.fullName || orderData.customerName || 'Custom Card'}
+                  {orderData.cardConfig?.fullName || orderData.customerName || 'John Doe'}
                 </span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-gray-100">
                 <span className="text-gray-600">Quantity</span>
                 <span className="font-medium text-gray-900">1</span>
               </div>
-              <div className="flex justify-between items-center pt-2">
-                <span className="text-gray-700 font-medium">Total Amount</span>
+
+              <div className="pt-3 space-y-2">
+                <div className="flex justify-between text-gray-600">
+                  <span>Subtotal</span>
+                  <span>${((orderData.pricing?.total || 103.95) / 1.05).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Customization</span>
+                  <span className="text-green-600">Included</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Shipping ({orderData.shipping?.country === 'United Arab Emirates' ? 'UAE' : orderData.shipping?.country || 'AE'})</span>
+                  <span className="text-green-600">Free</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>VAT (5%)</span>
+                  <span>${(((orderData.pricing?.total || 103.95) / 1.05) * 0.05).toFixed(2)}</span>
+                </div>
+                {orderData.shipping?.isFounderMember && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Founder Member Benefits (10% off)</span>
+                    <span>Included</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-between items-center pt-3 border-t border-gray-200">
+                <span className="text-gray-700 font-bold">Total Amount</span>
                 <span className="font-bold text-xl text-gray-900">
-                  ${orderData.pricing?.total.toFixed(2) || '113.05'}
+                  ${orderData.pricing?.total.toFixed(2) || '103.95'}
                 </span>
               </div>
-              {orderData.shipping?.isFounderMember && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
-                    <span className="text-green-700 font-medium">
-                      Founder Member Benefits Included!
-                    </span>
-                  </div>
-                  <p className="text-sm text-green-600 mt-1">
-                    You&apos;ll get 1 year free app access when we launch
-                  </p>
-                </div>
-              )}
             </div>
           </div>
 
@@ -278,7 +276,7 @@ export default function SuccessPage() {
         <div className="flex flex-col sm:flex-row gap-4 mt-8">
           <Link
             href="/profiles/builder"
-            className="w-full bg-black text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-800 transition text-center flex items-center justify-center"
+            className="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-lg font-semibold transition text-center flex items-center justify-center"
           >
             Start building Profile
             <ArrowRight className="h-5 w-5 ml-2" />
@@ -304,6 +302,8 @@ export default function SuccessPage() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

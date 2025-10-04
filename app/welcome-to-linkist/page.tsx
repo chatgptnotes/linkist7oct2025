@@ -12,6 +12,8 @@ export default function WelcomeToLinkist() {
   const router = useRouter();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [detectingCountry, setDetectingCountry] = useState(true);
+  const [detectedCountry, setDetectedCountry] = useState<string>('India');
   const [formData, setFormData] = useState({
     email: '',
     country: 'India',
@@ -22,6 +24,47 @@ export default function WelcomeToLinkist() {
   });
 
   useEffect(() => {
+    // Auto-detect country based on IP
+    const detectCountry = async () => {
+      try {
+        setDetectingCountry(true);
+        const response = await fetch('https://ipapi.co/json/');
+        if (response.ok) {
+          const data = await response.json();
+          const countryCode = data.country_code;
+          let country = 'India';
+          let phoneCode = '+91';
+
+          // Map country codes to our supported countries
+          if (countryCode === 'AE') {
+            country = 'UAE';
+            phoneCode = '+971';
+          } else if (countryCode === 'US') {
+            country = 'USA';
+            phoneCode = '+1';
+          } else if (countryCode === 'GB') {
+            country = 'UK';
+            phoneCode = '+44';
+          } else if (countryCode === 'IN') {
+            country = 'India';
+            phoneCode = '+91';
+          }
+
+          setDetectedCountry(country);
+          setFormData(prev => ({
+            ...prev,
+            country,
+            countryCode: phoneCode
+          }));
+        }
+      } catch (error) {
+        console.error('Country detection error:', error);
+        // Keep default India
+      } finally {
+        setDetectingCountry(false);
+      }
+    };
+
     // Check if user is authenticated and pre-fill email if available
     const checkAuth = async () => {
       try {
@@ -38,6 +81,7 @@ export default function WelcomeToLinkist() {
       }
     };
 
+    detectCountry();
     checkAuth();
   }, []);
 
@@ -119,21 +163,26 @@ export default function WelcomeToLinkist() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Country Detection - Full Width */}
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mb-6">
+            <div className="flex items-start justify-center">
+              <Globe className="h-5 w-5 text-blue-500 mt-0.5 mr-3" />
+              <div className="text-sm text-gray-700">
+                {detectingCountry ? (
+                  <>Detecting your country...</>
+                ) : (
+                  <>
+                    We've auto-detected your country as <strong>{detectedCountry}</strong>.
+                    You can change it below.
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-6">
-              {/* Country Detection */}
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <div className="flex items-start">
-                  <Globe className="h-5 w-5 text-blue-500 mt-0.5 mr-3" />
-                  <div className="text-sm text-gray-700">
-                    We've auto-detected your country as <strong>India</strong>.
-                    <br />
-                    You can change it below.
-                  </div>
-                </div>
-              </div>
-
               {/* Country Selector */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -204,14 +253,16 @@ export default function WelcomeToLinkist() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email
                 </label>
-                <input
-                  type="email"
-                  placeholder="e.g., alex@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type="email"
+                    placeholder="e.g., alex@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    required
+                  />
+                </div>
               </div>
 
               {/* First Name */}
@@ -219,17 +270,19 @@ export default function WelcomeToLinkist() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   First Name
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g., Alex"
-                  value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  maxLength={30}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  required
-                />
-                <div className="text-right text-xs text-gray-500 mt-1">
-                  {formData.firstName.length} / 30
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="e.g., Alex"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                    maxLength={30}
+                    className="w-full px-4 py-3 pr-16 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    required
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                    {formData.firstName.length} / 30
+                  </span>
                 </div>
               </div>
 
@@ -238,17 +291,19 @@ export default function WelcomeToLinkist() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Last Name
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g., Thomas"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  maxLength={30}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  required
-                />
-                <div className="text-right text-xs text-gray-500 mt-1">
-                  {formData.lastName.length} / 30
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="e.g., Thomas"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    maxLength={30}
+                    className="w-full px-4 py-3 pr-16 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    required
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                    {formData.lastName.length} / 30
+                  </span>
                 </div>
               </div>
             </div>

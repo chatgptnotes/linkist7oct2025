@@ -45,11 +45,6 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Show OTP if email delivery fails
-        if (data.devOtp) {
-          alert(`⚠️ Email delivery issue!\n\nYour OTP: ${data.devOtp}\n\nCopy this code for verification.`);
-          console.log('🔐 OTP Code:', data.devOtp);
-        }
         showToast('Verification code sent!', 'success');
         // Store email and return URL for verification
         localStorage.setItem('loginEmail', formData.email);

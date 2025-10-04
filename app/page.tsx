@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
+import Footer from '@/components/Footer';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import TargetIcon from '@mui/icons-material/GpsFixed';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -207,7 +208,7 @@ export default function HomePage() {
               className="bg-[#E02424] text-white px-6 py-2 rounded-full font-medium hover:bg-[#C01E1E] transition-all hover:shadow-lg hover:shadow-[#E02424]/20"
               style={{ backgroundColor: '#E02424', color: '#FFFFFF' }}
             >
-              Join as Founding Member
+              Join Now
             </Link>
           </div>
         </div>
@@ -267,7 +268,7 @@ export default function HomePage() {
                   className="px-8 py-3 bg-[#E02424] text-white rounded-full font-medium hover:bg-[#C01E1E] transition-all hover:shadow-lg hover:shadow-[#E02424]/20"
                   style={{ backgroundColor: '#E02424', color: '#FFFFFF' }}
                 >
-                  Join as Founding Member
+                  Join Now
                 </Link>
               </div>
 
@@ -644,57 +645,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#1C1C22] border-t border-[#2C2C32] py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="mb-4">
-                <Logo href="/" width={120} height={40} />
-              </div>
-              <p className="text-sm text-[#A3A8B3]">
-                Remember Better. Network Intentionally.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-[#A3A8B3]">
-                <li><button onClick={() => scrollToSection('features')} className="hover:text-[#F5F7FA]">Features</button></li>
-                <li><button onClick={() => scrollToSection('offer')} className="hover:text-[#F5F7FA]">Pricing</button></li>
-                <li><button onClick={() => scrollToSection('timeline')} className="hover:text-[#F5F7FA]">Roadmap</button></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-[#A3A8B3]">
-                <li><button onClick={() => scrollToSection('faq')} className="hover:text-[#F5F7FA]">FAQ</button></li>
-                <li><Link href="/privacy" className="hover:text-[#F5F7FA]">Privacy</Link></li>
-                <li><Link href="/terms" className="hover:text-[#F5F7FA]">Terms</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Connect</h4>
-              <Link
-                href="/choose-plan"
-                className="inline-block px-6 py-2 bg-[#E02424] text-white rounded-full font-medium hover:bg-[#C01E1E] transition-all text-sm"
-                style={{ backgroundColor: '#E02424', color: '#FFFFFF' }}
-              >
-                Join Now
-              </Link>
-            </div>
-          </div>
-
-          <div className="border-t border-[#2C2C32] pt-8 text-center text-sm text-[#A3A8B3]">
-            <p>© 2025 Linkist. All rights reserved. Built by experienced founders in CX, product, and enterprise tech.</p>
-            <p className="mt-2 text-xs">
-              Founding Member pricing is limited-time and subject to change prior to general availability. 1-year Linkist Pro activates when the app launches.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Mobile Sticky CTA */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-[#0F0F12]/95 backdrop-blur-sm border-t border-[#2C2C32] z-50">
@@ -703,7 +654,7 @@ export default function HomePage() {
           className="block w-full py-3 bg-[#E02424] text-white rounded-full font-medium text-center hover:bg-[#C01E1E] transition-all"
           style={{ backgroundColor: '#E02424', color: '#FFFFFF' }}
         >
-          Join as Founding Member
+          Join Now
         </Link>
       </div>
     </div>

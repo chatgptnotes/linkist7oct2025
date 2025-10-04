@@ -6,10 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const authSession = await getCurrentUser(request);
 
-    console.log('🔍 /api/auth/me - authSession:', authSession);
-
     if (!authSession.isAuthenticated || !authSession.user) {
-      console.log('❌ /api/auth/me - Not authenticated');
       return NextResponse.json(
         { error: 'Not authenticated', isAuthenticated: false },
         { status: 401 }
@@ -21,8 +18,6 @@ export async function GET(request: NextRequest) {
     // Get user permissions for frontend use
     const permissions = RBAC.getUserPermissions(user);
     const canAccessAdmin = RBAC.canAccessAdmin(user);
-
-    console.log('✅ /api/auth/me - User authenticated:', user.email);
 
     return NextResponse.json({
       isAuthenticated: true,

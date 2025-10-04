@@ -6,6 +6,7 @@ import ScaleIcon from '@mui/icons-material/Scale';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import WarningIcon from '@mui/icons-material/Warning';
+import Footer from '@/components/Footer';
 
 // Icon aliases
 const ArrowLeft = ArrowBackIcon;
@@ -21,16 +22,16 @@ export default function TermsOfServicePage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
-          <Link 
+          <Link
             href="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6"
+            className="inline-flex items-center text-red-500 hover:text-red-600 mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
-          
+
           <div className="flex items-center space-x-3 mb-4">
-            <FileText className="w-8 h-8 text-blue-600" />
+            <FileText className="w-8 h-8 text-red-500" />
             <h1 className="text-3xl font-bold text-gray-900">Terms of Service</h1>
           </div>
           
@@ -80,7 +81,7 @@ export default function TermsOfServicePage() {
           {/* Account Terms */}
           <section>
             <div className="flex items-center space-x-2 mb-4">
-              <Scale className="w-6 h-6 text-blue-600" />
+              <Scale className="w-6 h-6 text-red-600" />
               <h2 className="text-2xl font-semibold text-gray-900">Account Terms</h2>
             </div>
             
@@ -366,9 +367,9 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Contact Information</h2>
             
-            <div className="bg-blue-50 rounded-lg p-6">
-              <h3 className="font-medium text-blue-900 mb-3">Questions About These Terms?</h3>
-              <div className="space-y-2 text-blue-800">
+            <div className="bg-red-50 rounded-lg p-6">
+              <h3 className="font-medium text-red-900 mb-3">Questions About These Terms?</h3>
+              <div className="space-y-2 text-red-800">
                 <p><strong>Email:</strong> legal@linkist.ai</p>
                 <p><strong>Customer Support:</strong> support@linkist.ai</p>
                 <p><strong>Mailing Address:</strong></p>
@@ -399,6 +400,8 @@ export default function TermsOfServicePage() {
           </Link>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

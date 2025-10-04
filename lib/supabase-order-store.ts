@@ -87,6 +87,7 @@ const rowToOrder = (row: OrderRow): Order => ({
 })
 
 // Convert Order to database insert format
+// Only include columns that actually exist in the database
 const orderToInsert = (order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) => ({
   order_number: order.orderNumber,
   status: order.status,
@@ -96,14 +97,6 @@ const orderToInsert = (order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) => 
   card_config: order.cardConfig,
   shipping: order.shipping,
   pricing: order.pricing,
-  quantity: order.cardConfig?.quantity || 1,
-  unit_price: order.pricing?.subtotal || 0,
-  subtotal: order.pricing?.subtotal || 0,
-  tax_amount: order.pricing?.tax || 0,
-  shipping_amount: order.pricing?.shipping || 0,
-  total_amount: order.pricing?.total || 0,
-  currency: 'USD',
-  payment_status: 'paid',
   emails_sent: order.emailsSent || {},
   estimated_delivery: order.estimatedDelivery,
   tracking_number: order.trackingNumber,
@@ -114,20 +107,48 @@ const orderToInsert = (order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) => 
 
 export const SupabaseOrderStore = {
   create: async (order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order> => {
+    console.log('🔵 [SupabaseOrderStore.create] Starting order creation...');
+    console.log('📦 [SupabaseOrderStore.create] Input order data:', {
+      orderNumber: order.orderNumber,
+      status: order.status,
+      customerName: order.customerName,
+      email: order.email,
+      cardConfigPresent: !!order.cardConfig,
+      pricingPresent: !!order.pricing
+    });
+
     const supabase = createAdminClient()
-    
+    console.log('✅ [SupabaseOrderStore.create] Admin client created');
+
+    const insertData = orderToInsert(order);
+    console.log('🔄 [SupabaseOrderStore.create] Converted to database format:', insertData);
+
     const { data, error } = await supabase
       .from('orders')
-      .insert(orderToInsert(order))
+      .insert(insertData)
       .select()
       .single()
 
     if (error) {
-      console.error('Error creating order:', error)
+      console.error('❌ [SupabaseOrderStore.create] Database error:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        fullError: error
+      });
       throw new Error(`Failed to create order: ${error.message}`)
     }
 
-    return rowToOrder(data)
+    console.log('✅ [SupabaseOrderStore.create] Order inserted successfully:', {
+      id: data.id,
+      order_number: data.order_number
+    });
+
+    const orderResult = rowToOrder(data);
+    console.log('🎉 [SupabaseOrderStore.create] Order creation complete!');
+
+    return orderResult;
   },
 
   getById: async (id: string): Promise<Order | null> => {

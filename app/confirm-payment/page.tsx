@@ -7,6 +7,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LockIcon from '@mui/icons-material/Lock';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import Footer from '@/components/Footer';
 
 // Icon aliases
 const ChevronDown = ExpandMoreIcon;
@@ -76,40 +77,66 @@ export default function ConfirmPaymentPage() {
   };
 
   const handlePayment = async () => {
+    console.log('💳 [confirm-payment] Payment button clicked');
     setProcessing(true);
-    
+
     try {
       // Get stored data
+      console.log('📦 [confirm-payment] Retrieving data from localStorage...');
       const cardConfig = JSON.parse(localStorage.getItem('cardConfig') || '{}');
       const checkoutData = JSON.parse(localStorage.getItem('checkoutData') || '{}');
-      
+
+      console.log('📦 [confirm-payment] LocalStorage data retrieved:', {
+        cardConfigPresent: !!cardConfig && Object.keys(cardConfig).length > 0,
+        checkoutDataPresent: !!checkoutData && Object.keys(checkoutData).length > 0,
+        cardConfig,
+        checkoutData
+      });
+
+      const requestPayload = {
+        cardConfig,
+        checkoutData,
+        paymentData
+      };
+      console.log('🚀 [confirm-payment] Sending request to /api/process-order:', requestPayload);
+
       // Simulate payment processing delay
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       // Process the order
       const response = await fetch('/api/process-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cardConfig,
-          checkoutData,
-          paymentData
-        })
+        body: JSON.stringify(requestPayload)
       });
+
+      console.log('📨 [confirm-payment] API response status:', response.status);
 
       if (response.ok) {
         const result = await response.json();
-        
+        console.log('✅ [confirm-payment] API response data:', result);
+
         // Save order data for thank you page
         localStorage.setItem('orderData', JSON.stringify(result.order));
         localStorage.setItem('paymentData', JSON.stringify(paymentData));
-        
+
+        console.log('🎉 [confirm-payment] Order processed successfully, redirecting to thank-you page');
         router.push('/thank-you');
       } else {
-        throw new Error('Payment processing failed');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ [confirm-payment] API error response:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData
+        });
+        throw new Error(errorData.error || 'Payment processing failed');
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('❌ [confirm-payment] Payment error:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        fullError: error
+      });
       alert('Payment processing failed. Please try again.');
     } finally {
       setProcessing(false);
@@ -347,6 +374,7 @@ export default function ConfirmPaymentPage() {
         </div>
       </div>
 
+      <Footer />
     </div>
   );
 }

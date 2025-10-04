@@ -13,6 +13,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import SmartphoneIcon from '@mui/icons-material/Smartphone';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import Footer from '@/components/Footer';
 
 // Icon aliases
 const CreditCard = CreditCardIcon;
@@ -347,6 +348,19 @@ export default function NFCPaymentPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Customer Info Card */}
+        {orderData && (
+          <div className="bg-white rounded-2xl shadow-sm p-4 mb-6 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-red-500 text-xl">~</span>
+              <span className="font-semibold text-gray-900">{orderData.customerName}</span>
+            </div>
+            <div className="text-gray-600">
+              {orderData.phoneNumber}
+            </div>
+          </div>
+        )}
+
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Payment Form - Left Side */}
           <div className="lg:col-span-2">
@@ -360,7 +374,7 @@ export default function NFCPaymentPage() {
                   onClick={() => setPaymentMethod('card')}
                   className="flex-1 py-3 px-4 rounded-lg font-medium transition-all"
                   style={{
-                    backgroundColor: paymentMethod === 'card' ? '#000000' : '#F3F4F6',
+                    backgroundColor: paymentMethod === 'card' ? '#ff0000' : '#F3F4F6',
                     color: paymentMethod === 'card' ? '#FFFFFF' : '#374151'
                   }}
                 >
@@ -373,7 +387,7 @@ export default function NFCPaymentPage() {
                     onClick={() => setPaymentMethod('upi')}
                     className="flex-1 py-3 px-4 rounded-lg font-medium transition-all"
                     style={{
-                      backgroundColor: paymentMethod === 'upi' ? '#9333EA' : '#F3F4F6',
+                      backgroundColor: paymentMethod === 'upi' ? '#ff0000' : '#F3F4F6',
                       color: paymentMethod === 'upi' ? '#FFFFFF' : '#374151'
                     }}
                   >
@@ -386,7 +400,7 @@ export default function NFCPaymentPage() {
                   onClick={() => setPaymentMethod('voucher')}
                   className="flex-1 py-3 px-4 rounded-lg font-medium transition-all"
                   style={{
-                    backgroundColor: paymentMethod === 'voucher' ? '#16A34A' : '#F3F4F6',
+                    backgroundColor: paymentMethod === 'voucher' ? '#ff0000' : '#F3F4F6',
                     color: paymentMethod === 'voucher' ? '#FFFFFF' : '#374151'
                   }}
                 >
@@ -403,7 +417,7 @@ export default function NFCPaymentPage() {
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg transition-colors font-medium"
-                        style={{ backgroundColor: '#000000', color: '#FFFFFF' }}
+                        style={{ backgroundColor: '#ff0000', color: '#FFFFFF' }}
                         onClick={() => alert('Apple Pay integration coming soon!')}
                       >
                         <span className="text-xl mr-2">🍎</span>
@@ -640,7 +654,7 @@ export default function NFCPaymentPage() {
                 disabled={processing}
                 className="w-full mt-6 py-4 rounded-xl font-semibold text-lg transition-colors disabled:cursor-not-allowed"
                 style={{
-                  backgroundColor: processing ? '#D1D5DB' : '#DC2626',
+                  backgroundColor: processing ? '#D1D5DB' : '#ff0000',
                   color: '#FFFFFF'
                 }}
               >
@@ -682,6 +696,9 @@ export default function NFCPaymentPage() {
                   <h4 className="font-medium text-gray-900">Founder's Edition Card</h4>
                   <p className="text-sm text-gray-500">One-time purchase</p>
                 </div>
+                <div className="text-right">
+                  <p className="font-bold text-gray-900">${orderData.pricing.subtotal.toFixed(2)}</p>
+                </div>
               </div>
 
               {/* Price Breakdown */}
@@ -691,13 +708,24 @@ export default function NFCPaymentPage() {
                   <span>${orderData.pricing.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>Shipping ({orderData.shipping.country})</span>
-                  <span>{orderData.pricing.shippingCost === 0 ? 'Free' : `$${orderData.pricing.shippingCost.toFixed(2)}`}</span>
+                  <span>Customization</span>
+                  <span className="text-green-600">Included</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>VAT (5%)</span>
+                  <span>Shipping ({orderData.shipping.country === 'IN' ? 'India' : orderData.shipping.country === 'AE' ? 'UAE' : orderData.shipping.country})</span>
+                  <span className="text-green-600">{orderData.pricing.shippingCost === 0 ? 'Free' : `$${orderData.pricing.shippingCost.toFixed(2)}`}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>{isIndia ? 'GST (18%)' : 'VAT (5%)'}</span>
                   <span>${orderData.pricing.taxAmount.toFixed(2)}</span>
                 </div>
+
+                {orderData.isFounderMember && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Founder Member Benefits (10% off)</span>
+                    <span>-${(orderData.pricing.subtotal * 0.10).toFixed(2)}</span>
+                  </div>
+                )}
 
                 {voucherDiscount > 0 && (
                   <div className="flex justify-between text-green-600 font-medium">
@@ -721,7 +749,7 @@ export default function NFCPaymentPage() {
               <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                 <p className="text-xs text-gray-600 text-center mb-2">Secure payments powered by</p>
                 <div className="flex items-center justify-center">
-                  <span className="text-indigo-600 font-bold text-lg">stripe</span>
+                  <span className="text-gray-900 font-bold text-lg">stripe</span>
                   <span className="text-xs text-gray-500 ml-2">3D Secure</span>
                 </div>
               </div>
@@ -730,23 +758,7 @@ export default function NFCPaymentPage() {
         </div>
       </div>
 
-      {/* Simplified Footer Navigation */}
-      <footer className="bg-black text-white border-t border-white/10 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-white text-xl font-bold">Linkist</div>
-            <div className="flex gap-6 flex-wrap justify-center text-sm">
-              <a href="/privacy" className="text-white/70 hover:text-red-500 transition-colors">Privacy Policy</a>
-              <a href="/terms" className="text-white/70 hover:text-red-500 transition-colors">Terms of Service</a>
-              <a href="/security" className="text-white/70 hover:text-red-500 transition-colors">Security</a>
-              <a href="/accessibility" className="text-white/70 hover:text-red-500 transition-colors">Accessibility</a>
-            </div>
-            <div className="text-white/50 text-sm">
-              © {new Date().getFullYear()} Linkist Inc. All rights reserved.
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

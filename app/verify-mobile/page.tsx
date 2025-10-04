@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Logo from '@/components/Logo';
+import Toast from '@/components/Toast';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -24,16 +25,30 @@ function VerifyMobileContent() {
   const [success, setSuccess] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [otpSent, setOtpSent] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   useEffect(() => {
     const phoneParam = searchParams.get('phone');
-    if (phoneParam && !otpSent) {
+    if (phoneParam) {
       setPhone(phoneParam);
-      setOtpSent(true);
-      // Automatically trigger OTP sending when phone is provided
-      setTimeout(() => {
-        handleSendOtpWithPhone(phoneParam);
-      }, 500);
+
+      // Check if OTP was already sent for this phone number (prevent resend on refresh)
+      const otpSentKey = `otp_sent_${phoneParam}`;
+      const alreadySent = sessionStorage.getItem(otpSentKey);
+
+      if (!alreadySent && !otpSent) {
+        setOtpSent(true);
+        // Mark as sent in sessionStorage
+        sessionStorage.setItem(otpSentKey, Date.now().toString());
+
+        // Automatically trigger OTP sending when phone is provided
+        setTimeout(() => {
+          handleSendOtpWithPhone(phoneParam);
+        }, 500);
+      } else {
+        // OTP already sent, just show verify step
+        setStep('verify');
+      }
     }
   }, [searchParams, otpSent]);
 
@@ -76,19 +91,27 @@ function VerifyMobileContent() {
       setStep('verify');
       setResendTimer(60);
 
+      // Show success toast
+      setToast({ message: 'Verification code sent successfully!', type: 'success' });
+
       if (data.devOtp) {
         console.log('🔑 Development OTP:', data.devOtp);
-        alert(`⚠️ SMS delivery issue!\n\nYour OTP: ${data.devOtp}\n\nCopy this code for verification.`);
       }
 
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send verification code');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send verification code';
+      setError(errorMessage);
+      setToast({ message: errorMessage, type: 'error' });
     } finally {
       setSendingOtp(false);
     }
   };
 
   const handleSendOtp = async () => {
+    // Clear sessionStorage for this phone number to allow resend
+    const otpSentKey = `otp_sent_${phone}`;
+    sessionStorage.removeItem(otpSentKey);
+
     await handleSendOtpWithPhone(phone);
   };
 
@@ -149,6 +172,10 @@ function VerifyMobileContent() {
       localStorage.setItem('verifiedPhone', phone);
       localStorage.setItem('mobileVerified', 'true');
 
+      // Clear sessionStorage after successful verification
+      const otpSentKey = `otp_sent_${phone}`;
+      sessionStorage.removeItem(otpSentKey);
+
       setTimeout(() => {
         router.push('/product-selection');
       }, 2000);
@@ -189,11 +216,6 @@ function VerifyMobileContent() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <header className="px-6 py-4 border-b border-gray-100">
-        <Logo width={120} height={40} />
-      </header>
-
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
@@ -378,6 +400,15 @@ function VerifyMobileContent() {
           Standard SMS rates may apply
         </p>
       </div>
+
+      {/* Toast notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

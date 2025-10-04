@@ -28,14 +28,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('🔐 Verifying OTP for:', mobile);
+    // Use database OTP only if Twilio not configured (not based on NODE_ENV)
+    const useDatabaseOTP = !accountSid || !authToken || !verifyServiceSid;
 
-    // Check if Twilio is configured
-    const twilioConfigured = accountSid && authToken && verifyServiceSid;
-
-    if (twilioConfigured) {
+    if (!useDatabaseOTP) {
       try {
-        // Verify using Twilio Verify API
+        // Verify using Twilio Verify API in production
         const client = twilio(accountSid, authToken);
 
         const verificationCheck = await client.verify.v2
@@ -44,8 +42,6 @@ export async function POST(request: NextRequest) {
             to: mobile,
             code: otp
           });
-
-        console.log('Twilio verification status:', verificationCheck.status);
 
         if (verificationCheck.status === 'approved') {
           // Update user's mobile_verified status in database
@@ -58,17 +54,6 @@ export async function POST(request: NextRequest) {
               .update({ mobile_verified: true, phone_number: mobile })
               .eq('email', userEmail);
           }
-
-          // Mark as verified in OTP store
-          const storedData = await SupabaseMobileOTPStore.get(mobile);
-          if (storedData) {
-            await SupabaseMobileOTPStore.set(mobile, {
-              ...storedData,
-              verified: true
-            });
-          }
-
-          console.log(`✅ Mobile number verified via Twilio: ${mobile}`);
 
           return NextResponse.json({
             success: true,
@@ -100,12 +85,11 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Fallback to database verification
-        console.log('Falling back to database verification...');
+        // Fallback to database verification on error
       }
     }
 
-    // Fallback verification using database (when Twilio not configured or failed)
+    // Database verification (development mode or Twilio fallback)
     const storedData = await SupabaseMobileOTPStore.get(mobile);
 
     if (!storedData) {
@@ -156,8 +140,6 @@ export async function POST(request: NextRequest) {
         .update({ mobile_verified: true, phone_number: mobile })
         .eq('email', userEmail);
     }
-
-    console.log(`✅ Mobile number verified (database): ${mobile}`);
 
     return NextResponse.json({
       success: true,

@@ -18,8 +18,6 @@ export async function POST(request: NextRequest) {
   try {
     const { mobile } = await request.json();
 
-    console.log('📱 Sending OTP to:', mobile);
-
     // Validate mobile number
     if (!mobile || typeof mobile !== 'string') {
       return NextResponse.json(
@@ -67,37 +65,56 @@ export async function POST(request: NextRequest) {
       console.warn(`⚠️ Elevated risk score: ${spamCheck.riskScore} for phone ${mobile} from IP ${ipAddress}`);
     }
 
-    // Validate Twilio credentials
-    if (!accountSid || !authToken || !verifyServiceSid) {
-      console.error('❌ Twilio credentials not configured');
+    // Use database OTP only if Twilio not configured (not based on NODE_ENV)
+    const useDatabaseOTP = !accountSid || !authToken || !verifyServiceSid;
 
-      // Fallback: Generate OTP and store in database for development
+    console.log('🔍 SMS OTP Debug:', {
+      accountSid: accountSid ? 'Set' : 'Missing',
+      authToken: authToken ? 'Set' : 'Missing',
+      verifyServiceSid: verifyServiceSid ? 'Set' : 'Missing',
+      useDatabaseOTP,
+      mobile
+    });
+
+    if (useDatabaseOTP) {
+      // Generate OTP and store in database for development
       const otp = generateMobileOTP();
-      const expiresAt = new Date(Date.now() + (5 * 60 * 1000)).toISOString();
+      const expiresAt = new Date(Date.now() + (10 * 60 * 1000)).toISOString();
 
       await cleanExpiredOTPs();
-      await SupabaseMobileOTPStore.set(mobile, {
+      const stored = await SupabaseMobileOTPStore.set(mobile, {
         mobile,
         otp,
         expires_at: expiresAt,
         verified: false
       });
 
-      console.log(`📱 DEV MODE - OTP for ${mobile}: ${otp}`);
+      if (!stored) {
+        console.error('Failed to store OTP in database');
+        return NextResponse.json(
+          { success: false, error: 'Failed to generate verification code' },
+          { status: 500 }
+        );
+      }
+
+      console.log(`📱 Mobile OTP for ${mobile}: ${otp} (stored in database)`);
 
       return NextResponse.json({
         success: true,
-        message: 'Verification code generated (SMS service not configured)',
-        devOtp: process.env.NODE_ENV === 'development' ? otp : undefined,
-        smsStatus: 'not_configured'
+        message: 'Verification code generated',
+        devOtp: otp, // Show OTP in development
+        smsStatus: 'database'
       });
     }
 
     try {
       // Initialize Twilio client
+      console.log('📞 Initializing Twilio client...');
       const client = twilio(accountSid, authToken);
 
-      // Send verification code using Twilio Verify
+      // Send verification code using Twilio Verify API
+      // Note: Twilio generates and manages the OTP, we don't need to store it
+      console.log('📤 Sending SMS to:', mobile);
       const verification = await client.verify.v2
         .services(verifyServiceSid)
         .verifications.create({
@@ -105,19 +122,7 @@ export async function POST(request: NextRequest) {
           channel: 'sms'
         });
 
-      console.log('✅ OTP sent via Twilio:', verification.status);
-
-      // Also store in our database for tracking
-      const otp = generateMobileOTP();
-      const expiresAt = new Date(Date.now() + (10 * 60 * 1000)).toISOString(); // 10 minutes
-
-      await cleanExpiredOTPs();
-      await SupabaseMobileOTPStore.set(mobile, {
-        mobile,
-        otp,
-        expires_at: expiresAt,
-        verified: false
-      });
+      console.log('✅ Twilio verification sent:', verification.status);
 
       return NextResponse.json({
         success: true,
@@ -127,7 +132,12 @@ export async function POST(request: NextRequest) {
       });
 
     } catch (error: any) {
-      console.error('❌ Twilio error:', error);
+      console.error('❌ Twilio error:', {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        moreInfo: error.moreInfo
+      });
 
       // Handle specific Twilio errors
       if (error.code === 60200) {
@@ -151,9 +161,10 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Fallback: Generate OTP for development
+      // Fallback: Generate OTP and store in database
+      console.log('⚠️ SMS failed, using database OTP as fallback');
       const otp = generateMobileOTP();
-      const expiresAt = new Date(Date.now() + (5 * 60 * 1000)).toISOString();
+      const expiresAt = new Date(Date.now() + (10 * 60 * 1000)).toISOString();
 
       await cleanExpiredOTPs();
       await SupabaseMobileOTPStore.set(mobile, {
@@ -163,14 +174,14 @@ export async function POST(request: NextRequest) {
         verified: false
       });
 
-      console.log(`📱 FALLBACK - OTP for ${mobile}: ${otp}`);
+      console.log(`📱 Fallback OTP for ${mobile}: ${otp}`);
 
       return NextResponse.json({
         success: true,
         message: 'Verification code generated (SMS delivery failed)',
-        devOtp: process.env.NODE_ENV === 'development' ? otp : undefined,
+        devOtp: otp, // Always show in fallback mode
         smsStatus: 'fallback',
-        error: error.message
+        twilioError: error.message
       });
     }
 
