@@ -1,49 +1,21 @@
-import { Resend } from 'resend';
-import { 
-  OrderData, 
-  orderConfirmationEmail, 
-  receiptEmail, 
-  inProductionEmail, 
-  shippedEmail, 
-  deliveredEmail 
+import { sendOrderEmail as sendSMTPEmail, EMAIL_CONFIG as SMTP_EMAIL_CONFIG, getTransporterInstance } from './smtp-email-service';
+import {
+  OrderData,
+  orderConfirmationEmail,
+  receiptEmail,
+  inProductionEmail,
+  shippedEmail,
+  deliveredEmail
 } from './email-templates';
 
 // Production-ready email configuration
 const EMAIL_CONFIG = {
-  from: process.env.EMAIL_FROM || 'Linkist <noreply@linkist.ai>',
+  from: process.env.EMAIL_FROM || 'Linkist NFC <hello@linkist.ai>',
   replyTo: process.env.EMAIL_REPLY_TO || 'support@linkist.ai',
   isProduction: process.env.NODE_ENV === 'production',
-  isResendConfigured: Boolean(process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.startsWith('re_')),
+  isSMTPConfigured: Boolean(process.env.SMTP_USER && process.env.SMTP_PASS),
   maxRetries: 3,
   retryDelay: 1000, // 1 second
-};
-
-// Lazy initialization to avoid build-time errors
-let resend: Resend | null = null;
-
-const getResendInstance = (): Resend | null => {
-  console.log('🔧 Resend Configuration Check:', {
-    hasApiKey: Boolean(process.env.RESEND_API_KEY),
-    apiKeyPrefix: process.env.RESEND_API_KEY?.substring(0, 5) + '...',
-    isConfigured: EMAIL_CONFIG.isResendConfigured,
-    NODE_ENV: process.env.NODE_ENV
-  });
-
-  if (!EMAIL_CONFIG.isResendConfigured) {
-    console.warn('❌ Resend not configured:', {
-      apiKey: process.env.RESEND_API_KEY ? 'present' : 'missing',
-      startsWithRe: process.env.RESEND_API_KEY?.startsWith('re_'),
-      configCheck: EMAIL_CONFIG.isResendConfigured
-    });
-    return null;
-  }
-  
-  if (!resend && process.env.RESEND_API_KEY) {
-    console.log('✅ Initializing Resend instance with API key');
-    resend = new Resend(process.env.RESEND_API_KEY);
-  }
-  
-  return resend;
 };
 
 export type EmailType = 'confirmation' | 'receipt' | 'production' | 'shipped' | 'delivered';
@@ -113,19 +85,19 @@ export class OrderEmailService {
           orderNumber: data.orderNumber,
           customer: data.customerName,
           htmlLength: html.length,
-          willSendReal: EMAIL_CONFIG.isResendConfigured
+          willSendReal: EMAIL_CONFIG.isSMTPConfigured
         });
       }
 
-      // Check if Resend is properly configured
-      const resendInstance = getResendInstance();
-      if (!EMAIL_CONFIG.isResendConfigured || !resendInstance) {
-        console.warn(`⚠️  [${type.toUpperCase()}] Resend not configured - email would be sent to ${data.email}`);
+      // Check if SMTP is properly configured
+      const transporterInstance = getTransporterInstance();
+      if (!EMAIL_CONFIG.isSMTPConfigured || !transporterInstance) {
+        console.warn(`⚠️  [${type.toUpperCase()}] SMTP not configured - email would be sent to ${data.email}`);
         return { success: true, messageId: `mock-${Date.now()}-${type}` };
       }
 
       // Send email with retry logic
-      return await this.sendWithRetry(type, data, subject, html, resendInstance);
+      return await this.sendWithRetry(type, data, subject, html, transporterInstance);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -135,23 +107,20 @@ export class OrderEmailService {
   }
 
   private async sendWithRetry(
-    type: EmailType, 
-    data: OrderData, 
-    subject: string, 
+    type: EmailType,
+    data: OrderData,
+    subject: string,
     html: string,
-    resendInstance: Resend,
+    transporterInstance: any,
     attempt: number = 1
   ): Promise<EmailResult> {
     try {
       console.log(`📤 [${type.toUpperCase()}] Sending email to ${data.email} (attempt ${attempt}/${EMAIL_CONFIG.maxRetries})`);
 
-      const { data: emailData, error } = await resendInstance.emails.send({
-        from: EMAIL_CONFIG.from,
-        to: [data.email],
+      const result = await sendSMTPEmail({
+        to: data.email,
         subject,
         html,
-        replyTo: EMAIL_CONFIG.replyTo,
-        // Add tags for tracking and analytics
         tags: [
           { name: 'email_type', value: type },
           { name: 'order_number', value: data.orderNumber },
@@ -159,26 +128,26 @@ export class OrderEmailService {
         ]
       });
 
-      if (error) {
-        console.error(`❌ [${type.toUpperCase()}] Resend API error (attempt ${attempt}):`, error);
-        
+      if (!result.success || result.error) {
+        console.error(`❌ [${type.toUpperCase()}] SMTP error (attempt ${attempt}):`, result.error);
+
         // Retry for certain types of errors
-        if (attempt < EMAIL_CONFIG.maxRetries && this.shouldRetry(error)) {
+        if (attempt < EMAIL_CONFIG.maxRetries && result.error) {
           console.log(`🔄 [${type.toUpperCase()}] Retrying in ${EMAIL_CONFIG.retryDelay}ms...`);
           await this.delay(EMAIL_CONFIG.retryDelay * attempt); // Exponential backoff
-          return this.sendWithRetry(type, data, subject, html, resendInstance, attempt + 1);
+          return this.sendWithRetry(type, data, subject, html, transporterInstance, attempt + 1);
         }
-        
-        return { success: false, error: error.message || 'Email sending failed' };
+
+        return { success: false, error: result.error?.message || 'Email sending failed' };
       }
 
       console.log(`✅ [${type.toUpperCase()}] Email sent successfully to ${data.email}:`, {
-        messageId: emailData?.id,
+        messageId: result.id,
         orderNumber: data.orderNumber,
         attempt
       });
 
-      return { success: true, messageId: emailData?.id };
+      return { success: true, messageId: result.id };
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Network or API error';
@@ -301,21 +270,22 @@ export class OrderEmailService {
 
   // Health check for email service
   async healthCheck(): Promise<{ healthy: boolean; configured: boolean; message: string }> {
-    const configured = EMAIL_CONFIG.isResendConfigured;
-    
+    const configured = EMAIL_CONFIG.isSMTPConfigured;
+
     if (!configured) {
       return {
         healthy: false,
         configured: false,
-        message: 'Resend API key not configured'
+        message: 'SMTP credentials not configured'
       };
     }
 
     try {
-      // In production, you might want to send a test email to a monitoring address
-      // For now, just check if we can create the Resend instance
-      const resendInstance = getResendInstance();
-      if (resendInstance) {
+      // Check if we can create the SMTP transporter
+      const transporterInstance = getTransporterInstance();
+      if (transporterInstance) {
+        // Try to verify connection
+        await transporterInstance.verify();
         return {
           healthy: true,
           configured: true,
@@ -325,7 +295,7 @@ export class OrderEmailService {
         return {
           healthy: false,
           configured: false,
-          message: 'Resend client not initialized'
+          message: 'SMTP transporter not initialized'
         };
       }
     } catch (error) {
@@ -343,7 +313,7 @@ export class OrderEmailService {
       from: EMAIL_CONFIG.from,
       replyTo: EMAIL_CONFIG.replyTo,
       isProduction: EMAIL_CONFIG.isProduction,
-      isConfigured: EMAIL_CONFIG.isResendConfigured,
+      isConfigured: EMAIL_CONFIG.isSMTPConfigured,
       maxRetries: EMAIL_CONFIG.maxRetries,
       retryDelay: EMAIL_CONFIG.retryDelay,
     };

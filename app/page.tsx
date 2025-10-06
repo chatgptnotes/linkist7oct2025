@@ -183,9 +183,9 @@ export default function HomePage() {
       {/* Sticky Navigation */}
       <nav className="fixed top-0 w-full bg-[#0F0F12]/95 backdrop-blur-sm border-b border-[#1C1C22] z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-20 py-3">
             {/* Logo */}
-            <Logo href="/" width={140} height={45} />
+            <Logo href="/" width={120} height={40} />
 
             {/* Center Nav */}
             <div className="hidden md:flex space-x-8">
@@ -215,28 +215,29 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-12 overflow-hidden">
+      <section className="relative pt-28 pb-12 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#E02424]/10 via-transparent to-transparent opacity-50" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
+              className="pr-4"
             >
-              <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6">
                 Remember better.
                 <br />
                 <span className="text-[#E02424]">Network with intention.</span>
               </h1>
 
-              <p className="text-xl text-[#A3A8B3] mb-8 leading-relaxed">
+              <p className="text-lg sm:text-xl text-[#A3A8B3] mb-8 leading-relaxed">
                 Linkist is the world's first <span className="text-[#E02424] font-semibold">PRM™</span> — an AI-powered Personal Relationship Manager that remembers every contact, adds context, scores who matters most, and nudges you at the right time.
               </p>
 
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-4 mb-8 pr-2">
                 {[
                   'Turn introductions into lasting opportunities',
                   'Prioritize your most valuable relationships',
@@ -250,7 +251,7 @@ export default function HomePage() {
                     className="flex items-start"
                   >
                     <Check className="w-6 h-6 text-[#E02424] mr-3 mt-0.5 flex-shrink-0" />
-                    <span className="text-[#F5F7FA]">{item}</span>
+                    <span className="text-[#F5F7FA] text-sm sm:text-base">{item}</span>
                   </motion.li>
                 ))}
               </ul>

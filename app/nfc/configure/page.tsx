@@ -292,7 +292,7 @@ export default function ConfigureNewPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       {/* Simplified Header - Linkist Logo Only */}
-      <div className="bg-white border-b border-gray-100">
+      {/* <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-center">
             <a href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
@@ -305,7 +305,7 @@ export default function ConfigureNewPage() {
             </a>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -315,9 +315,18 @@ export default function ConfigureNewPage() {
             {/* Step 1: Personalize Name - Compact Modern Card */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <Person className="mr-2 w-5 h-5 text-gray-600" /> Personalize Your Name
-                </h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <Person className="mr-2 w-5 h-5 text-gray-600" /> Personalize Your Name
+                  </h2>
+                  <button
+                    type="button"
+                    className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+                    title="AI Assistant"
+                  >
+                    <img src="/ai1.png" alt="AI Assistant" className="w-6 h-6" />
+                  </button>
+                </div>
               </div>
               <div className="p-6">
                 <p className="text-sm text-gray-600 mb-4">
@@ -527,24 +536,37 @@ export default function ConfigureNewPage() {
               {/* Card Preview - Compact Modern */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-                  <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
+                    <button
+                      type="button"
+                      className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+                      title="AI Assistant"
+                    >
+                    </button>
+                  </div>
                 </div>
                 <div className="p-4 space-y-4">
                   {/* Front Card */}
                   <div>
                     <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                      {/* AI Icon top right */}
+                      {/* AI Icon top right - Changes based on card color */}
                       <div className="absolute top-4 right-4">
-                        <div className="bg-gray-900 rounded-xl p-2 shadow-lg">
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            {/* Chat bubble */}
-                            <rect x="3" y="5" width="14" height="12" rx="2" fill="#E5C8A8" stroke="#000" strokeWidth="1.5"/>
-                            {/* AI text */}
-                            <path d="M7 9h2l1 3 1-3h2M7 12h5" stroke="#000" strokeWidth="1.2" strokeLinecap="round"/>
-                            {/* Sparkle */}
-                            <path d="M18 8l1.5 1.5L18 11l-1.5-1.5L18 8z M20 14l1 1-1 1-1-1 1-1z" fill="#000"/>
-                          </svg>
-                        </div>
+                        <button
+                          type="button"
+                          className={`rounded-xl p-3 shadow-lg transition-colors ${
+                            formData.colour === 'white'
+                              ? 'bg-white hover:bg-gray-100'
+                              : 'bg-gray-900 hover:bg-gray-800'
+                          }`}
+                          title="AI Assistant"
+                        >
+                          <img
+                            src={formData.colour === 'white' ? '/ai2.png' : '/ai1.png'}
+                            alt="AI Assistant"
+                            className={`w-6 h-6 ${formData.colour === 'white' ? '' : 'invert'}`}
+                          />
+                        </button>
                       </div>
 
                       {/* User Initials or Name */}
@@ -584,16 +606,14 @@ export default function ConfigureNewPage() {
                           className="h-16 w-auto mb-4"
                         />
                         <div className={`${getTextColor()} text-sm font-medium tracking-wider`}>FOUNDING MEMBER</div>
+                        <div className="absolute bottom-1 right-4">
+                        {/* <img src="/nfc2.png" alt="NFC" className="w-12 h-12" /> */}
+                      </div>
                       </div>
 
                       {/* NFC Symbol bottom right */}
-                      <div className="absolute bottom-4 right-4">
-                        <div className={`${getTextColor()} text-lg`}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 7v10m12-10v10M9 9h6m-6 6h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                            <path d="M3 12h2m14 0h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                          </svg>
-                        </div>
+                      <div className="absolute bottom-9 right-4">
+                        <img src="/nfc2.png" alt="NFC" className="w-9 h-9" />
                       </div>
                     </div>
                     <div className="text-center text-sm text-gray-600 mt-2">Back</div>

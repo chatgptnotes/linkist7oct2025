@@ -56,9 +56,10 @@ export async function POST(request: NextRequest) {
     });
 
     const isDevelopment = process.env.NODE_ENV !== 'production';
+    const isSMTPConfigured = Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
 
-    // Send OTP via Resend
-    if (process.env.RESEND_API_KEY) {
+    // Send OTP via SMTP
+    if (isSMTPConfigured) {
       try {
         const emailResult = await sendOTPEmail({
           to: email,
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (emailResult.success) {
-          console.log(`✅ Email OTP sent to ${email} via Resend`);
+          console.log(`✅ Email OTP sent to ${email} via SMTP`);
 
           return NextResponse.json({
             success: true,
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
             ...(isDevelopment && { devOtp: otp }),
           });
         } else {
-          console.error('❌ Resend failed:', emailResult.error);
+          console.error('❌ SMTP failed:', emailResult.error);
         }
       } catch (emailError) {
         console.error('❌ Email sending error:', emailError);
@@ -92,7 +93,7 @@ export async function POST(request: NextRequest) {
         ? 'Verification code generated (check console - email service not configured)'
         : 'Verification code sent to your email',
       ...(isDevelopment && { devOtp: otp }),
-      emailStatus: process.env.RESEND_API_KEY ? 'fallback' : 'not_configured'
+      emailStatus: isSMTPConfigured ? 'fallback' : 'not_configured'
     });
 
   } catch (error) {
