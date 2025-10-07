@@ -34,17 +34,51 @@ const EMAIL_CONFIG = {
 let transporter: Transporter | null = null;
 
 const getTransporterInstance = (): Transporter | null => {
+  // Detailed environment validation
+  const envVars = {
+    SMTP_HOST: process.env.SMTP_HOST,
+    SMTP_PORT: process.env.SMTP_PORT,
+    SMTP_USER: process.env.SMTP_USER,
+    SMTP_PASS: process.env.SMTP_PASS,
+    EMAIL_FROM: process.env.EMAIL_FROM,
+    EMAIL_REPLY_TO: process.env.EMAIL_REPLY_TO
+  };
+
   console.log('🔧 SMTP Configuration Check:', {
-    hasUser: Boolean(process.env.SMTP_USER),
-    hasPass: Boolean(process.env.SMTP_PASS),
-    userLength: process.env.SMTP_USER?.length || 0,
-    passLength: process.env.SMTP_PASS?.length || 0,
+    hasUser: Boolean(envVars.SMTP_USER),
+    hasPass: Boolean(envVars.SMTP_PASS),
+    hasHost: Boolean(envVars.SMTP_HOST),
+    hasPort: Boolean(envVars.SMTP_PORT),
+    userLength: envVars.SMTP_USER?.length || 0,
+    passLength: envVars.SMTP_PASS?.length || 0,
+    hostValue: envVars.SMTP_HOST || 'NOT_SET',
+    portValue: envVars.SMTP_PORT || 'NOT_SET',
+    userValue: envVars.SMTP_USER || 'NOT_SET',
+    fromValue: envVars.EMAIL_FROM || 'NOT_SET',
     host: SMTP_CONFIG.host,
     port: SMTP_CONFIG.port,
     secure: SMTP_CONFIG.secure,
     isConfigured: EMAIL_CONFIG.isSMTPConfigured,
     NODE_ENV: process.env.NODE_ENV
   });
+
+  // Validate required environment variables
+  const missingVars = [];
+  if (!envVars.SMTP_HOST?.trim()) missingVars.push('SMTP_HOST');
+  if (!envVars.SMTP_PORT?.trim()) missingVars.push('SMTP_PORT');
+  if (!envVars.SMTP_USER?.trim()) missingVars.push('SMTP_USER');
+  if (!envVars.SMTP_PASS?.trim()) missingVars.push('SMTP_PASS');
+
+  if (missingVars.length > 0) {
+    console.error('❌ SMTP configuration incomplete. Missing variables:', missingVars);
+    console.error('Environment check:', {
+      SMTP_HOST: envVars.SMTP_HOST ? `"${envVars.SMTP_HOST}"` : 'MISSING',
+      SMTP_PORT: envVars.SMTP_PORT ? `"${envVars.SMTP_PORT}"` : 'MISSING',
+      SMTP_USER: envVars.SMTP_USER ? `"${envVars.SMTP_USER}"` : 'MISSING',
+      SMTP_PASS: envVars.SMTP_PASS ? `${envVars.SMTP_PASS.length} chars` : 'MISSING'
+    });
+    return null;
+  }
 
   if (!EMAIL_CONFIG.isSMTPConfigured) {
     console.warn('❌ SMTP not configured:', {
@@ -60,9 +94,18 @@ const getTransporterInstance = (): Transporter | null => {
       port: SMTP_CONFIG.port,
       user: SMTP_CONFIG.auth.user,
       secure: SMTP_CONFIG.secure,
-      requireTLS: SMTP_CONFIG.requireTLS
+      requireTLS: SMTP_CONFIG.requireTLS,
+      connectionTimeout: SMTP_CONFIG.connectionTimeout,
+      dnsTimeout: SMTP_CONFIG.dnsTimeout
     });
-    transporter = nodemailer.createTransport(SMTP_CONFIG);
+
+    try {
+      transporter = nodemailer.createTransport(SMTP_CONFIG);
+      console.log('✅ SMTP transporter created successfully');
+    } catch (error) {
+      console.error('❌ Failed to create SMTP transporter:', error);
+      return null;
+    }
   }
 
   return transporter;
