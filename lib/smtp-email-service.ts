@@ -18,7 +18,9 @@ const SMTP_CONFIG = {
 };
 
 const EMAIL_CONFIG = {
-  from: process.env.EMAIL_FROM || 'Linkist NFC <hello@linkist.ai>',
+  from: process.env.EMAIL_FROM ?
+    (process.env.EMAIL_FROM.includes('<') ? process.env.EMAIL_FROM : `Linkist NFC <${process.env.EMAIL_FROM}>`) :
+    'Linkist NFC <hello@linkist.ai>',
   replyTo: process.env.EMAIL_REPLY_TO || 'support@linkist.ai',
   isProduction: process.env.NODE_ENV === 'production',
   isSMTPConfigured: Boolean(process.env.SMTP_USER && process.env.SMTP_PASS),
