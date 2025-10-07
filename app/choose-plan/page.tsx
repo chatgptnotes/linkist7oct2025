@@ -61,17 +61,18 @@ Team Size: ${formData.teamSize}`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Who is this for?
-          </h1>
-          <p className="text-xl text-gray-600">
-            Choose the option that best fits your needs
-          </p>
-        </div>
+      <div className="flex-grow flex items-center justify-center">
+        <div className="max-w-5xl mx-auto px-6 py-12">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              Who is this for?
+            </h1>
+            <p className="text-xl text-gray-600">
+              Choose the option that best fits your needs
+            </p>
+          </div>
 
         {/* Choice Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -124,14 +125,15 @@ Team Size: ${formData.teamSize}`;
           </div>
         </div>
 
-        {/* Back Button */}
-        <div className="mt-12 text-center">
-          <button
-            onClick={() => router.back()}
-            className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-          >
-            ← Go Back
-          </button>
+          {/* Back Button */}
+          <div className="mt-12 text-center">
+            <button
+              onClick={() => router.back()}
+              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+            >
+              ← Go Back
+            </button>
+          </div>
         </div>
       </div>
 

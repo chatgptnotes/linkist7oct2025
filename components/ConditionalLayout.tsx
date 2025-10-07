@@ -86,13 +86,25 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   // For inner pages, render with simple header (only logo + logout after onboarding)
   if (isInnerPage) {
+    // Pages that should not have any header
+    const noHeaderPages = pathname.startsWith('/choose-plan') ||
+                          pathname.startsWith('/welcome-to-linkist');
+
     // Only show logout on these pages (after user has completed onboarding)
     const showLogout = pathname.startsWith('/product-selection') ||
                        pathname.startsWith('/nfc/') ||
                        pathname.startsWith('/account') ||
-                       pathname.startsWith('/choose-plan') ||
                        pathname.startsWith('/checkout') ||
                        pathname.startsWith('/confirm-payment');
+
+    // Render without header for specific pages
+    if (noHeaderPages) {
+      return (
+        <main className="flex-grow min-h-0">
+          {children}
+        </main>
+      );
+    }
 
     return (
       <>
