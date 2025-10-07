@@ -28,6 +28,20 @@ const AlertCircle = ErrorOutlineIcon;
 // Initialize Stripe (you'll need to add your publishable key)
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
+// Color mapping for card preview
+const allColours: Array<{ value: string; label: string; hex: string; gradient: string }> = [
+  // PVC colors
+  { value: 'white', label: 'White', hex: '#FFFFFF', gradient: 'from-white to-gray-100' },
+  { value: 'black-pvc', label: 'Black', hex: '#000000', gradient: 'from-gray-900 to-black' },
+  // Wood colors
+  { value: 'cherry', label: 'Cherry', hex: '#8E3A2D', gradient: 'from-red-950 to-red-900' },
+  { value: 'birch', label: 'Birch', hex: '#E5C79F', gradient: 'from-amber-100 to-amber-200' },
+  // Metal colors
+  { value: 'black-metal', label: 'Black', hex: '#1A1A1A', gradient: 'from-gray-800 to-gray-900' },
+  { value: 'silver', label: 'Silver', hex: '#C0C0C0', gradient: 'from-gray-300 to-gray-400' },
+  { value: 'rose-gold', label: 'Rose Gold', hex: '#B76E79', gradient: 'from-rose-300 to-rose-400' }
+];
+
 interface OrderData {
   customerName: string;
   email: string;
@@ -178,6 +192,21 @@ export default function NFCPaymentPage() {
 
     // In production, this would generate an actual QR code
     return upiString;
+  };
+
+  // Helper functions for card preview
+  const getCardGradient = () => {
+    const selectedColor = allColours.find(c => c.value === orderData?.cardConfig?.color);
+    return selectedColor?.gradient || 'from-gray-800 to-gray-900';
+  };
+
+  const getTextColor = () => {
+    // Return white text for dark backgrounds, black for light backgrounds
+    const darkBackgrounds = ['black-pvc', 'black-metal', 'cherry', 'rose-gold'];
+    if (orderData?.cardConfig?.color && darkBackgrounds.includes(orderData.cardConfig.color)) {
+      return 'text-white';
+    }
+    return 'text-gray-900';
   };
 
   const getFinalAmount = () => {
@@ -333,78 +362,51 @@ export default function NFCPaymentPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Simplified Header - Linkist Logo Only */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center justify-center">
-            <a href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-              <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">L</span>
-              </div>
-              <span className="text-2xl font-bold text-gray-900">Linkist</span>
-            </a>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Customer Info Card */}
-        {orderData && (
-          <div className="bg-white rounded-2xl shadow-sm p-4 mb-6 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span className="text-red-500 text-xl">~</span>
-              <span className="font-semibold text-gray-900">{orderData.customerName}</span>
-            </div>
-            <div className="text-gray-600">
-              {orderData.phoneNumber}
-            </div>
-          </div>
-        )}
-
-        <div className="grid lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Payment Form - Left Side */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-sm p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Secure Payment</h2>
-              <p className="text-gray-600 mb-6">Complete your purchase securely. All transactions are encrypted.</p>
+          <div className="lg:col-span-2 order-2 lg:order-1">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">Secure Payment</h2>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">Complete your purchase securely. All transactions are encrypted.</p>
 
               {/* Payment Method Tabs */}
-              <div className="flex gap-2 mb-6">
+              <div className="flex flex-col sm:flex-row gap-2 mb-4 sm:mb-6">
                 <button
                   onClick={() => setPaymentMethod('card')}
-                  className="flex-1 py-3 px-4 rounded-lg font-medium transition-all"
+                  className="flex-1 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-medium transition-all text-sm sm:text-base"
                   style={{
                     backgroundColor: paymentMethod === 'card' ? '#ff0000' : '#F3F4F6',
                     color: paymentMethod === 'card' ? '#FFFFFF' : '#374151'
                   }}
                 >
-                  <CreditCard className="w-5 h-5 inline mr-2" />
+                  <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 inline mr-2" />
                   Pay with Card
                 </button>
 
                 {isIndia && (
                   <button
                     onClick={() => setPaymentMethod('upi')}
-                    className="flex-1 py-3 px-4 rounded-lg font-medium transition-all"
+                    className="flex-1 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-medium transition-all text-sm sm:text-base"
                     style={{
                       backgroundColor: paymentMethod === 'upi' ? '#ff0000' : '#F3F4F6',
                       color: paymentMethod === 'upi' ? '#FFFFFF' : '#374151'
                     }}
                   >
-                    <Smartphone className="w-5 h-5 inline mr-2" />
+                    <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 inline mr-2" />
                     UPI
                   </button>
                 )}
 
                 <button
                   onClick={() => setPaymentMethod('voucher')}
-                  className="flex-1 py-3 px-4 rounded-lg font-medium transition-all"
+                  className="flex-1 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-medium transition-all text-sm sm:text-base"
                   style={{
                     backgroundColor: paymentMethod === 'voucher' ? '#ff0000' : '#F3F4F6',
                     color: paymentMethod === 'voucher' ? '#FFFFFF' : '#374151'
                   }}
                 >
-                  <Ticket className="w-5 h-5 inline mr-2" />
+                  <Ticket className="w-4 h-4 sm:w-5 sm:h-5 inline mr-2" />
                   Voucher
                 </button>
               </div>
@@ -412,29 +414,29 @@ export default function NFCPaymentPage() {
               {/* Express Checkout (for card payment) */}
               {paymentMethod === 'card' && (
                 <>
-                  <div className="mb-6">
+                  <div className="mb-4 sm:mb-6">
                     <h3 className="text-sm font-medium text-gray-700 mb-3">Express Checkout</h3>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
                       <button
-                        className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg transition-colors font-medium"
+                        className="flex items-center justify-center py-2.5 sm:py-3 px-3 sm:px-4 border border-gray-300 rounded-lg transition-colors font-medium cursor-pointer text-sm sm:text-base"
                         style={{ backgroundColor: '#ff0000', color: '#FFFFFF' }}
                         onClick={() => alert('Apple Pay integration coming soon!')}
                       >
-                        <span className="text-xl mr-2">🍎</span>
+                        <img src="/apple_logo.png" alt="Apple" className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                         <span>Pay</span>
                       </button>
                       <button
-                        className="flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg transition-colors font-medium"
+                        className="flex items-center justify-center py-2.5 sm:py-3 px-3 sm:px-4 border border-gray-300 rounded-lg transition-colors font-medium text-sm sm:text-base"
                         style={{ backgroundColor: '#FFFFFF', color: '#000000' }}
                         onClick={() => alert('Google Pay integration coming soon!')}
                       >
-                        <span className="text-xl mr-2 font-bold">G</span>
+                        <span className="text-lg sm:text-xl mr-1.5 sm:mr-2 font-bold">G</span>
                         <span>Google Pay</span>
                       </button>
                     </div>
                   </div>
 
-                  <div className="relative mb-6">
+                  <div className="relative mb-4 sm:mb-6">
                     <div className="absolute inset-0 flex items-center">
                       <div className="w-full border-t border-gray-200"></div>
                     </div>
@@ -447,9 +449,9 @@ export default function NFCPaymentPage() {
 
               {/* Card Payment Form */}
               {paymentMethod === 'card' && (
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       Card Number
                     </label>
                     <div className="relative">
@@ -458,28 +460,28 @@ export default function NFCPaymentPage() {
                         value={cardNumber}
                         onChange={handleCardNumberChange}
                         placeholder="0000 0000 0000 0000"
-                        className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pl-10 sm:pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm sm:text-base"
                       />
-                      <CreditCard className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                      <CreditCard className="absolute left-3 top-2.5 sm:top-3.5 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
                       Cardholder Name
                     </label>
                     <input
                       type="text"
                       value={cardHolder}
                       onChange={(e) => setCardHolder(e.target.value)}
-                      placeholder="Jane Doe"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                      placeholder="ddd dddd"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm sm:text-base"
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
                         Expiry Date
                       </label>
                       <input
@@ -487,11 +489,11 @@ export default function NFCPaymentPage() {
                         value={expiryDate}
                         onChange={handleExpiryChange}
                         placeholder="MM/YY"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm sm:text-base"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
                         CVC / CVV
                       </label>
                       <div className="relative">
@@ -500,20 +502,20 @@ export default function NFCPaymentPage() {
                           value={cvv}
                           onChange={handleCvvChange}
                           placeholder="123"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm sm:text-base"
                         />
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 mt-2">
-                    <div className="px-2 py-1 border rounded">
+                    <div className="px-2.5 py-1.5 border rounded">
                       <span className="text-blue-600 font-bold text-xs">VISA</span>
                     </div>
-                    <div className="px-2 py-1 border rounded">
+                    <div className="px-2.5 py-1.5 border rounded">
                       <span className="text-red-600 font-bold text-xs">MC</span>
                     </div>
-                    <div className="px-2 py-1 border rounded">
+                    <div className="px-2.5 py-1.5 border rounded">
                       <span className="text-blue-500 font-bold text-xs">AMEX</span>
                     </div>
                   </div>
@@ -652,7 +654,7 @@ export default function NFCPaymentPage() {
               <button
                 onClick={handlePayment}
                 disabled={processing}
-                className="w-full mt-6 py-4 rounded-xl font-semibold text-lg transition-colors disabled:cursor-not-allowed"
+                className="w-full mt-4 sm:mt-6 py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold text-base sm:text-lg transition-colors disabled:cursor-not-allowed"
                 style={{
                   backgroundColor: processing ? '#D1D5DB' : '#ff0000',
                   color: '#FFFFFF'
@@ -669,13 +671,13 @@ export default function NFCPaymentPage() {
               </button>
 
               {/* Security Badges */}
-              <div className="mt-8 flex items-center justify-center gap-8 text-sm text-gray-600">
+              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-gray-600">
                 <div className="flex items-center">
-                  <Shield className="w-5 h-5 mr-2 text-blue-500" />
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-500" />
                   SSL Secure Connection
                 </div>
                 <div className="flex items-center">
-                  <Lock className="w-5 h-5 mr-2 text-blue-500" />
+                  <Lock className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-500" />
                   PCI DSS Compliant
                 </div>
               </div>
@@ -683,74 +685,116 @@ export default function NFCPaymentPage() {
           </div>
 
           {/* Order Summary - Right Side */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-sm p-6 sticky top-20">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Order Summary</h3>
+          <div className="lg:col-span-1 lg:sticky lg:top-8 order-1 lg:order-2">
+            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Order Summary</h3>
 
-              {/* Order Item */}
-              <div className="flex items-start gap-3 mb-6 pb-6 border-b">
-                <div className="w-12 h-12 bg-gray-900 rounded-lg flex items-center justify-center text-white font-bold">
-                  1
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900">Founder's Edition Card</h4>
-                  <p className="text-sm text-gray-500">One-time purchase</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-gray-900">${orderData.pricing.subtotal.toFixed(2)}</p>
+              {/* Card Preview */}
+              <div className="mb-4 sm:mb-6">
+                <h4 className="text-sm sm:text-base font-medium mb-2 sm:mb-3">Your NFC Card</h4>
+                <p className="text-xs sm:text-sm text-gray-600 mb-1.5 sm:mb-2">
+                  {orderData?.cardConfig?.fullName || `${orderData?.cardConfig?.firstName} ${orderData?.cardConfig?.lastName}` || 'Custom NFC Card'}
+                </p>
+                {orderData?.cardConfig?.baseMaterial && (
+                  <p className="text-xs text-gray-500 mb-3 sm:mb-4">
+                    Material: {orderData.cardConfig.baseMaterial.charAt(0).toUpperCase() + orderData.cardConfig.baseMaterial.slice(1)} •
+                    Color: {(() => {
+                      const color = orderData.cardConfig.color || 'Black';
+                      // Remove material suffix (e.g., "black-pvc" -> "black")
+                      const colorName = color.split('-')[0];
+                      return colorName.charAt(0).toUpperCase() + colorName.slice(1);
+                    })()}
+                  </p>
+                )}
+
+                {/* Front Card */}
+                <div className="mb-3 sm:mb-4">
+                  <div className={`w-48 sm:w-56 aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-lg sm:rounded-xl relative overflow-hidden shadow-lg mr-auto`}>
+                    {/* AI Icon top right - Changes based on card color */}
+                    <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
+                      <div
+                        className={`rounded-md sm:rounded-lg p-1.5 sm:p-2 shadow-md ${
+                          orderData?.cardConfig?.color === 'white'
+                            ? 'bg-white'
+                            : 'bg-gray-900'
+                        }`}
+                      >
+                        <img
+                          src={orderData?.cardConfig?.color === 'white' ? '/ai2.png' : '/ai1.png'}
+                          alt="AI"
+                          className={`w-3 h-3 sm:w-4 sm:h-4 ${orderData?.cardConfig?.color === 'white' ? '' : 'invert'}`}
+                        />
+                      </div>
+                    </div>
+
+                    {/* User Name or Initials */}
+                    <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4">
+                      {(() => {
+                        const firstName = orderData?.cardConfig?.firstName?.trim() || '';
+                        const lastName = orderData?.cardConfig?.lastName?.trim() || '';
+                        const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+
+                        if (isSingleCharOnly) {
+                          return (
+                            <div className={`${getTextColor()} text-lg sm:text-xl font-light`}>
+                              {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className={`${getTextColor()} text-xs sm:text-sm font-medium`}>
+                              {firstName} {lastName}
+                            </div>
+                          );
+                        }
+                      })()}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Price Breakdown */}
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
+              {/* Pricing Breakdown */}
+              <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
+                <div className="flex justify-between">
+                  <span>NFC Card × {orderData?.cardConfig?.quantity || 1}</span>
                   <span>${orderData.pricing.subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between">
                   <span>Customization</span>
                   <span className="text-green-600">Included</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Shipping ({orderData.shipping.country === 'IN' ? 'India' : orderData.shipping.country === 'AE' ? 'UAE' : orderData.shipping.country})</span>
-                  <span className="text-green-600">{orderData.pricing.shippingCost === 0 ? 'Free' : `$${orderData.pricing.shippingCost.toFixed(2)}`}</span>
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span className="text-green-600">Included</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between">
                   <span>{isIndia ? 'GST (18%)' : 'VAT (5%)'}</span>
                   <span>${orderData.pricing.taxAmount.toFixed(2)}</span>
                 </div>
-
                 {orderData.isFounderMember && (
                   <div className="flex justify-between text-green-600">
                     <span>Founder Member Benefits (10% off)</span>
                     <span>-${(orderData.pricing.subtotal * 0.10).toFixed(2)}</span>
                   </div>
                 )}
-
                 {voucherDiscount > 0 && (
                   <div className="flex justify-between text-green-600 font-medium">
                     <span>Voucher ({voucherDiscount}% off)</span>
                     <span>-${((orderData.pricing.total * voucherDiscount) / 100).toFixed(2)}</span>
                   </div>
                 )}
-              </div>
-
-              {/* Total */}
-              <div className="pt-6 border-t">
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-gray-900">
-                    {isIndia ? '₹' : '$'}{getFinalAmount().toFixed(2)}
-                  </span>
+                <div className="border-t pt-2 sm:pt-3 flex justify-between font-semibold text-sm sm:text-base">
+                  <span>Total</span>
+                  <span>${getFinalAmount().toFixed(2)}</span>
                 </div>
               </div>
 
-              {/* Secure Payment Badge */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                <p className="text-xs text-gray-600 text-center mb-2">Secure payments powered by</p>
-                <div className="flex items-center justify-center">
-                  <span className="text-gray-900 font-bold text-lg">stripe</span>
-                  <span className="text-xs text-gray-500 ml-2">3D Secure</span>
+              {/* Security Notice */}
+              <div className="mt-4 sm:mt-6 flex items-start space-x-2 sm:space-x-3 text-xs sm:text-sm text-gray-600">
+                <Shield className="h-4 w-4 sm:h-5 sm:w-5 mt-0.5" />
+                <div>
+                  <p className="font-medium">Secure Payment</p>
+                  <p className="text-xs sm:text-sm">Your payment info is encrypted and secure</p>
                 </div>
               </div>
             </div>
