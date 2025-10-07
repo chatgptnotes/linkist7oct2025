@@ -122,7 +122,7 @@ export default function ProfileBuilderPage() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Logo width={140} height={45} />
+            <Logo width={140} height={45} variant="light" />
             <Link
               href="/account"
               className="text-gray-700 hover:text-gray-900"

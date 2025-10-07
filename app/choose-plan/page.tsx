@@ -61,18 +61,17 @@ Team Size: ${formData.teamSize}`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Main Content */}
-      <div className="flex-grow flex items-center justify-center">
-        <div className="max-w-5xl mx-auto px-6 py-12">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Who is this for?
-            </h1>
-            <p className="text-xl text-gray-600">
-              Choose the option that best fits your needs
-            </p>
-          </div>
+      <div className="max-w-5xl mx-auto px-6 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Who is this for?
+          </h1>
+          <p className="text-xl text-gray-600">
+            Choose the option that best fits your needs
+          </p>
+        </div>
 
         {/* Choice Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -92,7 +91,7 @@ Team Size: ${formData.teamSize}`;
               </p>
               <button
                 onClick={handlePersonalUse}
-                className="w-full py-3 px-6 rounded-xl font-semibold transition-all mt-auto"
+                className="w-full py-3 px-6 rounded-xl font-semibold transition-all mt-auto cursor-pointer"
                 style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
               >
                 Get Started
@@ -105,7 +104,7 @@ Team Size: ${formData.teamSize}`;
             className="bg-white rounded-2xl border-2 border-gray-200 hover:border-red-600 hover:shadow-2xl transition-all p-8 group flex flex-col"
           >
             <div className="text-center flex-grow flex flex-col">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 text-gray-600 group-hover:bg-red-600 group-hover:text-white transition-all mb-6 mx-auto">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all mb-6 mx-auto">
                 <Users className="w-10 h-10" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">
@@ -116,7 +115,7 @@ Team Size: ${formData.teamSize}`;
               </p>
               <button
                 onClick={handleTeamUse}
-                className="w-full py-3 px-6 rounded-xl font-semibold transition-all mt-auto"
+                className="w-full py-3 px-6 rounded-xl font-semibold transition-all mt-auto cursor-pointer"
                 style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
               >
                 Send a Query
@@ -125,15 +124,14 @@ Team Size: ${formData.teamSize}`;
           </div>
         </div>
 
-          {/* Back Button */}
-          <div className="mt-12 text-center">
-            <button
-              onClick={() => router.back()}
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-            >
-              ← Go Back
-            </button>
-          </div>
+        {/* Back Button */}
+        <div className="mt-12 text-center">
+          <button
+            onClick={() => router.back()}
+            className="text-gray-600 hover:text-gray-900 font-medium transition-colors cursor-pointer"
+          >
+            ← Go Back
+          </button>
         </div>
       </div>
 
@@ -144,7 +142,7 @@ Team Size: ${formData.teamSize}`;
             {/* Close Button */}
             <button
               onClick={() => setShowTeamModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer"
             >
               <X className="w-6 h-6" />
             </button>
@@ -221,7 +219,7 @@ Team Size: ${formData.teamSize}`;
 
               <button
                 type="submit"
-                className="w-full py-3 px-6 rounded-xl font-semibold transition-all mt-6"
+                className="w-full py-3 px-6 rounded-xl font-semibold transition-all mt-6 cursor-pointer"
                 style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
               >
                 Continue to WhatsApp

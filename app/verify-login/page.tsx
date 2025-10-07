@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useToast } from '@/components/ToastProvider';
+import Footer from '@/components/Footer';
 import EmailIcon from '@mui/icons-material/Email';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -23,6 +24,15 @@ export default function VerifyLoginPage() {
   const [email, setEmail] = useState('');
   const [devOtp, setDevOtp] = useState('');
   const [success, setSuccess] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
 
   const handleSendOtp = async (emailToSend: string) => {
     try {
@@ -38,6 +48,7 @@ export default function VerifyLoginPage() {
 
       if (response.ok) {
         showToast('Verification code sent to your email!', 'success');
+        setResendTimer(60); // Start 60 second timer
         if (data.otp && process.env.NODE_ENV === 'development') {
           setDevOtp(data.otp);
         }
@@ -172,6 +183,7 @@ export default function VerifyLoginPage() {
 
       if (response.ok) {
         showToast('Verification code resent!', 'success');
+        setResendTimer(60); // Start 60 second timer
         if (data.otp && process.env.NODE_ENV === 'development') {
           setDevOtp(data.otp);
         }
@@ -187,37 +199,38 @@ export default function VerifyLoginPage() {
   // Success screen (same as mobile verification)
   if (success) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-green-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">Email Verified!</h2>
-          <p className="text-gray-600 text-lg">
-            Your email has been successfully verified.
-          </p>
-          <div className="mt-6">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+      <>
+        <div className="min-h-screen bg-gray-50 flex items-start justify-center pt-20 pb-0 px-4">
+          <div className="bg-white rounded-none sm:rounded-2xl shadow-xl max-w-md w-full p-8 sm:p-10 text-center">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-10 h-10 text-green-600" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Email Verified!</h2>
+            <p className="text-gray-600 text-sm sm:text-base mb-6">
+              Your email has been successfully verified.
+            </p>
+            <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div>
+              <span>Redirecting to product selection...</span>
+            </div>
           </div>
         </div>
-      </div>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-center text-3xl font-bold text-gray-900">
-          Verify your email
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          We sent a verification code to{' '}
-          <span className="font-medium text-gray-900">{email}</span>
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+    <>
+      <div className="min-h-screen bg-gray-50 flex items-start justify-center pt-20 pb-0 px-4">
+        <div className="bg-white rounded-none sm:rounded-2xl shadow-xl max-w-md w-full p-6 sm:p-8">
+          <h2 className="text-center text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            Verify your email
+          </h2>
+          <p className="text-center text-xs sm:text-sm text-gray-600 mb-6">
+            We sent a verification code to{' '}
+            <span className="font-medium text-gray-900">{email}</span>
+          </p>
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Email field - shown but read-only */}
             <div>
@@ -276,7 +289,7 @@ export default function VerifyLoginPage() {
               <button
                 type="submit"
                 disabled={loading || otp.length !== 6}
-                className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
+                className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white cursor-pointer ${
                   loading || otp.length !== 6
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
@@ -303,26 +316,39 @@ export default function VerifyLoginPage() {
 
           <div className="mt-6">
             <div className="text-center">
-              <p className="text-sm text-gray-600">
-                Didn't receive the code?{' '}
-                <button
-                  onClick={handleResendCode}
-                  className="font-medium text-red-600 hover:text-red-500"
-                >
-                  Resend code
-                </button>
-              </p>
+              {resendTimer > 0 ? (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">
+                    Didn't receive the code?
+                  </p>
+                  <p className="text-sm text-gray-500 font-medium">
+                    Resend code in {resendTimer}s
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-600">
+                  Didn't receive the code?{' '}
+                  <button
+                    onClick={handleResendCode}
+                    className="font-medium text-red-600 hover:text-red-500 cursor-pointer"
+                  >
+                    Resend code
+                  </button>
+                </p>
+              )}
             </div>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-gray-100 text-center">
+            <Link href="/login" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Back to login
+            </Link>
           </div>
         </div>
       </div>
 
-      <div className="mt-6 text-center">
-        <Link href="/login" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900">
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to login
-        </Link>
-      </div>
-    </div>
+      <Footer />
+    </>
   );
 }

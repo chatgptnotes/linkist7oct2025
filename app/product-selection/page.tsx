@@ -108,7 +108,7 @@ export default function ProductSelectionPage() {
     },
     {
       id: 'digital-only',
-      title: 'Unlimited Profile Updates',
+      title: 'Digital Profile Only',
       subtitle: 'Without Linkist App & AI credits',
       price: `Starting from ${prices.digitalOnly}`,
       priceLabel: 'Basic',
@@ -261,10 +261,10 @@ export default function ProductSelectionPage() {
                   disabled={loading || option.disabled}
                   className={`w-full py-3 px-6 rounded-xl font-semibold transition-all ${
                     selectedProduct === option.id
-                      ? 'bg-red-600 text-white hover:bg-red-700'
+                      ? 'bg-red-600 text-white hover:bg-red-700 cursor-pointer'
                       : option.disabled
                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                      : 'bg-gray-900 text-white hover:bg-gray-800 cursor-pointer'
                   } ${loading && selectedProduct === option.id ? 'opacity-75' : ''}`}
                 >
                   {loading && selectedProduct === option.id ? (
@@ -287,7 +287,7 @@ export default function ProductSelectionPage() {
         <div className="mt-6 flex items-center justify-center gap-4">
           <button
             onClick={() => router.back()}
-            className="px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition-colors"
+            className="px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition-colors cursor-pointer"
           >
             ← Go Back
           </button>
@@ -296,7 +296,7 @@ export default function ProductSelectionPage() {
             <button
               onClick={handleConfirmSelection}
               disabled={loading}
-              className="px-8 py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl"
+              className="px-8 py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl cursor-pointer disabled:cursor-not-allowed"
               style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
             >
               {loading ? (

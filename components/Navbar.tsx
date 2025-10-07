@@ -50,7 +50,7 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 h-16 w-full shadow-sm">
       <div className="max-w-6xl mx-auto px-4 md:px-6 h-full flex items-center justify-between">
         {/* Logo */}
-        <Logo width={140} height={45} />
+        <Logo width={140} height={45} variant="light" />
 
         {/* Desktop Navigation Items */}
         <div className="hidden md:flex items-center gap-8">
@@ -63,7 +63,7 @@ export default function Navbar() {
                 Templates
               </Link>
               <Link
-                href="/landing#pricing"
+                href="/#pricing"
                 className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
               >
                 Pricing
@@ -75,7 +75,7 @@ export default function Navbar() {
                 Founding Member
               </Link>
               <Link
-                href="/landing#features"
+                href="/#features"
                 className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
               >
                 Features
@@ -153,7 +153,7 @@ export default function Navbar() {
                   Templates
                 </Link>
                 <Link
-                  href="/landing#pricing"
+                  href="/#pricing"
                   className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -167,7 +167,7 @@ export default function Navbar() {
                   Founding Member
                 </Link>
                 <Link
-                  href="/landing#features"
+                  href="/#features"
                   className="block text-black text-base font-medium hover:text-gray-600 transition-colors duration-300 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >

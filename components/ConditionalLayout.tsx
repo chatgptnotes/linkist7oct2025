@@ -73,7 +73,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       await fetch('/api/auth/logout', { method: 'POST' });
       localStorage.clear();
       document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      router.push('/landing');
+      router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -86,10 +86,6 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   // For inner pages, render with simple header (only logo + logout after onboarding)
   if (isInnerPage) {
-    // Pages that should not have any header
-    const noHeaderPages = pathname.startsWith('/choose-plan') ||
-                          pathname.startsWith('/welcome-to-linkist');
-
     // Only show logout on these pages (after user has completed onboarding)
     const showLogout = pathname.startsWith('/product-selection') ||
                        pathname.startsWith('/nfc/') ||
@@ -97,21 +93,12 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                        pathname.startsWith('/checkout') ||
                        pathname.startsWith('/confirm-payment');
 
-    // Render without header for specific pages
-    if (noHeaderPages) {
-      return (
-        <main className="flex-grow min-h-0">
-          {children}
-        </main>
-      );
-    }
-
     return (
       <>
         <header className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50 h-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
             <Link href="/">
-              <Logo width={140} height={45} noLink={true} />
+              <Logo width={100} height={32} noLink={true} variant="light" />
             </Link>
             {showLogout && (
               <button
@@ -132,7 +119,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   }
 
   // Check if it's the landing or home page (which has its own footer and navbar)
-  const isLandingPage = pathname === '/landing' || pathname === '/';
+  const isLandingPage = pathname === '/';
 
   // For normal routes, render with navbar and footer (except landing/home page)
   return (

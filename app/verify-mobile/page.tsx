@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Logo from '@/components/Logo';
 import Toast from '@/components/Toast';
+import Footer from '@/components/Footer';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -215,16 +216,15 @@ function VerifyMobileContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md">
+    <>
+      <div className="min-h-screen bg-gray-50 flex items-start justify-center pt-20 pb-0 px-4">
+        <div className="bg-white rounded-none sm:rounded-2xl shadow-xl max-w-md w-full p-6 sm:p-8">
           {/* Title */}
-          <div className="text-center mb-12">
-            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
               {step === 'phone' ? 'Verify Your Number' : 'Enter Verification Code'}
             </h1>
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-600 text-sm sm:text-base">
               {step === 'phone'
                 ? 'Enter your mobile number to receive a verification code'
                 : `We sent a 6-digit code to ${phone}`}
@@ -281,9 +281,9 @@ function VerifyMobileContent() {
 
           {/* OTP Verification Step */}
           {step === 'verify' && (
-            <div className="space-y-8">
+            <div className="space-y-6">
               <div>
-                <div className="flex justify-center gap-3 mb-6">
+                <div className="flex justify-center gap-2 mb-6">
                   {otp.map((digit, index) => (
                     <input
                       key={index}
@@ -294,7 +294,7 @@ function VerifyMobileContent() {
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
                       onKeyDown={(e) => handleKeyDown(index, e)}
-                      className="w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-red-600 focus:ring-4 focus:ring-red-100 outline-none transition-all bg-gray-50"
+                      className="w-12 h-12 sm:w-14 sm:h-14 text-center text-xl sm:text-2xl font-bold border-2 border-gray-300 rounded-lg focus:border-red-600 focus:ring-2 focus:ring-red-100 outline-none transition-all bg-gray-50"
                       autoFocus={index === 0}
                       disabled={loading}
                     />
@@ -312,7 +312,7 @@ function VerifyMobileContent() {
               <button
                 onClick={() => handleVerifyOtp()}
                 disabled={loading || otp.join('').length !== 6}
-                className="w-full text-lg font-semibold px-6 py-4 rounded-xl transition-colors disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                className="w-full text-sm sm:text-base font-semibold px-6 py-3 rounded-xl transition-colors disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                 style={{
                   backgroundColor: loading || otp.join('').length !== 6 ? '#D1D5DB' : '#DC2626',
                   color: '#FFFFFF'
@@ -320,7 +320,7 @@ function VerifyMobileContent() {
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Verifying...
                   </div>
                 ) : (
@@ -330,22 +330,29 @@ function VerifyMobileContent() {
 
               {/* Resend Code */}
               <div className="text-center">
-                <p className="text-sm text-gray-600 mb-3">
-                  Didn't receive the code?
-                </p>
                 {resendTimer > 0 ? (
-                  <p className="text-sm text-gray-500 font-medium">
-                    Resend code in {resendTimer}s
-                  </p>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2">
+                      Didn't receive the code?
+                    </p>
+                    <p className="text-sm text-gray-500 font-medium">
+                      Resend code in {resendTimer}s
+                    </p>
+                  </div>
                 ) : (
-                  <button
-                    onClick={handleResendOtp}
-                    disabled={sendingOtp}
-                    className="inline-flex items-center space-x-2 text-red-600 hover:text-red-700 font-semibold transition-colors"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    <span>Resend Code</span>
-                  </button>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Didn't receive the code?
+                    </p>
+                    <button
+                      onClick={handleResendOtp}
+                      disabled={sendingOtp}
+                      className="inline-flex items-center space-x-2 text-red-600 hover:text-red-700 font-semibold transition-colors cursor-pointer disabled:cursor-not-allowed"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      <span>Resend Code</span>
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -356,7 +363,7 @@ function VerifyMobileContent() {
                   setOtp(['', '', '', '', '', '']);
                   setError('');
                 }}
-                className="w-full text-gray-600 hover:text-gray-900 font-medium py-3 transition-colors"
+                className="w-full text-sm sm:text-base font-semibold px-6 py-3 rounded-xl transition-colors border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:bg-gray-50 cursor-pointer"
               >
                 Change Phone Number
               </button>
@@ -364,7 +371,7 @@ function VerifyMobileContent() {
           )}
 
           {/* Verify Email Instead */}
-          <div className="mt-8 pt-8 border-t border-gray-200">
+          <div className="mt-6 pt-6 border-t border-gray-200">
             <button
               onClick={() => {
                 // Get user email from profile
@@ -385,20 +392,20 @@ function VerifyMobileContent() {
                   router.push('/verify-login');
                 }
               }}
-              className="w-full text-lg font-semibold px-6 py-4 rounded-xl transition-colors shadow-lg hover:shadow-xl"
+              className="w-full text-sm sm:text-base font-semibold px-6 py-3 rounded-xl transition-colors shadow-md hover:shadow-lg cursor-pointer"
               style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
             >
               Verify Email Instead
             </button>
           </div>
-        </div>
-      </div>
 
-      {/* Footer */}
-      <div className="px-6 py-6 border-t border-gray-100">
-        <p className="text-center text-sm text-gray-500">
-          Standard SMS rates may apply
-        </p>
+          {/* Footer Note */}
+          <div className="mt-6 pt-4 border-t border-gray-100">
+            <p className="text-center text-xs text-gray-500">
+              Standard SMS rates may apply
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Toast notification */}
@@ -409,7 +416,9 @@ function VerifyMobileContent() {
           onClose={() => setToast(null)}
         />
       )}
-    </div>
+
+      <Footer />
+    </>
   );
 }
 

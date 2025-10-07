@@ -10,6 +10,7 @@ interface LogoProps {
   width?: number;
   height?: number;
   noLink?: boolean; // Add flag to disable Link wrapper
+  variant?: 'light' | 'dark'; // light = logo1.png (for white bg), dark = logo2.png (for dark bg)
 }
 
 export default function Logo({
@@ -18,11 +19,15 @@ export default function Logo({
   imageClassName = '',
   width = 120,
   height = 40,
-  noLink = false
+  noLink = false,
+  variant = 'light' // Default to light (logo1.png)
 }: LogoProps) {
+  // Select logo based on variant
+  const logoSrc = variant === 'dark' ? '/logo2.png' : '/logo1.png';
+
   const imageElement = (
     <Image
-      src="/logo_linkist.png"
+      src={logoSrc}
       alt="Linkist"
       width={width}
       height={height}

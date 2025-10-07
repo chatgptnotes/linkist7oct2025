@@ -308,7 +308,7 @@ export default function ConfigureNewPage() {
       </div> */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:items-start">
           {/* Configuration Section - Left Side */}
           <div className="lg:col-span-7 space-y-4 order-2 lg:order-1">
 
@@ -528,17 +528,137 @@ export default function ConfigureNewPage() {
               </div>
             </div>
 
+            {/* Price Breakdown - After Pattern */}
+            <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 overflow-hidden">
+              <div className="bg-gray-50 border-b border-gray-200 px-3 py-1.5">
+                <h3 className="text-sm font-semibold text-gray-900">Price Breakdown</h3>
+              </div>
+              <div className="p-3">
+                {(() => {
+                  const priceSummary = calculatePriceSummary();
+                  const hasBase = formData.baseMaterial !== null;
+
+                  return (
+                    <div className="space-y-1.5 text-sm">
+                      {/* Base Price */}
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Base Price</span>
+                        <span className="font-semibold text-gray-900">
+                          {hasBase ? formatCurrency(getPrice()) : '—'}
+                        </span>
+                      </div>
+
+                      {/* Customization - Show as included */}
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Customization</span>
+                        <span className="text-green-600 font-medium">Included</span>
+                      </div>
+
+                      {/* Shipping - Show as included */}
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Shipping</span>
+                        <span className="text-green-600 font-medium">Included</span>
+                      </div>
+
+                      {/* Tax */}
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">
+                          {priceSummary ? priceSummary.taxLabel : 'VAT (5%)'}
+                        </span>
+                        <span className="font-semibold text-gray-900">
+                          {priceSummary ? formatCurrency(priceSummary.taxAmount) : '—'}
+                        </span>
+                      </div>
+
+                      {/* Total */}
+                      <div className="border-t pt-2 mt-2">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-gray-900">Total</span>
+                          <span className={`text-xl font-bold ${priceSummary ? 'text-red-500' : 'text-gray-400'}`}>
+                            {priceSummary ? formatCurrency(priceSummary.total) : '—'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Info about Tax based on region */}
+                      <div className="mt-2 p-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-xs text-blue-700 flex items-center">
+                          <Info className="mr-1 w-4 h-4" />
+                          {userCountry === 'India'
+                            ? 'GST (18%) will apply for deliveries to India'
+                            : userCountry === 'UAE'
+                            ? 'VAT (5%) will apply for deliveries to UAE'
+                            : `VAT (10%) will apply for international deliveries`
+                          }
+                        </p>
+                      </div>
+
+                      {/* Warning about incomplete selections */}
+                      {(() => {
+                        const missingItems = [];
+                        if (!formData.firstName?.trim() || !formData.lastName?.trim()) {
+                          missingItems.push('Name');
+                        }
+                        if (!formData.baseMaterial) {
+                          missingItems.push('Base Material');
+                        }
+                        if (!formData.texture) {
+                          missingItems.push('Texture');
+                        }
+                        if (!formData.colour) {
+                          missingItems.push('Colour');
+                        }
+                        if (!formData.pattern) {
+                          missingItems.push('Pattern');
+                        }
+
+                        if (missingItems.length > 0) {
+                          return (
+                            <div className="mt-2 p-1.5 bg-amber-50 border border-amber-200 rounded-lg">
+                              <p className="text-xs text-amber-700 flex items-center">
+                                <Warning className="mr-1 w-4 h-4" /> Please select: <span className="font-semibold ml-1">{missingItems.join(', ')}</span>
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
+                  );
+                })()}
+
+                <button
+                  onClick={handleContinue}
+                  disabled={!formData.baseMaterial || !formData.texture || !formData.colour || !formData.pattern || !formData.firstName?.trim() || !formData.lastName?.trim() || isLoading}
+                  className={`w-full mt-4 px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
+                    (formData.baseMaterial && formData.texture && formData.colour && formData.pattern && formData.firstName?.trim() && formData.lastName?.trim())
+                      ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-lg transform hover:-translate-y-0.5'
+                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Processing...
+                    </div>
+                  ) : (
+                    'Continue to Checkout →'
+                  )}
+                </button>
+              </div>
+            </div>
+
           </div>
 
-          {/* Preview & Pricing Section - Right Side Sticky */}
-          <div className="lg:col-span-5 order-1 lg:order-2">
-            <div className="sticky top-32 space-y-4">
-              {/* Card Preview - Compact Modern */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
-                    <button
+          {/* Live Preview - Right Side */}
+          <div className="lg:col-start-8 lg:col-span-5 order-1 lg:order-2">
+            <div className="lg:sticky lg:top-32">
+                {/* Card Preview - Compact Modern */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
+                      <button
                       type="button"
                       className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
                       title="AI Assistant"
@@ -619,127 +739,7 @@ export default function ConfigureNewPage() {
                     <div className="text-center text-sm text-gray-600 mt-2">Back</div>
                   </div>
                 </div>
-              </div>
-
-              {/* Detailed Price Breakdown */}
-              <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 overflow-hidden">
-                <div className="bg-gray-50 border-b border-gray-200 px-4 py-2">
-                  <h3 className="text-sm font-semibold text-gray-900">Price Breakdown</h3>
                 </div>
-                <div className="p-4">
-                  {(() => {
-                    const priceSummary = calculatePriceSummary();
-                    const hasBase = formData.baseMaterial !== null;
-
-                    return (
-                      <div className="space-y-2 text-sm">
-                        {/* Base Price */}
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-700">Base Price</span>
-                          <span className="font-semibold text-gray-900">
-                            {hasBase ? formatCurrency(getPrice()) : '—'}
-                          </span>
-                        </div>
-
-                        {/* Customization - Show as included */}
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-700">Customization</span>
-                          <span className="text-green-600 font-medium">Included</span>
-                        </div>
-
-                        {/* Shipping - Show as included */}
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-700">Shipping</span>
-                          <span className="text-green-600 font-medium">Included</span>
-                        </div>
-
-                        {/* Tax */}
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-700">
-                            {priceSummary ? priceSummary.taxLabel : 'VAT (5%)'}
-                          </span>
-                          <span className="font-semibold text-gray-900">
-                            {priceSummary ? formatCurrency(priceSummary.taxAmount) : '—'}
-                          </span>
-                        </div>
-
-                        {/* Total */}
-                        <div className="border-t pt-2 mt-2">
-                          <div className="flex justify-between items-center">
-                            <span className="font-bold text-gray-900">Total</span>
-                            <span className={`text-xl font-bold ${priceSummary ? 'text-red-500' : 'text-gray-400'}`}>
-                              {priceSummary ? formatCurrency(priceSummary.total) : '—'}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Info about Tax based on region */}
-                        <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-lg">
-                          <p className="text-xs text-blue-700 flex items-center">
-                            <Info className="mr-1 w-4 h-4" />
-                            {userCountry === 'India'
-                              ? 'GST (18%) will apply for deliveries to India'
-                              : userCountry === 'UAE'
-                              ? 'VAT (5%) will apply for deliveries to UAE'
-                              : `VAT (10%) will apply for international deliveries`
-                            }
-                          </p>
-                        </div>
-
-                        {/* Warning about incomplete selections */}
-                        {(() => {
-                          const missingItems = [];
-                          if (!formData.firstName?.trim() || !formData.lastName?.trim()) {
-                            missingItems.push('Name');
-                          }
-                          if (!formData.baseMaterial) {
-                            missingItems.push('Base Material');
-                          }
-                          if (!formData.texture) {
-                            missingItems.push('Texture');
-                          }
-                          if (!formData.colour) {
-                            missingItems.push('Colour');
-                          }
-                          if (!formData.pattern) {
-                            missingItems.push('Pattern');
-                          }
-
-                          if (missingItems.length > 0) {
-                            return (
-                              <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded-lg">
-                                <p className="text-xs text-amber-700 flex items-center">
-                                  <Warning className="mr-1 w-4 h-4" /> Please select: <span className="font-semibold ml-1">{missingItems.join(', ')}</span>
-                                </p>
-                              </div>
-                            );
-                          }
-                          return null;
-                        })()}
-                      </div>
-                    );
-                  })()}
-
-                  <button
-                    onClick={handleContinue}
-                    disabled={!formData.baseMaterial || !formData.texture || !formData.colour || !formData.pattern || !formData.firstName?.trim() || !formData.lastName?.trim() || isLoading}
-                    className={`w-full mt-4 px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
-                      (formData.baseMaterial && formData.texture && formData.colour && formData.pattern && formData.firstName?.trim() && formData.lastName?.trim())
-                        ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-lg transform hover:-translate-y-0.5'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    }`}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                        Processing...
-                      </div>
-                    ) : (
-                      'Continue to Checkout →'
-                    )}
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
