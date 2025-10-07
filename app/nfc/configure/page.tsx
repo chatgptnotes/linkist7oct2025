@@ -632,7 +632,7 @@ export default function ConfigureNewPage() {
                   disabled={!formData.baseMaterial || !formData.texture || !formData.colour || !formData.pattern || !formData.firstName?.trim() || !formData.lastName?.trim() || isLoading}
                   className={`w-full mt-4 px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
                     (formData.baseMaterial && formData.texture && formData.colour && formData.pattern && formData.firstName?.trim() && formData.lastName?.trim())
-                      ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-lg transform hover:-translate-y-0.5'
+                      ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-lg transform hover:-translate-y-0.5 cursor-pointer'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   }`}
                 >
