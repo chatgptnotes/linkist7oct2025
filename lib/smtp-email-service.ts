@@ -3,18 +3,22 @@ import type { Transporter } from 'nodemailer';
 
 // SMTP Configuration
 const SMTP_CONFIG = {
-  host: process.env.SMTP_HOST || 'smtp.office365.com',
+  host: (process.env.SMTP_HOST || 'smtp.office365.com').trim(), // Remove any whitespace
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: false, // Use STARTTLS
   requireTLS: true, // Force TLS encryption
   auth: {
-    user: process.env.SMTP_USER || 'hello@linkist.ai',
-    pass: process.env.SMTP_PASS || '',
+    user: (process.env.SMTP_USER || 'hello@linkist.ai').trim(),
+    pass: (process.env.SMTP_PASS || '').trim(),
   },
   tls: {
     rejectUnauthorized: true, // Verify SSL certificate
     minVersion: 'TLSv1.2' // Microsoft 365 requires TLS 1.2+
-  }
+  },
+  connectionTimeout: 10000, // 10 seconds
+  greetingTimeout: 5000, // 5 seconds
+  socketTimeout: 10000, // 10 seconds
+  dnsTimeout: 5000 // 5 seconds for DNS lookup
 };
 
 const EMAIL_CONFIG = {
