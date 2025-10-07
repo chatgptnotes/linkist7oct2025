@@ -156,7 +156,7 @@ export class OrderEmailService {
       if (attempt < EMAIL_CONFIG.maxRetries) {
         console.log(`🔄 [${type.toUpperCase()}] Retrying in ${EMAIL_CONFIG.retryDelay}ms...`);
         await this.delay(EMAIL_CONFIG.retryDelay * attempt);
-        return this.sendWithRetry(type, data, subject, html, resendInstance, attempt + 1);
+        return this.sendWithRetry(type, data, subject, html, transporterInstance, attempt + 1);
       }
       
       return { success: false, error: errorMessage };
