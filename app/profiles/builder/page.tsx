@@ -1,7 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+const MapPickerSimple = dynamic(() => import('@/components/MapPickerSimple'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-96">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Loading map...</p>
+      </div>
+    </div>
+  )
+});
 import PersonIcon from '@mui/icons-material/Person';
 import WorkIcon from '@mui/icons-material/Work';
 import ShareIcon from '@mui/icons-material/Share';
@@ -101,12 +114,128 @@ interface ProfileData {
   videos: Array<{ id: string; url: string; title: string; showPublicly: boolean }>;
 }
 
+// Job title options with categories
+const JOB_TITLES = [
+  { category: 'General / Corporate', titles: [
+    'Chief Executive Officer (CEO)', 'Chief Operating Officer (COO)', 'Chief Financial Officer (CFO)',
+    'Chief Technology Officer (CTO)', 'Chief Marketing Officer (CMO)', 'Chief Product Officer (CPO)',
+    'Vice President', 'Director', 'Manager', 'Team Lead', 'Coordinator', 'Analyst', 'Associate', 'Intern'
+  ]},
+  { category: 'Technical / IT', titles: [
+    'Software Engineer', 'Data Scientist', 'Data Engineer', 'Cloud Architect', 'DevOps Engineer',
+    'Cybersecurity Analyst', 'Machine Learning Engineer', 'Full Stack Developer', 'QA Engineer',
+    'Systems Administrator', 'Product Manager (Tech)', 'Technical Program Manager'
+  ]},
+  { category: 'Creative / Marketing', titles: [
+    'Marketing Manager', 'Content Strategist', 'SEO Specialist', 'Social Media Manager',
+    'Graphic Designer', 'UI/UX Designer', 'Brand Manager', 'Copywriter', 'Art Director'
+  ]},
+  { category: 'Sales / Customer', titles: [
+    'Sales Executive', 'Account Manager', 'Business Development Manager', 'Customer Success Manager',
+    'Inside Sales Representative', 'Territory Sales Manager'
+  ]},
+  { category: 'Finance / Legal / HR', titles: [
+    'Financial Analyst', 'Accountant', 'Investment Analyst', 'HR Manager',
+    'Talent Acquisition Specialist', 'Legal Counsel', 'Compliance Officer', 'Payroll Specialist'
+  ]},
+  { category: 'Operations / Logistics', titles: [
+    'Operations Manager', 'Supply Chain Analyst', 'Procurement Specialist',
+    'Logistics Coordinator', 'Quality Assurance Manager'
+  ]},
+  { category: 'Healthcare / Science', titles: [
+    'Physician', 'Nurse', 'Pharmacist', 'Medical Researcher',
+    'Laboratory Technician', 'Clinical Data Manager'
+  ]},
+  { category: 'Education / Nonprofit', titles: [
+    'Teacher', 'Professor', 'Instructional Designer', 'Research Associate',
+    'Program Coordinator', 'Fundraising Manager'
+  ]}
+];
+
+// Industry options
+const INDUSTRIES = [
+  'Information Technology',
+  'Finance & Banking',
+  'Healthcare & Life Sciences',
+  'Education',
+  'Manufacturing',
+  'Retail & E-commerce',
+  'Transportation & Logistics',
+  'Energy & Utilities',
+  'Real Estate & Construction',
+  'Telecommunications',
+  'Media & Entertainment',
+  'Agriculture',
+  'Government & Public Sector',
+  'Nonprofit & NGOs',
+  'Hospitality & Travel'
+];
+
+// Sub-domain options with industry mapping
+const SUB_DOMAINS = [
+  { industry: 'Information Technology', subDomains: [
+    'Software Development', 'Artificial Intelligence / Machine Learning', 'Cloud Computing',
+    'Cybersecurity', 'IT Services', 'Data Analytics', 'SaaS / Product Development'
+  ]},
+  { industry: 'Finance & Banking', subDomains: [
+    'Investment Banking', 'Retail Banking', 'FinTech', 'Insurance',
+    'Accounting & Audit', 'Asset Management'
+  ]},
+  { industry: 'Healthcare & Life Sciences', subDomains: [
+    'Hospitals & Clinics', 'Pharmaceuticals', 'Biotechnology', 'Medical Devices',
+    'HealthTech', 'Clinical Research'
+  ]},
+  { industry: 'Education', subDomains: [
+    'K-12', 'Higher Education', 'EdTech', 'Vocational Training', 'Corporate Learning'
+  ]},
+  { industry: 'Manufacturing', subDomains: [
+    'Automotive', 'Electronics', 'Consumer Goods', 'Industrial Equipment', 'Aerospace'
+  ]},
+  { industry: 'Retail & E-commerce', subDomains: [
+    'Online Marketplaces', 'Fashion & Apparel', 'Food & Beverage',
+    'Consumer Electronics', 'Supply Chain'
+  ]},
+  { industry: 'Transportation & Logistics', subDomains: [
+    'Shipping & Freight', 'Warehousing', 'Supply Chain Management', 'Mobility / Ride Sharing'
+  ]},
+  { industry: 'Energy & Utilities', subDomains: [
+    'Oil & Gas', 'Renewable Energy', 'Power Generation', 'Waste Management', 'Water Utilities'
+  ]},
+  { industry: 'Real Estate & Construction', subDomains: [
+    'Residential', 'Commercial', 'Architecture & Design', 'Property Management'
+  ]},
+  { industry: 'Telecommunications', subDomains: [
+    'Mobile Networks', 'Internet Service Providers', 'Cloud Communication', '5G / Fiber Infrastructure'
+  ]},
+  { industry: 'Media & Entertainment', subDomains: [
+    'Film & Television', 'Gaming', 'Publishing', 'Advertising', 'Music Industry'
+  ]},
+  { industry: 'Agriculture', subDomains: [
+    'Agritech', 'Food Processing', 'Livestock Management', 'Organic Farming'
+  ]},
+  { industry: 'Government & Public Sector', subDomains: [
+    'Defense', 'Infrastructure', 'Public Policy', 'Civil Services'
+  ]},
+  { industry: 'Hospitality & Travel', subDomains: [
+    'Hotels & Resorts', 'Tourism', 'Airlines', 'Food Services'
+  ]}
+];
+
+// Flatten all sub-domains for searching
+const ALL_SUB_DOMAINS = SUB_DOMAINS.flatMap(group => group.subDomains);
+
 export default function ProfileBuilderPage() {
   const router = useRouter();
   const [activeSection, setActiveSection] = useState<'basic' | 'professional' | 'social' | 'media-photo' | 'media-gallery'>('basic');
   const [skillInput, setSkillInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [mobileCountryCode, setMobileCountryCode] = useState('+971');
+  const [whatsappCountryCode, setWhatsappCountryCode] = useState('+971');
+  const [useSameNumberForWhatsapp, setUseSameNumberForWhatsapp] = useState(false);
+  const [showJobTitleDropdown, setShowJobTitleDropdown] = useState(false);
+  const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
+  const [showSubDomainDropdown, setShowSubDomainDropdown] = useState(false);
 
   const [profileData, setProfileData] = useState<ProfileData>({
     firstName: '',
@@ -143,13 +272,13 @@ export default function ProfileBuilderPage() {
     dribbbleUrl: '',
     githubUrl: '',
     youtubeUrl: '',
-    showLinkedin: true,
+    showLinkedin: false,
     showInstagram: false,
     showFacebook: false,
-    showTwitter: true,
+    showTwitter: false,
     showBehance: false,
     showDribbble: false,
-    showGithub: true,
+    showGithub: false,
     showYoutube: false,
 
     profilePhoto: null,
@@ -160,6 +289,239 @@ export default function ProfileBuilderPage() {
     photos: [],
     videos: []
   });
+
+  // Fetch existing profile data on component mount
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        console.log('🔄 Starting profile data fetch...');
+        console.log('📋 All cookies:', document.cookie);
+
+        // First check localStorage for various data sources
+        const nfcConfigStr = localStorage.getItem('nfcConfig');
+        const userProfileStr = localStorage.getItem('userProfile');
+        const userContactDataStr = localStorage.getItem('userContactData');
+
+        console.log('💾 LocalStorage nfcConfig:', nfcConfigStr);
+        console.log('💾 LocalStorage userProfile:', userProfileStr);
+        console.log('💾 LocalStorage userContactData:', userContactDataStr);
+
+        // Priority order: userContactData (most recent from checkout) > nfcConfig > userProfile
+        let mergedData: any = {};
+
+        // Start with nfcConfig
+        if (nfcConfigStr) {
+          try {
+            const config = JSON.parse(nfcConfigStr);
+            console.log('✅ Found nfcConfig data:', config);
+            mergedData = {
+              firstName: config.firstName,
+              lastName: config.lastName,
+              primaryEmail: config.email,
+            };
+          } catch (e) {
+            console.error('❌ Error parsing nfcConfig:', e);
+          }
+        }
+
+        // Override with userProfile if available
+        if (userProfileStr) {
+          try {
+            const userProfile = JSON.parse(userProfileStr);
+            console.log('✅ Found userProfile data:', userProfile);
+            mergedData = {
+              ...mergedData,
+              firstName: userProfile.firstName || mergedData.firstName,
+              lastName: userProfile.lastName || mergedData.lastName,
+              primaryEmail: userProfile.email || mergedData.primaryEmail,
+              mobileNumber: userProfile.phone || userProfile.mobile || mergedData.mobileNumber,
+            };
+          } catch (e) {
+            console.error('❌ Error parsing userProfile:', e);
+          }
+        }
+
+        // Override with userContactData (highest priority - most recent)
+        if (userContactDataStr) {
+          try {
+            const userContactData = JSON.parse(userContactDataStr);
+            console.log('✅ Found userContactData (from checkout):', userContactData);
+            mergedData = {
+              ...mergedData,
+              firstName: userContactData.firstName || mergedData.firstName,
+              lastName: userContactData.lastName || mergedData.lastName,
+              primaryEmail: userContactData.email || mergedData.primaryEmail,
+              mobileNumber: userContactData.phone || mergedData.mobileNumber,
+            };
+          } catch (e) {
+            console.error('❌ Error parsing userContactData:', e);
+          }
+        }
+
+        // Apply merged data to profile
+        if (Object.keys(mergedData).length > 0) {
+          // Parse phone number to detect and remove country code if present
+          let cleanedPhoneNumber = mergedData.mobileNumber || '';
+          let detectedCountryCode = '+971'; // Default to UAE
+
+          if (cleanedPhoneNumber) {
+            // Detect country code
+            if (cleanedPhoneNumber.startsWith('+91')) {
+              detectedCountryCode = '+91';
+              cleanedPhoneNumber = cleanedPhoneNumber.replace(/^\+91/, '').trim();
+            } else if (cleanedPhoneNumber.startsWith('+971')) {
+              detectedCountryCode = '+971';
+              cleanedPhoneNumber = cleanedPhoneNumber.replace(/^\+971/, '').trim();
+            } else if (cleanedPhoneNumber.startsWith('+1')) {
+              detectedCountryCode = '+1';
+              cleanedPhoneNumber = cleanedPhoneNumber.replace(/^\+1/, '').trim();
+            } else if (cleanedPhoneNumber.startsWith('+')) {
+              // Extract any other country code
+              const match = cleanedPhoneNumber.match(/^\+(\d+)/);
+              if (match) {
+                detectedCountryCode = '+' + match[1];
+                cleanedPhoneNumber = cleanedPhoneNumber.replace(/^\+\d+/, '').trim();
+              }
+            }
+
+            console.log('📞 Original phone:', mergedData.mobileNumber);
+            console.log('📞 Detected country code:', detectedCountryCode);
+            console.log('📞 Cleaned phone:', cleanedPhoneNumber);
+
+            // Set the detected country code
+            setMobileCountryCode(detectedCountryCode);
+            setWhatsappCountryCode(detectedCountryCode);
+          }
+
+          setProfileData(prev => ({
+            ...prev,
+            firstName: mergedData.firstName || prev.firstName,
+            lastName: mergedData.lastName || prev.lastName,
+            primaryEmail: mergedData.primaryEmail || prev.primaryEmail,
+            mobileNumber: cleanedPhoneNumber || prev.mobileNumber,
+          }));
+
+          console.log('✅ Profile data populated from localStorage:', mergedData);
+        }
+
+        // Try to get user email from cookies
+        const getCookie = (name: string) => {
+          const value = `; ${document.cookie}`;
+          const parts = value.split(`; ${name}=`);
+          if (parts.length === 2) return parts.pop()?.split(';').shift();
+          return null;
+        };
+
+        const userEmail = getCookie('userEmail') || (nfcConfigStr ? JSON.parse(nfcConfigStr).email : null);
+
+        console.log('👤 User email from cookie:', userEmail);
+
+        if (!userEmail) {
+          console.log('⚠️ No user email found in cookies - user needs to login first');
+          return;
+        }
+
+        console.log('🔍 Fetching profile data for:', userEmail);
+
+        const apiUrl = `/api/profiles/save?email=${encodeURIComponent(userEmail)}`;
+        console.log('📡 API URL:', apiUrl);
+
+        const response = await fetch(apiUrl);
+
+        console.log('📨 Response status:', response.status);
+        console.log('📨 Response ok:', response.ok);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.log('⚠️ No existing profile found or error:', errorText);
+          return;
+        }
+
+        const result = await response.json();
+        console.log('📦 API result:', result);
+
+        if (result.success && result.profile) {
+          const profile = result.profile;
+          const prefs = profile.preferences || {};
+
+          console.log('✅ Profile found:', profile);
+          console.log('⚙️ Preferences:', prefs);
+
+          // Map database fields to form state
+          const mappedData = {
+            firstName: profile.first_name || '',
+            lastName: profile.last_name || '',
+            primaryEmail: profile.email || '',
+            secondaryEmail: prefs.secondaryEmail || '',
+            mobileNumber: profile.phone_number || '',
+            whatsappNumber: prefs.whatsappNumber || '',
+            showEmailPublicly: prefs.showEmailPublicly ?? true,
+            showMobilePublicly: prefs.showMobilePublicly ?? true,
+            showWhatsappPublicly: prefs.showWhatsappPublicly ?? false,
+
+            jobTitle: prefs.jobTitle || '',
+            companyName: profile.company || '',
+            companyWebsite: prefs.companyWebsite || '',
+            companyAddress: prefs.companyAddress || '',
+            companyLogo: prefs.companyLogo || null,
+            industry: prefs.industry || '',
+            subDomain: prefs.subDomain || '',
+            skills: prefs.skills || [],
+            professionalSummary: prefs.professionalSummary || '',
+            showJobTitle: prefs.showJobTitle ?? true,
+            showCompanyName: prefs.showCompanyName ?? true,
+            showCompanyWebsite: prefs.showCompanyWebsite ?? true,
+            showCompanyAddress: prefs.showCompanyAddress ?? true,
+            showIndustry: prefs.showIndustry ?? true,
+            showSkills: prefs.showSkills ?? true,
+
+            linkedinUrl: prefs.linkedinUrl || '',
+            instagramUrl: prefs.instagramUrl || '',
+            facebookUrl: prefs.facebookUrl || '',
+            twitterUrl: prefs.twitterUrl || '',
+            behanceUrl: prefs.behanceUrl || '',
+            dribbbleUrl: prefs.dribbbleUrl || '',
+            githubUrl: prefs.githubUrl || '',
+            youtubeUrl: prefs.youtubeUrl || '',
+            showLinkedin: prefs.showLinkedin ?? false,
+            showInstagram: prefs.showInstagram ?? false,
+            showFacebook: prefs.showFacebook ?? false,
+            showTwitter: prefs.showTwitter ?? false,
+            showBehance: prefs.showBehance ?? false,
+            showDribbble: prefs.showDribbble ?? false,
+            showGithub: prefs.showGithub ?? false,
+            showYoutube: prefs.showYoutube ?? false,
+
+            profilePhoto: profile.avatar_url || null,
+            backgroundImage: prefs.backgroundImage || null,
+            showProfilePhoto: prefs.showProfilePhoto ?? true,
+            showBackgroundImage: prefs.showBackgroundImage ?? true,
+
+            photos: prefs.photos || [],
+            videos: prefs.videos || []
+          };
+
+          console.log('🗺️ Mapped data:', mappedData);
+          setProfileData(mappedData);
+
+          console.log('✅ Profile data loaded successfully');
+        } else {
+          console.log('⚠️ No profile data in response');
+        }
+      } catch (error) {
+        console.error('❌ Error fetching profile data:', error);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
+
+  // Auto-update WhatsApp number when mobile number changes (if checkbox is checked)
+  useEffect(() => {
+    if (useSameNumberForWhatsapp && profileData.mobileNumber) {
+      setProfileData(prev => ({ ...prev, whatsappNumber: prev.mobileNumber }));
+    }
+  }, [profileData.mobileNumber, useSameNumberForWhatsapp]);
 
   // Show toast notification
   const showToast = (message: string, type: 'success' | 'error') => {
@@ -311,18 +673,6 @@ export default function ProfileBuilderPage() {
 
   const handleSaveChanges = handleSubmit;
 
-  const handlePreviewProfile = () => {
-    // Preview profile
-    router.push('/profiles/preview');
-  };
-
-  const handleCancelChanges = () => {
-    // Reset or go back
-    if (confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
-      router.back();
-    }
-  };
-
   const addSkill = () => {
     if (skillInput.trim() && !profileData.skills.includes(skillInput.trim())) {
       setProfileData({
@@ -385,30 +735,16 @@ export default function ProfileBuilderPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Profile Builder</h1>
-              <p className="text-sm text-gray-600 mt-1">Create and manage your professional profile</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Profile Builder</h1>
+              <p className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1 hidden sm:block">Create and manage your professional profile</p>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleCancelChanges}
-                className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium transition-colors flex items-center gap-2"
-              >
-                <X2 className="w-4 h-4" />
-                Cancel Changes
-              </button>
-              <button
-                onClick={handlePreviewProfile}
-                className="px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 font-medium transition-colors flex items-center gap-2"
-              >
-                <CheckCircle className="w-4 h-4" />
-                Preview Profile
-              </button>
+            <div className="flex items-center gap-2 sm:gap-3 justify-end">
               <button
                 onClick={handleSaveChanges}
-                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-2"
+                className="px-4 sm:px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-1.5 sm:gap-2 text-sm"
               >
                 <CheckCircle className="w-4 h-4" />
                 Save Changes
@@ -419,10 +755,10 @@ export default function ProfileBuilderPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation */}
-          <div className="lg:col-span-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-8">
+          {/* Sidebar Navigation - Desktop */}
+          <div className="hidden lg:block lg:col-span-1">
             <div className="bg-white rounded-lg border border-gray-200 p-4 sticky top-24">
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Sections</h3>
               <nav className="space-y-1">
@@ -444,28 +780,54 @@ export default function ProfileBuilderPage() {
             </div>
           </div>
 
+          {/* Sidebar Navigation - Mobile (Horizontal Scroll) */}
+          <div className="lg:hidden mb-4">
+            <div className="bg-white rounded-lg border border-gray-200 p-3">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">SECTIONS</h3>
+              <nav className="flex overflow-x-auto gap-2 pb-2 -mx-1 px-1" style={{ scrollbarWidth: 'thin' }}>
+                {sections.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => {
+                      setActiveSection(section.id);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors whitespace-nowrap ${
+                      activeSection === section.id
+                        ? 'bg-red-50 text-red-700 border border-red-200'
+                        : 'text-gray-700 bg-gray-50'
+                    }`}
+                  >
+                    <section.icon className="w-4 h-4 flex-shrink-0 text-red-600" />
+                    <span className="text-xs font-medium">{section.label}</span>
+                  </button>
+                ))}
+              </nav>
+            </div>
+          </div>
+
           {/* Content Area */}
           <div className="lg:col-span-3">
             {/* Basic Information Section */}
             {activeSection === 'basic' && (
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-                <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 rounded-t-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white/10 p-3 rounded-lg">
-                      <Person className="w-6 h-6 text-white" />
+                <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 sm:p-6 rounded-t-lg">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="bg-white/10 p-2 sm:p-3 rounded-lg">
+                      <Person className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-white">Basic Information</h2>
-                      <p className="text-white/90 text-sm mt-1">{sections.find(s => s.id === 'basic')?.description}</p>
+                      <h2 className="text-lg sm:text-xl font-bold text-white">Basic Information</h2>
+                      <p className="text-white/90 text-xs sm:text-sm mt-0.5 sm:mt-1 hidden sm:block">{sections.find(s => s.id === 'basic')?.description}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 space-y-6">
+                <div className="p-4 sm:p-6 space-y-6">
                   {/* Full Name */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Full Name</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Full Name</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
                         <input
@@ -491,7 +853,7 @@ export default function ProfileBuilderPage() {
 
                   {/* Email Addresses */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Email Addresses</h3>
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Email Addresses</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Primary Email *</label>
@@ -500,26 +862,23 @@ export default function ProfileBuilderPage() {
                             type="email"
                             value={profileData.primaryEmail}
                             onChange={(e) => setProfileData({ ...profileData, primaryEmail: e.target.value })}
-                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="Enter your email address"
                           />
-                          <CheckCircle className="absolute right-3 top-2.5 w-5 h-5 text-green-500" />
                         </div>
-                        <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center gap-1 text-sm text-green-600">
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Verified</span>
-                          </div>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={profileData.showEmailPublicly}
-                              onChange={(e) => setProfileData({ ...profileData, showEmailPublicly: e.target.checked })}
-                              className="sr-only peer"
-                            />
-                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                        <div className="flex items-center justify-end mt-2">
+                          <div className="flex items-center gap-2">
+                            <label className="flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={profileData.showEmailPublicly}
+                                onChange={(e) => setProfileData({ ...profileData, showEmailPublicly: e.target.checked })}
+                                className="sr-only peer"
+                              />
+                              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                            </label>
                             <span className="text-sm text-gray-700">Show publicly</span>
-                          </label>
+                          </div>
                         </div>
                       </div>
 
@@ -541,77 +900,100 @@ export default function ProfileBuilderPage() {
 
                   {/* Phone Numbers */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Phone Numbers</h3>
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Phone Numbers</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Mobile Number *</label>
                         <div className="flex gap-2">
-                          <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white">
-                            <option>🇦🇪 +971</option>
-                            <option>🇺🇸 +1</option>
-                            <option>🇮🇳 +91</option>
+                          <select
+                            value={mobileCountryCode}
+                            onChange={(e) => setMobileCountryCode(e.target.value)}
+                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white"
+                          >
+                            <option value="+971">🇦🇪 +971</option>
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+91">🇮🇳 +91</option>
                           </select>
                           <div className="relative flex-1">
                             <input
                               type="tel"
                               value={profileData.mobileNumber}
                               onChange={(e) => setProfileData({ ...profileData, mobileNumber: e.target.value })}
-                              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                               placeholder="50 123 4567"
                             />
-                            <CheckCircle className="absolute right-3 top-2.5 w-5 h-5 text-green-500" />
                           </div>
                         </div>
                         <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center gap-1 text-sm text-green-600">
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Verified via SMS</span>
-                          </div>
                           <label className="flex items-center gap-2">
                             <input
                               type="checkbox"
-                              checked={profileData.showMobilePublicly}
-                              onChange={(e) => setProfileData({ ...profileData, showMobilePublicly: e.target.checked })}
-                              className="sr-only peer"
+                              checked={useSameNumberForWhatsapp}
+                              onChange={(e) => {
+                                setUseSameNumberForWhatsapp(e.target.checked);
+                                if (e.target.checked) {
+                                  setProfileData({ ...profileData, whatsappNumber: profileData.mobileNumber });
+                                  setWhatsappCountryCode(mobileCountryCode);
+                                } else {
+                                  setProfileData({ ...profileData, whatsappNumber: '' });
+                                }
+                              }}
+                              className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
                             />
-                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
-                            <span className="text-sm text-gray-700">Show publicly</span>
+                            <span className="text-xs text-gray-600">Use same as WhatsApp number</span>
                           </label>
+                          <div className="flex items-center gap-2">
+                            <label className="flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={profileData.showMobilePublicly}
+                                onChange={(e) => setProfileData({ ...profileData, showMobilePublicly: e.target.checked })}
+                                className="sr-only peer"
+                              />
+                              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                            </label>
+                            <span className="text-sm text-gray-700">Show publicly</span>
+                          </div>
                         </div>
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">WhatsApp Number</label>
                         <div className="flex gap-2">
-                          <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white">
-                            <option>🇦🇪 +971</option>
-                            <option>🇺🇸 +1</option>
-                            <option>🇮🇳 +91</option>
+                          <select
+                            value={whatsappCountryCode}
+                            onChange={(e) => setWhatsappCountryCode(e.target.value)}
+                            disabled={useSameNumberForWhatsapp}
+                            className={`px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none ${useSameNumberForWhatsapp ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`}
+                          >
+                            <option value="+971">🇦🇪 +971</option>
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+91">🇮🇳 +91</option>
                           </select>
                           <div className="relative flex-1">
                             <input
                               type="tel"
                               value={profileData.whatsappNumber}
                               onChange={(e) => setProfileData({ ...profileData, whatsappNumber: e.target.value })}
-                              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                              disabled={useSameNumberForWhatsapp}
+                              className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none ${useSameNumberForWhatsapp ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                               placeholder="50 123 4567"
                             />
-                            <svg className="absolute right-3 top-2.5 w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                            </svg>
                           </div>
                         </div>
                         <div className="flex items-center justify-end mt-2">
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={profileData.showWhatsappPublicly}
-                              onChange={(e) => setProfileData({ ...profileData, showWhatsappPublicly: e.target.checked })}
-                              className="sr-only peer"
-                            />
-                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                          <div className="flex items-center gap-2">
+                            <label className="flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={profileData.showWhatsappPublicly}
+                                onChange={(e) => setProfileData({ ...profileData, showWhatsappPublicly: e.target.checked })}
+                                className="sr-only peer"
+                              />
+                              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                            </label>
                             <span className="text-sm text-gray-700">Show publicly</span>
-                          </label>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -620,15 +1002,15 @@ export default function ProfileBuilderPage() {
                 </div>
 
                 {/* Continue Button - Fixed Bottom */}
-                <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 rounded-b-lg" style={{ display: 'block', width: '100%', minHeight: '80px' }}>
-                  <div className="flex justify-end">
+                <div className="border-t border-gray-200 bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 rounded-b-lg">
+                  <div className="flex justify-center sm:justify-end">
                     <button
                       onClick={() => handleContinue('professional')}
-                      className="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-2 shadow-lg"
-                      style={{ display: 'flex', opacity: 1, visibility: 'visible', backgroundColor: '#dc2626', color: '#ffffff' }}
+                      className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center justify-center gap-2 shadow-lg"
+                      style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
                     >
                       Continue
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
@@ -640,52 +1022,109 @@ export default function ProfileBuilderPage() {
             {/* Professional Information Section */}
             {activeSection === 'professional' && (
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-                <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 rounded-t-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white/10 p-3 rounded-lg">
-                      <Briefcase className="w-6 h-6 text-white" />
+                <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 sm:p-6 rounded-t-lg">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="bg-white/10 p-2 sm:p-3 rounded-lg">
+                      <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-white">Professional Information</h2>
-                      <p className="text-white/90 text-sm mt-1">{sections.find(s => s.id === 'professional')?.description}</p>
+                      <h2 className="text-lg sm:text-xl font-bold text-white">Professional Information</h2>
+                      <p className="text-white/90 text-xs sm:text-sm mt-0.5 sm:mt-1 hidden sm:block">{sections.find(s => s.id === 'professional')?.description}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 space-y-6">
+                <div className="p-4 sm:p-6 space-y-6">
                   {/* Job Title & Role */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Job Title & Role</h3>
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Job Title & Role</h3>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Current Job Title *</label>
-                      <select
-                        value={profileData.jobTitle}
-                        onChange={(e) => setProfileData({ ...profileData, jobTitle: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white"
-                      >
-                        <option>Senior Product Manager</option>
-                        <option>Product Manager</option>
-                        <option>Product Owner</option>
-                        <option>Software Engineer</option>
-                        <option>UX Designer</option>
-                      </select>
-                      <label className="flex items-center gap-2 mt-2">
+                      <div className="relative">
                         <input
-                          type="checkbox"
-                          checked={profileData.showJobTitle}
-                          onChange={(e) => setProfileData({ ...profileData, showJobTitle: e.target.checked })}
-                          className="sr-only peer"
+                          type="text"
+                          value={profileData.jobTitle}
+                          onChange={(e) => {
+                            setProfileData({ ...profileData, jobTitle: e.target.value });
+                            setShowJobTitleDropdown(true);
+                          }}
+                          onFocus={() => setShowJobTitleDropdown(true)}
+                          onBlur={() => {
+                            // Delay hiding to allow click on dropdown items
+                            setTimeout(() => setShowJobTitleDropdown(false), 200);
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                          placeholder="Type to search or enter custom job title..."
                         />
-                        <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+
+                        {/* Live Search Dropdown - only show if there are matches */}
+                        {(() => {
+                          // Check if there are any matching job titles
+                          const hasMatches = JOB_TITLES.some(group =>
+                            group.titles.some(title =>
+                              title.toLowerCase().includes(profileData.jobTitle.toLowerCase())
+                            )
+                          );
+
+                          // Only show dropdown if there are matches
+                          if (!showJobTitleDropdown || profileData.jobTitle.length === 0 || !hasMatches) {
+                            return null;
+                          }
+
+                          return (
+                            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                              {JOB_TITLES.map((group) => {
+                                const filteredTitles = group.titles.filter(title =>
+                                  title.toLowerCase().includes(profileData.jobTitle.toLowerCase())
+                                );
+
+                                if (filteredTitles.length === 0) return null;
+
+                                return (
+                                  <div key={group.category}>
+                                    <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50 sticky top-0">
+                                      {group.category}
+                                    </div>
+                                    {filteredTitles.map((title) => (
+                                      <button
+                                        key={title}
+                                        type="button"
+                                        onClick={() => {
+                                          setProfileData({ ...profileData, jobTitle: title });
+                                          setShowJobTitleDropdown(false);
+                                        }}
+                                        className="w-full text-left px-3 py-2 hover:bg-red-50 hover:text-red-700 transition-colors text-sm"
+                                      >
+                                        {title}
+                                      </button>
+                                    ))}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-2">
+                        <label className="flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={profileData.showJobTitle}
+                            onChange={(e) => setProfileData({ ...profileData, showJobTitle: e.target.checked })}
+                            className="sr-only peer"
+                          />
+                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                        </label>
                         <span className="text-sm text-gray-700">Show job title on profile</span>
-                      </label>
+                      </div>
                     </div>
                   </div>
 
                   {/* Company Information */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Company Information</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Company Information</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Company Name *</label>
                         <input
@@ -695,16 +1134,18 @@ export default function ProfileBuilderPage() {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                           placeholder="TechCorp Solutions"
                         />
-                        <label className="flex items-center gap-2 mt-2">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showCompanyName}
                             onChange={(e) => setProfileData({ ...profileData, showCompanyName: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
                           <span className="text-sm text-gray-700">Show company name</span>
-                        </label>
+                        </div>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Company Website</label>
@@ -715,16 +1156,18 @@ export default function ProfileBuilderPage() {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                           placeholder="https://techcorp.com"
                         />
-                        <label className="flex items-center gap-2 mt-2">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showCompanyWebsite}
                             onChange={(e) => setProfileData({ ...profileData, showCompanyWebsite: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
                           <span className="text-sm text-gray-700">Show website</span>
-                        </label>
+                        </div>
                       </div>
                     </div>
 
@@ -737,103 +1180,259 @@ export default function ProfileBuilderPage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                         placeholder="Business Bay, Dubai, UAE"
                       />
-                      <label className="flex items-center gap-2 mt-2">
-                        <input
+                      <div className="flex items-center gap-2 mt-2">
+                        <label className="flex items-center cursor-pointer">
+                          <input
                           type="checkbox"
                           checked={profileData.showCompanyAddress}
                           onChange={(e) => setProfileData({ ...profileData, showCompanyAddress: e.target.checked })}
                           className="sr-only peer"
-                        />
-                        <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                          />
+                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                        </label>
                         <span className="text-sm text-gray-700">Show address & map</span>
-                      </label>
-
-                      <div className="mt-4 flex items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8">
-                        <div className="text-center">
-                          <svg className="w-12 h-12 text-blue-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <p className="text-sm text-gray-600 font-medium">Google Maps Integration</p>
-                          <button className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium">Update Location</button>
-                        </div>
                       </div>
+
+                      {/* Map Picker - shown when "Show address & map" is enabled */}
+                      {profileData.showCompanyAddress && (
+                        <div className="mt-4">
+                          <MapPickerSimple
+                            initialAddress={{
+                              addressLine1: profileData.companyAddress,
+                            }}
+                            onAddressChange={(address) => {
+                              setProfileData(prev => ({
+                                ...prev,
+                                companyAddress: address.displayName || `${address.addressLine1}, ${address.city}, ${address.country}`
+                              }));
+                              showToast('Location updated successfully', 'success');
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="mt-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo</label>
-                      <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
+                      <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+                        <div className="w-20 h-20 sm:w-16 sm:h-16 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center flex-shrink-0">
+                          {profileData.companyLogo ? (
+                            <img src={profileData.companyLogo} alt="Company Logo" className="w-full h-full object-cover rounded-lg" />
+                          ) : (
+                            <svg className="w-10 h-10 sm:w-8 sm:h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          )}
                         </div>
-                        <button className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2">
-                          <Upload className="w-4 h-4" />
-                          Upload Logo
-                        </button>
-                        <span className="text-xs text-gray-500">PNG, JPG up to 2MB</span>
+                        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                          <input
+                            type="file"
+                            id="company-logo-upload"
+                            accept="image/png,image/jpeg,image/jpg"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  setProfileData(prev => ({
+                                    ...prev,
+                                    companyLogo: reader.result as string
+                                  }));
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const input = document.getElementById('company-logo-upload') as HTMLInputElement;
+                              if (input) {
+                                input.click();
+                              }
+                            }}
+                            className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center justify-center gap-2"
+                            style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                          >
+                            <Upload className="w-4 h-4" />
+                            Upload Logo
+                          </button>
+                          <span className="text-xs text-gray-500 text-center sm:text-left">PNG, JPG up to 2MB</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Industry & Domain */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Industry & Domain</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Industry & Domain</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Industry *</label>
-                        <select
-                          value={profileData.industry}
-                          onChange={(e) => setProfileData({ ...profileData, industry: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white"
-                        >
-                          <option>Technology</option>
-                          <option>Finance</option>
-                          <option>Healthcare</option>
-                          <option>Education</option>
-                        </select>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={profileData.industry}
+                            onChange={(e) => {
+                              setProfileData({ ...profileData, industry: e.target.value });
+                              setShowIndustryDropdown(true);
+                            }}
+                            onFocus={() => setShowIndustryDropdown(true)}
+                            onBlur={() => {
+                              // Delay hiding to allow click on dropdown items
+                              setTimeout(() => setShowIndustryDropdown(false), 200);
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                            placeholder="Type to search or enter custom industry..."
+                          />
+
+                          {/* Live Search Dropdown - only show if there are matches */}
+                          {(() => {
+                            // Check if there are any matching industries
+                            const hasMatches = INDUSTRIES.some(industry =>
+                              industry.toLowerCase().includes(profileData.industry.toLowerCase())
+                            );
+
+                            // Only show dropdown if there are matches
+                            if (!showIndustryDropdown || profileData.industry.length === 0 || !hasMatches) {
+                              return null;
+                            }
+
+                            return (
+                              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                {INDUSTRIES.filter(industry =>
+                                  industry.toLowerCase().includes(profileData.industry.toLowerCase())
+                                ).map((industry) => (
+                                  <button
+                                    key={industry}
+                                    type="button"
+                                    onClick={() => {
+                                      setProfileData({ ...profileData, industry });
+                                      setShowIndustryDropdown(false);
+                                    }}
+                                    className="w-full text-left px-3 py-2 hover:bg-red-50 hover:text-red-700 transition-colors text-sm"
+                                  >
+                                    {industry}
+                                  </button>
+                                ))}
+                              </div>
+                            );
+                          })()}
+                        </div>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Sub Domain</label>
-                        <select
-                          value={profileData.subDomain}
-                          onChange={(e) => setProfileData({ ...profileData, subDomain: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white"
-                        >
-                          <option>Software Development</option>
-                          <option>Web Development</option>
-                          <option>Mobile Apps</option>
-                        </select>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={profileData.subDomain}
+                            onChange={(e) => {
+                              setProfileData({ ...profileData, subDomain: e.target.value });
+                              setShowSubDomainDropdown(true);
+                            }}
+                            onFocus={() => setShowSubDomainDropdown(true)}
+                            onBlur={() => {
+                              // Delay hiding to allow click on dropdown items
+                              setTimeout(() => setShowSubDomainDropdown(false), 200);
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                            placeholder="Type to search or enter custom sub-domain..."
+                          />
+
+                          {/* Live Search Dropdown - only show if there are matches */}
+                          {(() => {
+                            // Check if there are any matching sub-domains
+                            const hasMatches = ALL_SUB_DOMAINS.some(subDomain =>
+                              subDomain.toLowerCase().includes(profileData.subDomain.toLowerCase())
+                            );
+
+                            // Only show dropdown if there are matches
+                            if (!showSubDomainDropdown || profileData.subDomain.length === 0 || !hasMatches) {
+                              return null;
+                            }
+
+                            return (
+                              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                {SUB_DOMAINS.map((group) => {
+                                  const filteredSubDomains = group.subDomains.filter(subDomain =>
+                                    subDomain.toLowerCase().includes(profileData.subDomain.toLowerCase())
+                                  );
+
+                                  if (filteredSubDomains.length === 0) return null;
+
+                                  return (
+                                    <div key={group.industry}>
+                                      <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50 sticky top-0">
+                                        {group.industry}
+                                      </div>
+                                      {filteredSubDomains.map((subDomain) => (
+                                        <button
+                                          key={subDomain}
+                                          type="button"
+                                          onClick={() => {
+                                            setProfileData({ ...profileData, subDomain });
+                                            setShowSubDomainDropdown(false);
+                                          }}
+                                          className="w-full text-left px-3 py-2 hover:bg-red-50 hover:text-red-700 transition-colors text-sm"
+                                        >
+                                          {subDomain}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })()}
+                        </div>
                       </div>
                     </div>
-                    <label className="flex items-center gap-2 mt-2">
-                      <input
+                    <div className="flex items-center gap-2 mt-2">
+                      <label className="flex items-center cursor-pointer">
+                        <input
                         type="checkbox"
                         checked={profileData.showIndustry}
                         onChange={(e) => setProfileData({ ...profileData, showIndustry: e.target.checked })}
                         className="sr-only peer"
-                      />
-                      <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                        />
+                        <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                      </label>
                       <span className="text-sm text-gray-700">Show industry information</span>
-                    </label>
+                    </div>
                   </div>
 
                   {/* Skills & Expertise */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Skills & Expertise</h3>
+                    <div className="flex items-center justify-between mb-3 sm:mb-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">Skills & Expertise</h3>
+                      <span className="text-sm text-gray-600">{profileData.skills.length} skill{profileData.skills.length !== 1 ? 's' : ''} added</span>
+                    </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Search & Add Skills</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={skillInput}
-                          onChange={(e) => setSkillInput(e.target.value)}
-                          onKeyPress={(e) => e.key === 'Enter' && addSkill()}
-                          className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
-                          placeholder="Type to search skills..."
-                        />
-                        <Search className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            type="text"
+                            value={skillInput}
+                            onChange={(e) => setSkillInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                addSkill();
+                              }
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                            placeholder="Type skill name..."
+                          />
+                        </div>
+                        <button
+                          onClick={addSkill}
+                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-2"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Add
+                        </button>
                       </div>
 
                       <div className="flex flex-wrap gap-2 mt-3">
@@ -869,22 +1468,24 @@ export default function ProfileBuilderPage() {
                         )}
                       </div>
 
-                      <label className="flex items-center gap-2 mt-3">
-                        <input
+                      <div className="flex items-center gap-2 mt-2">
+                        <label className="flex items-center cursor-pointer">
+                          <input
                           type="checkbox"
                           checked={profileData.showSkills}
                           onChange={(e) => setProfileData({ ...profileData, showSkills: e.target.checked })}
                           className="sr-only peer"
-                        />
-                        <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                          />
+                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                        </label>
                         <span className="text-sm text-gray-700">Show skills on profile</span>
-                      </label>
+                      </div>
                     </div>
                   </div>
 
                   {/* Professional Summary */}
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Professional Summary</h3>
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Professional Summary</h3>
                     <textarea
                       value={profileData.professionalSummary}
                       onChange={(e) => setProfileData({ ...profileData, professionalSummary: e.target.value })}
@@ -897,15 +1498,15 @@ export default function ProfileBuilderPage() {
                 </div>
 
                 {/* Continue Button - Fixed Bottom */}
-                <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 rounded-b-lg" style={{ display: 'block', width: '100%', minHeight: '80px' }}>
-                  <div className="flex justify-end">
+                <div className="border-t border-gray-200 bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 rounded-b-lg">
+                  <div className="flex justify-center sm:justify-end">
                     <button
                       onClick={() => handleContinue('social')}
-                      className="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-2 shadow-lg"
-                      style={{ display: 'flex', opacity: 1, visibility: 'visible', backgroundColor: '#dc2626', color: '#ffffff' }}
+                      className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center justify-center gap-2 shadow-lg"
+                      style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
                     >
                       Continue
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
@@ -917,27 +1518,27 @@ export default function ProfileBuilderPage() {
             {/* Social & Digital Presence Section */}
             {activeSection === 'social' && (
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-                <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 rounded-t-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white/10 p-3 rounded-lg">
-                      <Share className="w-6 h-6 text-white" />
+                <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 sm:p-6 rounded-t-lg">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="bg-white/10 p-2 sm:p-3 rounded-lg">
+                      <Share className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-white">Social & Digital Presence</h2>
-                      <p className="text-white/90 text-sm mt-1">{sections.find(s => s.id === 'social')?.description}</p>
+                      <h2 className="text-lg sm:text-xl font-bold text-white">Social & Digital Presence</h2>
+                      <p className="text-white/90 text-xs sm:text-sm mt-0.5 sm:mt-1 hidden sm:block">{sections.find(s => s.id === 'social')?.description}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 space-y-6">
+                <div className="p-4 sm:p-6 space-y-6">
                   {/* Social Media Accounts */}
                   <div>
-                    <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center gap-2 mb-3 sm:mb-4">
                       <span className="text-red-500 text-xl">#</span>
-                      <h3 className="text-lg font-semibold text-gray-900">Social Media Accounts</h3>
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">Social Media Accounts</h3>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* LinkedIn */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn Profile</label>
@@ -946,21 +1547,30 @@ export default function ProfileBuilderPage() {
                           <input
                             type="url"
                             value={profileData.linkedinUrl}
-                            onChange={(e) => setProfileData({ ...profileData, linkedinUrl: e.target.value })}
-                            className="w-full px-3 py-2 pl-10 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setProfileData({
+                                ...profileData,
+                                linkedinUrl: value,
+                                showLinkedin: value.trim().length > 0
+                              });
+                            }}
+                            className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="https://linkedin.com/in/sarah-johnson"
                           />
                         </div>
-                        <label className="flex items-center gap-2 mt-2">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showLinkedin}
                             onChange={(e) => setProfileData({ ...profileData, showLinkedin: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
-                          <span className="text-sm text-blue-700">Show LinkedIn profile</span>
-                        </label>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
+                          <span className="text-sm text-gray-700">Show LinkedIn profile</span>
+                        </div>
                       </div>
 
                       {/* Instagram */}
@@ -971,21 +1581,30 @@ export default function ProfileBuilderPage() {
                           <input
                             type="url"
                             value={profileData.instagramUrl}
-                            onChange={(e) => setProfileData({ ...profileData, instagramUrl: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setProfileData({
+                                ...profileData,
+                                instagramUrl: value,
+                                showInstagram: value.trim().length > 0
+                              });
+                            }}
                             className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="https://instagram.com/yourhandle"
                           />
                         </div>
-                        <label className="flex items-center gap-2 mt-2">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showInstagram}
                             onChange={(e) => setProfileData({ ...profileData, showInstagram: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
                           <span className="text-sm text-gray-700">Show Instagram profile</span>
-                        </label>
+                        </div>
                       </div>
 
                       {/* Facebook */}
@@ -996,21 +1615,30 @@ export default function ProfileBuilderPage() {
                           <input
                             type="url"
                             value={profileData.facebookUrl}
-                            onChange={(e) => setProfileData({ ...profileData, facebookUrl: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setProfileData({
+                                ...profileData,
+                                facebookUrl: value,
+                                showFacebook: value.trim().length > 0
+                              });
+                            }}
                             className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="https://facebook.com/yourprofile"
                           />
                         </div>
-                        <label className="flex items-center gap-2 mt-2">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showFacebook}
                             onChange={(e) => setProfileData({ ...profileData, showFacebook: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
                           <span className="text-sm text-gray-700">Show Facebook profile</span>
-                        </label>
+                        </div>
                       </div>
 
                       {/* Twitter/X */}
@@ -1021,21 +1649,30 @@ export default function ProfileBuilderPage() {
                           <input
                             type="url"
                             value={profileData.twitterUrl}
-                            onChange={(e) => setProfileData({ ...profileData, twitterUrl: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setProfileData({
+                                ...profileData,
+                                twitterUrl: value,
+                                showTwitter: value.trim().length > 0
+                              });
+                            }}
                             className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="https://x.com/sarah_product"
                           />
                         </div>
-                        <label className="flex items-center gap-2 mt-2">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showTwitter}
                             onChange={(e) => setProfileData({ ...profileData, showTwitter: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
                           <span className="text-sm text-gray-700">Show X profile</span>
-                        </label>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1044,10 +1681,10 @@ export default function ProfileBuilderPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-4">
                       <span className="text-red-500 text-xl">🔗</span>
-                      <h3 className="text-lg font-semibold text-gray-900">Custom Links & Portfolios</h3>
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">Custom Links & Portfolios</h3>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* Behance */}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Behance Portfolio</label>
@@ -1056,21 +1693,30 @@ export default function ProfileBuilderPage() {
                           <input
                             type="url"
                             value={profileData.behanceUrl}
-                            onChange={(e) => setProfileData({ ...profileData, behanceUrl: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setProfileData({
+                                ...profileData,
+                                behanceUrl: value,
+                                showBehance: value.trim().length > 0
+                              });
+                            }}
                             className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="https://behance.net/yourportfolio"
                           />
                         </div>
-                        <label className="flex items-center gap-2 mt-2">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showBehance}
                             onChange={(e) => setProfileData({ ...profileData, showBehance: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
                           <span className="text-sm text-gray-700">Show Behance portfolio</span>
-                        </label>
+                        </div>
                       </div>
 
                       {/* Dribbble */}
@@ -1083,21 +1729,30 @@ export default function ProfileBuilderPage() {
                           <input
                             type="url"
                             value={profileData.dribbbleUrl}
-                            onChange={(e) => setProfileData({ ...profileData, dribbbleUrl: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setProfileData({
+                                ...profileData,
+                                dribbbleUrl: value,
+                                showDribbble: value.trim().length > 0
+                              });
+                            }}
                             className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="https://dribbble.com/yourprofile"
                           />
                         </div>
-                        <label className="flex items-center gap-2 mt-2">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showDribbble}
                             onChange={(e) => setProfileData({ ...profileData, showDribbble: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
                           <span className="text-sm text-gray-700">Show Dribbble profile</span>
-                        </label>
+                        </div>
                       </div>
 
                       {/* GitHub */}
@@ -1108,21 +1763,30 @@ export default function ProfileBuilderPage() {
                           <input
                             type="url"
                             value={profileData.githubUrl}
-                            onChange={(e) => setProfileData({ ...profileData, githubUrl: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setProfileData({
+                                ...profileData,
+                                githubUrl: value,
+                                showGithub: value.trim().length > 0
+                              });
+                            }}
                             className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="https://github.com/sarahjohnson"
                           />
                         </div>
-                        <label className="flex items-center gap-2 mt-2">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showGithub}
                             onChange={(e) => setProfileData({ ...profileData, showGithub: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
                           <span className="text-sm text-gray-700">Show GitHub profile</span>
-                        </label>
+                        </div>
                       </div>
 
                       {/* YouTube */}
@@ -1133,36 +1797,45 @@ export default function ProfileBuilderPage() {
                           <input
                             type="url"
                             value={profileData.youtubeUrl}
-                            onChange={(e) => setProfileData({ ...profileData, youtubeUrl: e.target.value })}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setProfileData({
+                                ...profileData,
+                                youtubeUrl: value,
+                                showYoutube: value.trim().length > 0
+                              });
+                            }}
                             className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="https://youtube.com/@yourchannel"
                           />
                         </div>
-                        <label className="flex items-center gap-2 mt-2">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showYoutube}
                             onChange={(e) => setProfileData({ ...profileData, showYoutube: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
                           <span className="text-sm text-gray-700">Show YouTube channel</span>
-                        </label>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Continue Button - Fixed Bottom */}
-                <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 rounded-b-lg" style={{ display: 'block', width: '100%', minHeight: '80px' }}>
-                  <div className="flex justify-end">
+                <div className="border-t border-gray-200 bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 rounded-b-lg">
+                  <div className="flex justify-center sm:justify-end">
                     <button
                       onClick={() => handleContinue('media-photo')}
-                      className="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-2 shadow-lg"
-                      style={{ display: 'flex', opacity: 1, visibility: 'visible', backgroundColor: '#dc2626', color: '#ffffff' }}
+                      className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center justify-center gap-2 shadow-lg"
+                      style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
                     >
                       Continue
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </button>
@@ -1174,14 +1847,14 @@ export default function ProfileBuilderPage() {
             {/* Profile Photo & Background Section */}
             {activeSection === 'media-photo' && (
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-                <div className="bg-gradient-to-r from-red-600 to-red-700 p-6 rounded-t-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-white/10 p-3 rounded-lg">
-                      <Camera className="w-6 h-6 text-white" />
+                <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 sm:p-6 rounded-t-lg">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="bg-white/10 p-2 sm:p-3 rounded-lg">
+                      <Camera className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-white">Profile Photo & Background</h2>
-                      <p className="text-white/90 text-sm mt-1">{sections.find(s => s.id === 'media-photo')?.description}</p>
+                      <h2 className="text-lg sm:text-xl font-bold text-white">Profile Photo & Background</h2>
+                      <p className="text-white/90 text-xs sm:text-sm mt-0.5 sm:mt-1 hidden sm:block">{sections.find(s => s.id === 'media-photo')?.description}</p>
                     </div>
                   </div>
                 </div>
@@ -1200,17 +1873,54 @@ export default function ProfileBuilderPage() {
                           <div className="text-center">
                             <div className="relative inline-block">
                               <div className="w-32 h-32 bg-gray-200 rounded-full overflow-hidden">
-                                <img
-                                  src="https://ui-avatars.com/api/?name=Jane+Doe&size=128&background=667eea&color=fff"
-                                  alt="Profile"
-                                  className="w-full h-full object-cover"
-                                />
+                                {profileData.profilePhoto ? (
+                                  <img
+                                    src={profileData.profilePhoto}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <img
+                                    src={`https://ui-avatars.com/api/?name=${profileData.firstName || 'J'}+${profileData.lastName || 'D'}&size=128&background=667eea&color=fff`}
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                  />
+                                )}
                               </div>
                               <div className="absolute -top-2 -right-2 bg-purple-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold">
                                 N
                               </div>
                             </div>
-                            <button className="mt-4 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2 mx-auto">
+                            <input
+                              type="file"
+                              id="profile-photo-upload"
+                              accept="image/png,image/jpeg,image/jpg,image/gif"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setProfileData(prev => ({
+                                      ...prev,
+                                      profilePhoto: reader.result as string
+                                    }));
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const input = document.getElementById('profile-photo-upload') as HTMLInputElement;
+                                if (input) {
+                                  input.click();
+                                }
+                              }}
+                              className="mt-4 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2 mx-auto"
+                              style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                            >
                               <Upload className="w-4 h-4" />
                               Upload New Photo
                             </button>
@@ -1242,16 +1952,18 @@ export default function ProfileBuilderPage() {
                           </ul>
                         </div>
 
-                        <label className="flex items-center gap-2 mt-4">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showProfilePhoto}
                             onChange={(e) => setProfileData({ ...profileData, showProfilePhoto: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
                           <span className="text-sm text-gray-700">Show profile photo publicly</span>
-                        </label>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1265,15 +1977,87 @@ export default function ProfileBuilderPage() {
 
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
-                        <div className="flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-8 h-48">
-                          <div className="text-center text-white">
-                            <p className="font-medium mb-4">Current Background</p>
-                            <button className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2 mx-auto">
-                              <Upload className="w-4 h-4" />
-                              Upload Background
-                            </button>
-                            <p className="text-xs mt-2 opacity-80">JPG or PNG up to 15MB</p>
-                          </div>
+                        <div className="bg-gray-200 rounded-lg overflow-hidden relative" style={{ aspectRatio: '16/9' }}>
+                          {profileData.backgroundImage ? (
+                            <>
+                              <img src={profileData.backgroundImage} alt="Background" className="w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
+                                <input
+                                  type="file"
+                                  id="background-image-upload"
+                                  accept="image/png,image/jpeg,image/jpg"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      const reader = new FileReader();
+                                      reader.onloadend = () => {
+                                        setProfileData(prev => ({
+                                          ...prev,
+                                          backgroundImage: reader.result as string
+                                        }));
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const input = document.getElementById('background-image-upload') as HTMLInputElement;
+                                    if (input) {
+                                      input.click();
+                                    }
+                                  }}
+                                  className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2"
+                                  style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                                >
+                                  <Upload className="w-4 h-4" />
+                                  Change Background
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="flex items-center justify-center h-full p-8">
+                              <div className="text-center text-gray-600">
+                                <p className="font-medium mb-4">Current Background</p>
+                                <input
+                                  type="file"
+                                  id="background-image-upload"
+                                  accept="image/png,image/jpeg,image/jpg"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      const reader = new FileReader();
+                                      reader.onloadend = () => {
+                                        setProfileData(prev => ({
+                                          ...prev,
+                                          backgroundImage: reader.result as string
+                                        }));
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const input = document.getElementById('background-image-upload') as HTMLInputElement;
+                                    if (input) {
+                                      input.click();
+                                    }
+                                  }}
+                                  className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2 mx-auto"
+                                  style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                                >
+                                  <Upload className="w-4 h-4" />
+                                  Upload Background
+                                </button>
+                                <p className="text-xs mt-2 text-gray-500">JPG or PNG up to 15MB</p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -1300,41 +2084,17 @@ export default function ProfileBuilderPage() {
                           </ul>
                         </div>
 
-                        <label className="flex items-center gap-2 mt-4">
-                          <input
+                        <div className="flex items-center gap-2 mt-2">
+                          <label className="flex items-center cursor-pointer">
+                            <input
                             type="checkbox"
                             checked={profileData.showBackgroundImage}
                             onChange={(e) => setProfileData({ ...profileData, showBackgroundImage: e.target.checked })}
                             className="sr-only peer"
-                          />
-                          <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            />
+                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                          </label>
                           <span className="text-sm text-gray-700">Show background image</span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Profile Preview */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="text-red-500 text-xl">👁️</span>
-                      <h3 className="text-lg font-semibold text-gray-900">Profile Preview</h3>
-                    </div>
-
-                    <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-t-lg h-32"></div>
-                    <div className="bg-white border border-gray-200 rounded-b-lg p-6 -mt-16 relative">
-                      <div className="flex items-end gap-4 mb-4">
-                        <div className="w-24 h-24 bg-white rounded-full overflow-hidden border-4 border-white shadow-lg">
-                          <img
-                            src="https://ui-avatars.com/api/?name=Sarah+Johnson&size=96&background=667eea&color=fff"
-                            alt="Profile Preview"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 mb-2">
-                          <h3 className="text-xl font-bold text-gray-900">Sarah Johnson</h3>
-                          <p className="text-gray-600">Product Manager</p>
-                          <p className="text-sm text-gray-500 mt-1">Professional headshot of Sarah Johnson, Product Manager</p>
                         </div>
                       </div>
                     </div>
@@ -1342,22 +2102,13 @@ export default function ProfileBuilderPage() {
                 </div>
 
                 {/* Submit Button - Fixed Bottom */}
-                <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 rounded-b-lg" style={{ display: 'block', width: '100%', minHeight: '80px', backgroundColor: '#f9fafb' }}>
-                  <div className="flex items-center justify-between">
-                    <button
-                      onClick={handleCancelChanges}
-                      className="px-4 py-2 text-gray-700 hover:text-gray-900 font-medium flex items-center gap-2"
-                      disabled={isSubmitting}
-                      style={{ display: 'flex', opacity: 1, visibility: 'visible', backgroundColor: '#e5e7eb', color: '#374151' }}
-                    >
-                      <X2 className="w-4 h-4" />
-                      Cancel
-                    </button>
+                <div className="border-t border-gray-200 bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 rounded-b-lg">
+                  <div className="flex items-center justify-center sm:justify-end">
                     <button
                       onClick={handleSubmit}
                       disabled={isSubmitting}
-                      className="px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                      style={{ display: 'flex', opacity: 1, visibility: 'visible', backgroundColor: '#dc2626', color: '#ffffff' }}
+                      className="w-full sm:w-auto px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                      style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
                     >
                       {isSubmitting ? (
                         <>
@@ -1436,21 +2187,23 @@ export default function ProfileBuilderPage() {
                                 </button>
                               </div>
                             </div>
-                            <label className="flex items-center gap-2 mt-2">
-                              <input
-                                type="checkbox"
-                                checked={photo.showPublicly}
-                                onChange={(e) => {
-                                  const newPhotos = profileData.photos.map(p =>
-                                    p.id === photo.id ? { ...p, showPublicly: e.target.checked } : p
-                                  );
-                                  setProfileData({ ...profileData, photos: newPhotos });
-                                }}
-                                className="sr-only peer"
-                              />
-                              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            <div className="flex items-center gap-2 mt-2">
+                              <label className="flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={photo.showPublicly}
+                                  onChange={(e) => {
+                                    const newPhotos = profileData.photos.map(p =>
+                                      p.id === photo.id ? { ...p, showPublicly: e.target.checked } : p
+                                    );
+                                    setProfileData({ ...profileData, photos: newPhotos });
+                                  }}
+                                  className="sr-only peer"
+                                />
+                                <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                              </label>
                               <span className="text-xs text-gray-700">Show publicly</span>
-                            </label>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -1472,21 +2225,22 @@ export default function ProfileBuilderPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <span className="text-red-500 text-xl">🎥</span>
-                        <h3 className="text-lg font-semibold text-gray-900">Videos</h3>
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900">Videos</h3>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm text-gray-600">1 of 3 videos used</span>
+                        <span className="text-xs sm:text-sm text-gray-600">1 of 3 videos used</span>
                         <button
                           onClick={addVideo}
-                          className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2"
+                          className="px-3 sm:px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2"
                         >
                           <Plus className="w-4 h-4" />
-                          Add Video
+                          <span className="hidden sm:inline">Add Video</span>
+                          <span className="sm:hidden">Add</span>
                         </button>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {profileData.videos.map((video) => (
                         <div key={video.id} className="group">
                           <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center relative">
@@ -1515,21 +2269,23 @@ export default function ProfileBuilderPage() {
                               className="w-full px-3 py-2 mt-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                               placeholder="Video URL"
                             />
-                            <label className="flex items-center gap-2 mt-2">
-                              <input
-                                type="checkbox"
-                                checked={video.showPublicly}
-                                onChange={(e) => {
-                                  const newVideos = profileData.videos.map(v =>
-                                    v.id === video.id ? { ...v, showPublicly: e.target.checked } : v
-                                  );
-                                  setProfileData({ ...profileData, videos: newVideos });
-                                }}
-                                className="sr-only peer"
-                              />
-                              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                            <div className="flex items-center gap-2 mt-2">
+                              <label className="flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={video.showPublicly}
+                                  onChange={(e) => {
+                                    const newVideos = profileData.videos.map(v =>
+                                      v.id === video.id ? { ...v, showPublicly: e.target.checked } : v
+                                    );
+                                    setProfileData({ ...profileData, videos: newVideos });
+                                  }}
+                                  className="sr-only peer"
+                                />
+                                <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                              </label>
                               <span className="text-xs text-gray-700">Show publicly</span>
-                            </label>
+                            </div>
                           </div>
                         </div>
                       ))}

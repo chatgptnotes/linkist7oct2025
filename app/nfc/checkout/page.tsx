@@ -49,6 +49,20 @@ const checkoutSchema = z.object({
 
 type CheckoutForm = z.infer<typeof checkoutSchema>;
 
+// Color mapping for card preview
+const allColours: Array<{ value: string; label: string; hex: string; gradient: string }> = [
+  // PVC colors
+  { value: 'white', label: 'White', hex: '#FFFFFF', gradient: 'from-white to-gray-100' },
+  { value: 'black-pvc', label: 'Black', hex: '#000000', gradient: 'from-gray-900 to-black' },
+  // Wood colors
+  { value: 'cherry', label: 'Cherry', hex: '#8E3A2D', gradient: 'from-red-950 to-red-900' },
+  { value: 'birch', label: 'Birch', hex: '#E5C79F', gradient: 'from-amber-100 to-amber-200' },
+  // Metal colors
+  { value: 'black-metal', label: 'Black', hex: '#1A1A1A', gradient: 'from-gray-800 to-gray-900' },
+  { value: 'silver', label: 'Silver', hex: '#C0C0C0', gradient: 'from-gray-300 to-gray-400' },
+  { value: 'rose-gold', label: 'Rose Gold', hex: '#B76E79', gradient: 'from-rose-300 to-rose-400' }
+];
+
 export default function CheckoutPage() {
   const router = useRouter();
   const [cardConfig, setCardConfig] = useState<{
@@ -211,6 +225,21 @@ export default function CheckoutPage() {
     };
   };
 
+  // Helper functions for card preview
+  const getCardGradient = () => {
+    const selectedColor = allColours.find(c => c.value === cardConfig?.color);
+    return selectedColor?.gradient || 'from-gray-800 to-gray-900';
+  };
+
+  const getTextColor = () => {
+    // Return white text for dark backgrounds, black for light backgrounds
+    const darkBackgrounds = ['black-pvc', 'black-metal', 'cherry', 'rose-gold'];
+    if (cardConfig?.color && darkBackgrounds.includes(cardConfig.color)) {
+      return 'text-white';
+    }
+    return 'text-gray-900';
+  };
+
   const pricing = calculatePricing();
 
   // Handle address update from map
@@ -272,6 +301,16 @@ export default function CheckoutPage() {
       console.log('💳 Checkout: Card config:', cardConfig);
       console.log('💳 Checkout: Pricing:', pricing);
 
+      // Save user contact data to localStorage for profile builder
+      const userContactData = {
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+      };
+      localStorage.setItem('userContactData', JSON.stringify(userContactData));
+      console.log('💾 Checkout: Saved user contact data to localStorage:', userContactData);
+
       // Prepare order data for API
       const orderPayload = {
         customerName: `${formData.firstName} ${formData.lastName}`,
@@ -331,16 +370,28 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
+      {/* Full-page Loading Overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl p-8 shadow-2xl text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
+            <p className="text-lg font-semibold text-gray-900">Processing your order...</p>
+            <p className="text-sm text-gray-600 mt-2">Please wait, redirecting to payment page</p>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Checkout Header - Centered above everything */}
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900">Complete Your Order</h2>
+          <p className="text-gray-600 mt-2">Fill in your details to get your NFC card</p>
+        </div>
+
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Order Form */}
-          <div className="space-y-6">
-            {/* Checkout Header */}
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">Complete Your Order</h2>
-              <p className="text-gray-600 mt-2">Fill in your details to get your NFC card</p>
-            </div>
+          <div className="space-y-6 order-2 lg:order-1">
 
             <form onSubmit={handleSubmit(processOrder)} className="space-y-6">
               {/* Contact Information */}
@@ -408,7 +459,7 @@ export default function CheckoutPage() {
 
               {/* Shipping Address */}
               <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                   <h2 className="text-lg font-semibold flex items-center">
                     <Truck className="h-5 w-5 mr-2" />
                     Shipping Address
@@ -416,7 +467,7 @@ export default function CheckoutPage() {
                   <button
                     type="button"
                     onClick={() => setShowMap(!showMap)}
-                    className="flex items-center space-x-2 text-sm px-3 py-1.5 rounded-lg transition-colors"
+                    className="flex items-center justify-center space-x-2 text-sm px-3 py-2 rounded-lg transition-colors cursor-pointer w-full sm:w-auto"
                     style={{ backgroundColor: '#ff0000', color: '#FFFFFF' }}
                   >
                     <MapPin className="h-4 w-4" />
@@ -551,46 +602,89 @@ export default function CheckoutPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-4 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="w-full py-4 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl"
                 style={{ backgroundColor: '#ff0000', color: '#FFFFFF' }}
               >
                 {isLoading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  <>
+                    <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent mr-2"></div>
+                    <span>Processing...</span>
+                  </>
                 ) : (
-                  <CreditCard className="h-5 w-5 mr-2" />
+                  <>
+                    <CreditCard className="h-5 w-5 mr-2" />
+                    Continue to Payment
+                  </>
                 )}
-                {isLoading ? 'Processing...' : `Continue to Payment`}
               </button>
             </form>
           </div>
 
           {/* Order Summary */}
-          <div className="lg:sticky lg:top-8">
+          <div className="lg:sticky lg:top-8 order-1 lg:order-2">
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
               
               {/* Card Preview */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-medium mb-2">Your NFC Card</h4>
+              <div className="mb-6">
+                <h4 className="font-medium mb-3">Your NFC Card</h4>
                 <p className="text-sm text-gray-600 mb-2">
                   {cardConfig?.fullName || 'Custom NFC Card'}
                 </p>
                 {cardConfig?.baseMaterial && (
-                  <p className="text-xs text-gray-500 mb-2">
-                    Material: {cardConfig.baseMaterial.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())} • 
-                    Color: {cardConfig.color?.charAt(0).toUpperCase() + cardConfig.color?.slice(1) || 'Black'}
+                  <p className="text-xs text-gray-500 mb-4">
+                    Material: {cardConfig.baseMaterial.charAt(0).toUpperCase() + cardConfig.baseMaterial.slice(1)} •
+                    Color: {(() => {
+                      const color = cardConfig.color || 'Black';
+                      // Remove material suffix (e.g., "black-pvc" -> "black")
+                      const colorName = color.split('-')[0];
+                      return colorName.charAt(0).toUpperCase() + colorName.slice(1);
+                    })()}
                   </p>
                 )}
-                <div className="w-32 h-20 bg-gradient-to-r from-gray-800 to-gray-600 rounded-lg flex items-center justify-center relative overflow-hidden">
-                  {/* Initials */}
-                  <div className="absolute bottom-2 left-2 text-white text-xs font-light">
-                    {cardConfig?.firstName && cardConfig?.lastName 
-                      ? `${cardConfig.firstName.charAt(0).toUpperCase()}${cardConfig.lastName.charAt(0).toUpperCase()}`
-                      : 'NN'}
-                  </div>
-                  {/* Linkist logo bottom right */}
-                  <div className="absolute bottom-1 right-1">
-                    <div className="w-2 h-2 bg-red-500 rounded-sm"></div>
+
+                {/* Front Card */}
+                <div className="mb-4">
+                  <div className={`w-56 aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg mr-auto`}>
+                    {/* AI Icon top right - Changes based on card color */}
+                    <div className="absolute top-3 right-3">
+                      <div
+                        className={`rounded-lg p-2 shadow-md ${
+                          cardConfig?.color === 'white'
+                            ? 'bg-white'
+                            : 'bg-gray-900'
+                        }`}
+                      >
+                        <img
+                          src={cardConfig?.color === 'white' ? '/ai2.png' : '/ai1.png'}
+                          alt="AI"
+                          className={`w-4 h-4 ${cardConfig?.color === 'white' ? '' : 'invert'}`}
+                        />
+                      </div>
+                    </div>
+
+                    {/* User Name or Initials */}
+                    <div className="absolute bottom-4 left-4">
+                      {(() => {
+                        const firstName = cardConfig?.firstName?.trim() || '';
+                        const lastName = cardConfig?.lastName?.trim() || '';
+                        const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+
+                        if (isSingleCharOnly) {
+                          return (
+                            <div className={`${getTextColor()} text-xl font-light`}>
+                              {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className={`${getTextColor()} text-sm font-medium`}>
+                              {firstName} {lastName}
+                            </div>
+                          );
+                        }
+                      })()}
+                    </div>
                   </div>
                 </div>
               </div>

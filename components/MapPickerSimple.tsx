@@ -310,36 +310,104 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
     if (!searchQuery.trim()) return;
 
     setIsLoading(true);
+    setLocationError(''); // Clear previous errors
+
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?` +
-        `format=json&q=${encodeURIComponent(searchQuery)}&limit=5&addressdetails=1&accept-language=en`,
-        {
-          headers: {
-            'Accept-Language': 'en-US,en;q=0.9',
-          },
-        }
-      );
+      let enhancedQuery = searchQuery.trim();
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.length > 0) {
-          const result = data[0];
-          const lat = parseFloat(result.lat);
-          const lng = parseFloat(result.lon);
+      // Try multiple search strategies
+      const searchStrategies = [
+        // Strategy 1: Original query with country
+        enhancedQuery + (addressData.country ? `, ${addressData.country}` : ', India'),
 
-          if (map.current && marker.current) {
-            map.current.setView([lat, lng], 15);
-            marker.current.setLatLng([lat, lng]);
-            reverseGeocode(lat, lng);
+        // Strategy 2: Try with major keywords only (remove small words)
+        enhancedQuery.split(' ').filter((word: string) => word.length > 3).join(' ') + ', India',
+
+        // Strategy 3: Just the location name with India
+        enhancedQuery.split(',')[0].trim() + ', India'
+      ];
+
+      let foundResult = false;
+
+      for (const query of searchStrategies) {
+        if (foundResult) break;
+
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?` +
+          `format=json&q=${encodeURIComponent(query)}&limit=10&addressdetails=1&accept-language=en`,
+          {
+            headers: {
+              'Accept-Language': 'en-US,en;q=0.9',
+            },
           }
-        } else {
-          alert('No results found for this address. Try being more specific or use a different search term.');
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            // Extract city/area names from original search query
+            const searchLower = enhancedQuery.toLowerCase();
+            const cityKeywords = [
+              'nagpur', 'mumbai', 'delhi', 'bangalore', 'pune', 'hyderabad', 'chennai', 'kolkata',
+              'ahmedabad', 'surat', 'jaipur', 'lucknow', 'kanpur', 'indore', 'bhopal', 'patna',
+              'vadodara', 'ludhiana', 'agra', 'nashik', 'meerut', 'rajkot', 'varanasi', 'kota',
+              'goa', 'noida', 'gurgaon', 'gurugram', 'thane', 'navi mumbai', 'chandigarh',
+              'maharashtra', 'karnataka', 'gujarat', 'rajasthan', 'tamil nadu', 'kerala',
+              'madhya pradesh', 'west bengal', 'uttar pradesh', 'bihar', 'punjab'
+            ];
+            const foundCity = cityKeywords.find(city => searchLower.includes(city));
+
+            let result = data[0]; // Default to first result
+
+            // If user mentioned a city, try to find a result from that city
+            if (foundCity) {
+              const cityResult = data.find((item: any) => {
+                const displayName = item.display_name?.toLowerCase() || '';
+                const address = item.address || {};
+                const city = (address.city || address.town || address.village || '').toLowerCase();
+                const state = (address.state || '').toLowerCase();
+
+                // Check if result matches the city mentioned in search
+                return displayName.includes(foundCity) ||
+                       city.includes(foundCity) ||
+                       state.includes(foundCity);
+              });
+
+              if (cityResult) {
+                result = cityResult;
+              }
+            }
+
+            const lat = parseFloat(result.lat);
+            const lng = parseFloat(result.lon);
+
+            if (map.current && marker.current) {
+              map.current.setView([lat, lng], 15);
+              marker.current.setLatLng([lat, lng]);
+              reverseGeocode(lat, lng);
+              setLocationError(''); // Clear error on success
+              foundResult = true;
+            }
+          }
         }
+
+        // Small delay between requests to avoid rate limiting
+        if (!foundResult) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+      }
+
+      if (!foundResult) {
+        setLocationError(
+          `Address not found. Please try:\n` +
+          `• Use the map marker to pinpoint your exact location\n` +
+          `• Search with city/area name (e.g., "Nagpur" or "Kampti Road, Nagpur")\n` +
+          `• Enable "Use my current location" above`
+        );
       }
     } catch (error) {
       console.error('Geocoding error:', error);
-      alert('Error searching for address. Please try again.');
+      setLocationError('Error searching. Please check your internet connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -443,7 +511,7 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
                           alert('On iPhone/iPad:\n\n1. Press the Home button or swipe up\n2. Find and tap the Settings app (gray gear icon)\n3. Look for "Privacy & Security" → "Location Services"\n\nOr try: Settings → Safari → Location');
                         }
                       }}
-                      className="flex-1 text-xs px-3 py-2 rounded transition-colors font-medium"
+                      className="flex-1 text-xs px-3 py-2 rounded transition-colors font-medium cursor-pointer"
                       style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
                     >
                       📲 Open Device Settings
@@ -455,7 +523,7 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
                       setLocationError('');
                       getCurrentLocation(); // Retry
                     }}
-                    className="flex-1 text-xs px-3 py-2 rounded transition-colors font-medium"
+                    className="flex-1 text-xs px-3 py-2 rounded transition-colors font-medium cursor-pointer"
                     style={{ backgroundColor: '#2563EB', color: '#FFFFFF' }}
                   >
                     🔄 Retry
@@ -466,7 +534,7 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
                       setLocationError('');
                       setUseCurrentLocation(false);
                     }}
-                    className="text-xs px-3 py-2 rounded transition-colors"
+                    className="text-xs px-3 py-2 rounded transition-colors cursor-pointer"
                     style={{ backgroundColor: '#E5E7EB', color: '#374151' }}
                   >
                     Dismiss
@@ -479,33 +547,45 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
       </div>
 
       {/* Search Bar */}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                searchAddress();
-              }
-            }}
-            placeholder="Search for an address, landmark, or area..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            disabled={isLoading}
-          />
-          <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
+      <div className="space-y-2">
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (locationError) setLocationError(''); // Clear error on typing
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  searchAddress();
+                }
+              }}
+              placeholder="Search for an address, landmark, or area..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              disabled={isLoading}
+            />
+            <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
+          </div>
+          <button
+            type="button"
+            onClick={searchAddress}
+            disabled={isLoading || !searchQuery.trim()}
+            className="px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            style={{ backgroundColor: '#2563EB', color: '#FFFFFF' }}
+          >
+            {isLoading ? 'Searching...' : 'Search'}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={searchAddress}
-          disabled={isLoading || !searchQuery.trim()}
-          className="px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          style={{ backgroundColor: '#2563EB', color: '#FFFFFF' }}
-        >
-          {isLoading ? 'Searching...' : 'Search'}
-        </button>
+
+        {/* Search Error Message */}
+        {locationError && !useCurrentLocation && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <p className="text-sm text-amber-800 whitespace-pre-line">{locationError}</p>
+          </div>
+        )}
       </div>
 
       {/* Map Container */}
@@ -525,46 +605,6 @@ export default function MapPickerSimple({ initialAddress, onAddressChange, class
           </div>
         )}
       </div>
-
-      {/* Instructions */}
-      <div className="flex items-start space-x-2 text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-        <MapPin className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
-        <div>
-          <p className="font-medium text-gray-700">How to use:</p>
-          <ul className="text-xs mt-1 space-y-1">
-            <li>• Click anywhere on the map to set your location</li>
-            <li>• Drag the marker to adjust the position</li>
-            <li>• Use the search bar to find a specific address</li>
-            <li>• Address fields will update automatically</li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Detected Address Info */}
-      {(addressData.area || addressData.addressLine1 || addressData.city) && (
-        <div className="bg-gray-50 p-3 rounded-lg text-sm">
-          <p className="font-medium text-gray-700 mb-2">Detected Location:</p>
-          <div className="space-y-1 text-xs text-gray-600">
-            {addressData.area && (
-              <p><span className="font-medium">Area:</span> {addressData.area}</p>
-            )}
-            {addressData.addressLine1 && (
-              <p><span className="font-medium">Street:</span> {addressData.addressLine1}</p>
-            )}
-            {addressData.city && (
-              <p><span className="font-medium">City:</span> {addressData.city}</p>
-            )}
-            {addressData.country && (
-              <p><span className="font-medium">Country:</span> {addressData.country}</p>
-            )}
-            {addressData.latitude && addressData.longitude && (
-              <p className="text-gray-500 mt-1">
-                GPS: {addressData.latitude.toFixed(6)}, {addressData.longitude.toFixed(6)}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
