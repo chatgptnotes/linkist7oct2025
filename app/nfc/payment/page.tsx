@@ -508,15 +508,33 @@ export default function NFCPaymentPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="px-2.5 py-1.5 border rounded">
-                      <span className="text-blue-600 font-bold text-xs">VISA</span>
+                  <div className="flex items-center gap-2 sm:gap-3 mt-3">
+                    <div className="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-200 rounded bg-white">
+                      <Image
+                        src="/visa.png"
+                        alt="Visa"
+                        width={40}
+                        height={24}
+                        className="h-4 sm:h-5 w-auto"
+                      />
                     </div>
-                    <div className="px-2.5 py-1.5 border rounded">
-                      <span className="text-red-600 font-bold text-xs">MC</span>
+                    <div className="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-200 rounded bg-white">
+                      <Image
+                        src="/mc.png"
+                        alt="Mastercard"
+                        width={35}
+                        height={24}
+                        className="h-4 sm:h-5 w-auto"
+                      />
                     </div>
-                    <div className="px-2.5 py-1.5 border rounded">
-                      <span className="text-blue-500 font-bold text-xs">AMEX</span>
+                    <div className="px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-200 rounded bg-white">
+                      <Image
+                        src="/amex.png"
+                        alt="American Express"
+                        width={35}
+                        height={24}
+                        className="h-4 sm:h-5 w-auto"
+                      />
                     </div>
                   </div>
                 </div>
@@ -666,7 +684,7 @@ export default function NFCPaymentPage() {
                     Processing...
                   </div>
                 ) : (
-                  `Pay ${isIndia ? '₹' : '$'}${getFinalAmount().toFixed(2)}`
+                  `Pay $${getFinalAmount().toFixed(2)}`
                 )}
               </button>
 

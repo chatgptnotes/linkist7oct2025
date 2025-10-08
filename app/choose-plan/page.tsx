@@ -63,35 +63,35 @@ Team Size: ${formData.teamSize}`;
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+      <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-12">
+        <div className="text-center mb-6 md:mb-12">
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2 md:mb-4">
             Who is this for?
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-base md:text-xl text-gray-600">
             Choose the option that best fits your needs
           </p>
         </div>
 
         {/* Choice Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 max-w-4xl mx-auto">
           {/* Personal Use Card */}
           <div
-            className="bg-white rounded-2xl border-2 border-gray-200 hover:border-red-600 hover:shadow-2xl transition-all p-8 group flex flex-col"
+            className="bg-white rounded-2xl border-2 border-gray-200 hover:border-red-600 hover:shadow-2xl transition-all p-5 md:p-8 group flex flex-col"
           >
             <div className="text-center flex-grow flex flex-col">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all mb-6 mx-auto">
-                <User className="w-10 h-10" />
+              <div className="inline-flex items-center justify-center w-14 h-14 md:w-20 md:h-20 rounded-full bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all mb-3 md:mb-6 mx-auto">
+                <User className="w-7 h-7 md:w-10 md:h-10" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              <h3 className="text-lg md:text-2xl font-bold text-gray-900 mb-2 md:mb-3">
                 Personal Use
               </h3>
-              <p className="text-gray-600 mb-6 flex-grow">
+              <p className="text-sm md:text-base text-gray-600 mb-3 md:mb-6 flex-grow">
                 I want to get a Linkist digital card for myself
               </p>
               <button
                 onClick={handlePersonalUse}
-                className="w-full py-3 px-6 rounded-xl font-semibold transition-all mt-auto cursor-pointer"
+                className="w-full py-2.5 md:py-3 px-6 rounded-xl font-semibold transition-all mt-auto cursor-pointer text-sm md:text-base"
                 style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
               >
                 Get Started
@@ -101,21 +101,21 @@ Team Size: ${formData.teamSize}`;
 
           {/* Team Use Card */}
           <div
-            className="bg-white rounded-2xl border-2 border-gray-200 hover:border-red-600 hover:shadow-2xl transition-all p-8 group flex flex-col"
+            className="bg-white rounded-2xl border-2 border-gray-200 hover:border-red-600 hover:shadow-2xl transition-all p-5 md:p-8 group flex flex-col"
           >
             <div className="text-center flex-grow flex flex-col">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all mb-6 mx-auto">
-                <Users className="w-10 h-10" />
+              <div className="inline-flex items-center justify-center w-14 h-14 md:w-20 md:h-20 rounded-full bg-red-100 text-red-600 group-hover:bg-red-600 group-hover:text-white transition-all mb-3 md:mb-6 mx-auto">
+                <Users className="w-7 h-7 md:w-10 md:h-10" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              <h3 className="text-lg md:text-2xl font-bold text-gray-900 mb-2 md:mb-3">
                 Multiple Cards for Team
               </h3>
-              <p className="text-gray-600 mb-6 flex-grow">
+              <p className="text-sm md:text-base text-gray-600 mb-3 md:mb-6 flex-grow">
                 I need Linkist digital cards for my team members
               </p>
               <button
                 onClick={handleTeamUse}
-                className="w-full py-3 px-6 rounded-xl font-semibold transition-all mt-auto cursor-pointer"
+                className="w-full py-2.5 md:py-3 px-6 rounded-xl font-semibold transition-all mt-auto cursor-pointer text-sm md:text-base"
                 style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
               >
                 Send a Query
@@ -125,10 +125,10 @@ Team Size: ${formData.teamSize}`;
         </div>
 
         {/* Back Button */}
-        <div className="mt-12 text-center">
+        <div className="mt-4 md:mt-12 text-center">
           <button
             onClick={() => router.back()}
-            className="text-gray-600 hover:text-gray-900 font-medium transition-colors cursor-pointer"
+            className="text-gray-600 hover:text-gray-900 font-medium transition-colors cursor-pointer text-sm md:text-base"
           >
             ← Go Back
           </button>
@@ -228,6 +228,18 @@ Team Size: ${formData.teamSize}`;
           </div>
         </div>
       )}
+
+      <div className="hidden md:block">
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+      </div>
 
       <Footer />
     </div>

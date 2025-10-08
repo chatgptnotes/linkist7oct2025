@@ -139,8 +139,8 @@ export async function sendOTPEmail({ to, otp, expiresInMinutes }: SendOTPEmailPa
           <title>Email Verification Code</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">Linkist NFC</h1>
+          <div style="background: #ffffff; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; border-bottom: 1px solid #e5e7eb;">
+            <img src="https://linkist.2men.co/logo1.png" alt="Linkist" style="height: 60px; width: auto; max-width: 100%;" />
           </div>
 
           <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">

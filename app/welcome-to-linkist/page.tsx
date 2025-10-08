@@ -205,10 +205,26 @@ export default function WelcomeToLinkist() {
     return null;
   };
 
+  // Get terms text based on country
+  const getTermsText = () => {
+    switch (formData.country) {
+      case 'India':
+        return 'All transactions are subject to Indian tax laws.';
+      case 'UAE':
+        return 'All transactions are subject to UAE tax laws and regulations.';
+      case 'USA':
+        return 'All transactions are subject to US federal and state tax laws.';
+      case 'UK':
+        return 'All transactions are subject to UK tax laws and HMRC regulations.';
+      default:
+        return 'All transactions are subject to local tax laws.';
+    }
+  };
+
   return (
     <>
-      <div className="min-h-screen bg-gray-50 flex items-start justify-center pt-20 pb-0 px-4">
-        <div className="bg-white rounded-none sm:rounded-2xl shadow-xl max-w-3xl w-full p-4 sm:p-6">
+      <div className="bg-gray-50 flex items-start justify-center pt-4 md:pt-20 pb-4 px-4">
+        <div className="bg-white rounded-none sm:rounded-2xl shadow-xl max-w-3xl w-full p-4 sm:p-6 mb-8">
         {/* Title */}
         <div className="text-center mb-4">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Welcome to Linkist</h1>
@@ -280,9 +296,12 @@ export default function WelcomeToLinkist() {
                     placeholder={getMobilePlaceholder()}
                     value={formData.mobileNumber}
                     onChange={(e) => {
-                      setFormData({ ...formData, mobileNumber: e.target.value });
+                      const value = e.target.value.replace(/[^0-9\s]/g, '');
+                      setFormData({ ...formData, mobileNumber: value });
                       setMobileError(''); // Clear error on input
                     }}
+                    pattern="[0-9\s]+"
+                    title="Mobile number should only contain numbers"
                     className={`flex-1 px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent ${
                       mobileError ? 'border-red-500' : 'border-gray-300'
                     }`}
@@ -324,9 +343,14 @@ export default function WelcomeToLinkist() {
                     type="text"
                     placeholder="e.g., Alex"
                     value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[0-9]/g, '');
+                      setFormData({ ...formData, firstName: value });
+                    }}
                     minLength={2}
                     maxLength={30}
+                    pattern="[A-Za-z\s]+"
+                    title="Name should only contain letters"
                     className="w-full px-3 py-2 pr-12 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     required
                   />
@@ -346,9 +370,14 @@ export default function WelcomeToLinkist() {
                     type="text"
                     placeholder="e.g., Thomas"
                     value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[0-9]/g, '');
+                      setFormData({ ...formData, lastName: value });
+                    }}
                     minLength={2}
                     maxLength={30}
+                    pattern="[A-Za-z\s]+"
+                    title="Name should only contain letters"
                     className="w-full px-3 py-2 pr-12 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     required
                   />
@@ -376,14 +405,14 @@ export default function WelcomeToLinkist() {
                   <a href="/privacy" className="text-blue-600 hover:underline" target="_blank">
                     Privacy Policy
                   </a>
-                  , and to receive OTP messages via SMS and WhatsApp. All transactions are subject to Indian tax laws.
+                  , and to receive OTP messages via SMS and WhatsApp. {getTermsText()}
                 </label>
               </div>
             </div>
           </div>
 
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-center">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6 justify-center">
             <button
               type="button"
               onClick={handleReject}
@@ -412,6 +441,19 @@ export default function WelcomeToLinkist() {
         </form>
         </div>
       </div>
+
+      <div className="hidden md:block">
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+      </div>
+
       <Footer />
     </>
   );
