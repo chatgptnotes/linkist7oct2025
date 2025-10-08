@@ -655,10 +655,10 @@ export default function ProfileBuilderPage() {
 
         localStorage.setItem('userProfiles', JSON.stringify(profiles));
 
-        // Redirect to plan selection page
+        // Redirect to profile preview page
         setTimeout(() => {
-          router.push('/choose-plan');
-        }, 2000);
+          router.push('/profiles/preview');
+        }, 1500);
       } else {
         console.error('❌ Failed to save profile:', result.error);
         showToast(result.error || 'Failed to save profile', 'error');
