@@ -32,6 +32,22 @@ export interface SupabaseProfile {
   preferences: Record<string, any>
   created_at: string
   updated_at: string
+  job_title: string | null
+  company_name: string | null
+  company_website: string | null
+  company_address: string | null
+  company_logo_url: string | null
+  industry: string | null
+  sub_domain: string | null
+  skills: string[]
+  professional_summary: string | null
+  profile_photo_url: string | null
+  background_image_url: string | null
+  social_links: Record<string, any>
+  display_settings: Record<string, any>
+  primary_email: string | null
+  mobile_number: string | null
+  whatsapp_number: string | null
 }
 
 // Input type for creating/updating profiles
@@ -129,8 +145,60 @@ export const SupabaseProfileStore = {
       if (input.is_founder_member !== undefined) updates.is_founder_member = input.is_founder_member
       if (input.avatar_url !== undefined) updates.avatar_url = input.avatar_url
 
-      // Merge preferences with existing ones
+      // Update new columns from preferences
       if (input.preferences) {
+        if (input.preferences.jobTitle !== undefined) updates.job_title = input.preferences.jobTitle
+        if (input.preferences.companyWebsite !== undefined) updates.company_website = input.preferences.companyWebsite
+        if (input.preferences.companyAddress !== undefined) updates.company_address = input.preferences.companyAddress
+        if (input.preferences.companyLogo !== undefined) updates.company_logo_url = input.preferences.companyLogo
+        if (input.preferences.industry !== undefined) updates.industry = input.preferences.industry
+        if (input.preferences.subDomain !== undefined) updates.sub_domain = input.preferences.subDomain
+        if (input.preferences.skills !== undefined) updates.skills = input.preferences.skills
+        if (input.preferences.professionalSummary !== undefined) updates.professional_summary = input.preferences.professionalSummary
+        if (input.preferences.backgroundImage !== undefined) updates.background_image_url = input.preferences.backgroundImage
+        if (input.preferences.whatsappNumber !== undefined) updates.whatsapp_number = input.preferences.whatsappNumber
+
+        updates.company_name = input.company || null
+        updates.profile_photo_url = input.avatar_url || null
+        updates.primary_email = input.email
+        updates.mobile_number = input.phone_number || null
+
+        // Store social links in JSONB column
+        updates.social_links = {
+          linkedin: input.preferences.linkedinUrl || '',
+          instagram: input.preferences.instagramUrl || '',
+          facebook: input.preferences.facebookUrl || '',
+          twitter: input.preferences.twitterUrl || '',
+          behance: input.preferences.behanceUrl || '',
+          dribbble: input.preferences.dribbbleUrl || '',
+          github: input.preferences.githubUrl || '',
+          youtube: input.preferences.youtubeUrl || '',
+        }
+
+        // Store display settings in JSONB column
+        updates.display_settings = {
+          showLinkedin: input.preferences.showLinkedin ?? false,
+          showInstagram: input.preferences.showInstagram ?? false,
+          showFacebook: input.preferences.showFacebook ?? false,
+          showTwitter: input.preferences.showTwitter ?? false,
+          showBehance: input.preferences.showBehance ?? false,
+          showDribbble: input.preferences.showDribbble ?? false,
+          showGithub: input.preferences.showGithub ?? false,
+          showYoutube: input.preferences.showYoutube ?? false,
+          showProfilePhoto: input.preferences.showProfilePhoto ?? true,
+          showBackgroundImage: input.preferences.showBackgroundImage ?? true,
+          showEmailPublicly: input.preferences.showEmailPublicly ?? true,
+          showMobilePublicly: input.preferences.showMobilePublicly ?? true,
+          showWhatsappPublicly: input.preferences.showWhatsappPublicly ?? false,
+          showJobTitle: input.preferences.showJobTitle ?? true,
+          showCompanyName: input.preferences.showCompanyName ?? true,
+          showCompanyWebsite: input.preferences.showCompanyWebsite ?? true,
+          showCompanyAddress: input.preferences.showCompanyAddress ?? true,
+          showIndustry: input.preferences.showIndustry ?? true,
+          showSkills: input.preferences.showSkills ?? true,
+        }
+
+        // Keep preferences for backward compatibility
         updates.preferences = {
           ...(existingProfile.preferences || {}),
           ...input.preferences
@@ -156,7 +224,7 @@ export const SupabaseProfileStore = {
     // Create new profile
     console.log('➕ [SupabaseProfileStore] Creating new profile...')
 
-    const newProfile = {
+    const newProfile: any = {
       email: input.email,
       user_id: input.user_id || null,
       first_name: input.first_name || null,
@@ -166,6 +234,59 @@ export const SupabaseProfileStore = {
       is_founder_member: input.is_founder_member || false,
       avatar_url: input.avatar_url || null,
       preferences: input.preferences || {},
+    }
+
+    // Add new columns from preferences
+    if (input.preferences) {
+      newProfile.job_title = input.preferences.jobTitle || null
+      newProfile.company_name = input.company || null
+      newProfile.company_website = input.preferences.companyWebsite || null
+      newProfile.company_address = input.preferences.companyAddress || null
+      newProfile.company_logo_url = input.preferences.companyLogo || null
+      newProfile.industry = input.preferences.industry || null
+      newProfile.sub_domain = input.preferences.subDomain || null
+      newProfile.skills = input.preferences.skills || []
+      newProfile.professional_summary = input.preferences.professionalSummary || null
+      newProfile.profile_photo_url = input.avatar_url || null
+      newProfile.background_image_url = input.preferences.backgroundImage || null
+      newProfile.primary_email = input.email
+      newProfile.mobile_number = input.phone_number || null
+      newProfile.whatsapp_number = input.preferences.whatsappNumber || null
+
+      // Store social links in JSONB column
+      newProfile.social_links = {
+        linkedin: input.preferences.linkedinUrl || '',
+        instagram: input.preferences.instagramUrl || '',
+        facebook: input.preferences.facebookUrl || '',
+        twitter: input.preferences.twitterUrl || '',
+        behance: input.preferences.behanceUrl || '',
+        dribbble: input.preferences.dribbbleUrl || '',
+        github: input.preferences.githubUrl || '',
+        youtube: input.preferences.youtubeUrl || '',
+      }
+
+      // Store display settings in JSONB column
+      newProfile.display_settings = {
+        showLinkedin: input.preferences.showLinkedin ?? false,
+        showInstagram: input.preferences.showInstagram ?? false,
+        showFacebook: input.preferences.showFacebook ?? false,
+        showTwitter: input.preferences.showTwitter ?? false,
+        showBehance: input.preferences.showBehance ?? false,
+        showDribbble: input.preferences.showDribbble ?? false,
+        showGithub: input.preferences.showGithub ?? false,
+        showYoutube: input.preferences.showYoutube ?? false,
+        showProfilePhoto: input.preferences.showProfilePhoto ?? true,
+        showBackgroundImage: input.preferences.showBackgroundImage ?? true,
+        showEmailPublicly: input.preferences.showEmailPublicly ?? true,
+        showMobilePublicly: input.preferences.showMobilePublicly ?? true,
+        showWhatsappPublicly: input.preferences.showWhatsappPublicly ?? false,
+        showJobTitle: input.preferences.showJobTitle ?? true,
+        showCompanyName: input.preferences.showCompanyName ?? true,
+        showCompanyWebsite: input.preferences.showCompanyWebsite ?? true,
+        showCompanyAddress: input.preferences.showCompanyAddress ?? true,
+        showIndustry: input.preferences.showIndustry ?? true,
+        showSkills: input.preferences.showSkills ?? true,
+      }
     }
 
     const { data, error } = await supabase

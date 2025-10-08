@@ -154,9 +154,9 @@ export default function ProductSelectionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-6 py-12 flex-grow">
         {/* Title Section */}
         <div className="text-center mb-4">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">

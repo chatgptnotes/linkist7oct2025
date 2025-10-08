@@ -41,14 +41,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="m-0 p-0">
       <head>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="shortcut icon" href="/favicon.ico" />
       </head>
-      <body className={`${inter.className} antialiased bg-black min-h-screen flex flex-col`}>
+      <body className={`${inter.className} antialiased bg-black min-h-screen flex flex-col m-0 p-0`}>
         <AdminInitializer />
         <ToastProvider>
           <ConditionalLayout>

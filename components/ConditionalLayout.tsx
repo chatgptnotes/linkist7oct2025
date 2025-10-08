@@ -38,7 +38,9 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                       pathname.startsWith('/choose-plan') ||
                       pathname.startsWith('/welcome-to-linkist') ||
                       pathname.startsWith('/verify-mobile') ||
-                      pathname.startsWith('/verify-login');
+                      pathname.startsWith('/verify-login') ||
+                      pathname.startsWith('/profiles/preview') ||
+                      pathname.startsWith('/profiles/builder');
 
   useEffect(() => {
     // Check authentication status
@@ -91,7 +93,13 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                        pathname.startsWith('/nfc/') ||
                        pathname.startsWith('/account') ||
                        pathname.startsWith('/checkout') ||
-                       pathname.startsWith('/confirm-payment');
+                       pathname.startsWith('/confirm-payment') ||
+                       pathname.startsWith('/profiles/preview') ||
+                       pathname.startsWith('/profiles/builder');
+
+    // Show footer on profile pages
+    const showFooter = pathname.startsWith('/profiles/preview') ||
+                       pathname.startsWith('/profiles/builder');
 
     return (
       <>
@@ -103,7 +111,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             {showLogout && (
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-2 text-sm sm:text-base text-gray-700 hover:text-red-600 transition-colors px-3 py-2 rounded-lg hover:bg-gray-100"
+                className="flex items-center space-x-2 text-sm sm:text-base text-gray-700 hover:text-red-600 transition-colors px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Logout</span>
@@ -114,6 +122,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
         <main className="pt-16 flex-grow min-h-0">
           {children}
         </main>
+        {showFooter && <Footer />}
       </>
     );
   }
