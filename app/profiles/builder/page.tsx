@@ -633,10 +633,7 @@ export default function ProfileBuilderPage() {
 
         const newProfile = {
           id: result.profile.id || Date.now().toString(),
-          name: `${profileData.firstName} ${profileData.lastName}`,
-          title: profileData.jobTitle || 'No title',
-          company: profileData.companyName || 'No company',
-          image: profileData.profilePhoto || null,
+          ...profileData,
           status: 'active' as const,
           views: 0,
           clicks: 0,
