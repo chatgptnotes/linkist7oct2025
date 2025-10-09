@@ -32,6 +32,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                       pathname.startsWith('/confirm-payment') ||
                       pathname.startsWith('/thank-you') ||
                       pathname.startsWith('/account') ||
+                      pathname.startsWith('/profile-dashboard') ||
                       pathname.startsWith('/verify-email') ||
                       pathname.startsWith('/nfc/') ||
                       pathname.startsWith('/product-selection') ||
@@ -39,6 +40,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                       pathname.startsWith('/welcome-to-linkist') ||
                       pathname.startsWith('/verify-mobile') ||
                       pathname.startsWith('/verify-login') ||
+                      pathname.startsWith('/login') ||
                       pathname.startsWith('/profiles/preview') ||
                       pathname.startsWith('/profiles/builder');
 
@@ -92,6 +94,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     const showLogout = pathname.startsWith('/product-selection') ||
                        pathname.startsWith('/nfc/') ||
                        pathname.startsWith('/account') ||
+                       pathname.startsWith('/profile-dashboard') ||
                        pathname.startsWith('/checkout') ||
                        pathname.startsWith('/confirm-payment') ||
                        pathname.startsWith('/profiles/preview') ||
@@ -108,15 +111,6 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             <Link href="/">
               <Logo width={100} height={32} noLink={true} variant="light" />
             </Link>
-            {showLogout && (
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 text-sm sm:text-base text-gray-700 hover:text-red-600 transition-colors px-3 py-2 rounded-lg hover:bg-gray-100 cursor-pointer"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </button>
-            )}
           </div>
         </header>
         <main className="pt-16 flex-grow min-h-0">

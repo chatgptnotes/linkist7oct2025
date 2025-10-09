@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SupabaseOrderStore } from '@/lib/supabase-order-store';
 import { SupabaseUserStore } from '@/lib/supabase-user-store';
+import { SupabasePaymentStore } from '@/lib/supabase-payment-store';
+import { SupabaseShippingAddressStore } from '@/lib/supabase-shipping-address-store';
 import { generateOrderNumber, formatOrderForEmail } from '@/lib/order-store';
 import { emailService } from '@/lib/email-service';
 
@@ -12,10 +14,11 @@ export async function POST(request: NextRequest) {
     console.log('📦 [process-order] Request body received:', {
       hasCardConfig: !!body.cardConfig,
       hasCheckoutData: !!body.checkoutData,
-      hasPaymentData: !!body.paymentData
+      hasPaymentData: !!body.paymentData,
+      hasOrderId: !!body.orderId
     });
 
-    const { cardConfig, checkoutData, paymentData } = body;
+    const { cardConfig, checkoutData, paymentData, orderId } = body;
 
     if (!cardConfig || !checkoutData) {
       console.error('❌ [process-order] Missing required data:', {
@@ -65,85 +68,204 @@ export async function POST(request: NextRequest) {
       last_name: user.last_name
     });
 
-    // Create order in Supabase with correct field structure
-    console.log('📝 [process-order] Creating order in database...');
-    const order = await SupabaseOrderStore.create({
-      orderNumber: generateOrderNumber(),
-      status: 'confirmed',
-      customerName: checkoutData.fullName,
-      email: checkoutData.email,
-      phoneNumber: checkoutData.phoneNumber || '',
-      cardConfig: cardConfig,
-      pricing: {
-        subtotal,
-        shipping: shippingAmount,
-        tax: taxAmount,
-        total: totalAmount,
-      },
-      shipping: {
-        fullName: checkoutData.fullName,
-        addressLine1: checkoutData.addressLine1,
-        addressLine2: checkoutData.addressLine2,
-        city: checkoutData.city,
-        state: checkoutData.state,
-        country: checkoutData.country,
-        postalCode: checkoutData.postalCode,
-        phoneNumber: checkoutData.phoneNumber || '',
-      },
-      estimatedDelivery: 'Sep 06, 2025',
-      emailsSent: {},
-    });
+    // Determine order status - 'pending' if called from checkout, 'confirmed' if has payment
+    const orderStatus = paymentData ? 'confirmed' : 'pending';
 
-    if (!order) {
-      console.error('❌ [process-order] Failed to create order in database');
-      return NextResponse.json(
-        { error: 'Failed to create order' },
-        { status: 500 }
-      );
+    let order;
+
+    // Update existing order if orderId provided (payment flow), otherwise create new order (checkout flow)
+    if (orderId) {
+      console.log(`🔄 [process-order] Updating existing order ${orderId} with payment details...`);
+
+      // Build update object with payment data
+      const updateData: any = {
+        status: orderStatus,
+      };
+
+      if (paymentData) {
+        updateData.paymentMethod = paymentData.paymentMethod;
+        updateData.paymentId = paymentData.paymentId;
+        updateData.voucherCode = paymentData.voucherCode || null;
+        updateData.voucherDiscount = paymentData.voucherDiscount || 0;
+      }
+
+      order = await SupabaseOrderStore.update(orderId, updateData);
+
+      if (!order) {
+        console.error('❌ [process-order] Failed to update order in database');
+        return NextResponse.json(
+          { error: 'Failed to update order' },
+          { status: 500 }
+        );
+      }
+
+      console.log('✅ [process-order] Order updated successfully:', {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status
+      });
+
+    } else {
+      // Create new order
+      console.log(`📝 [process-order] Creating new order in database with status: ${orderStatus}...`);
+      order = await SupabaseOrderStore.create({
+        orderNumber: generateOrderNumber(),
+        userId: user.id, // Link order to user
+        status: orderStatus,
+        customerName: checkoutData.fullName,
+        email: checkoutData.email,
+        phoneNumber: checkoutData.phoneNumber || '',
+        cardConfig: cardConfig,
+        pricing: {
+          subtotal,
+          shipping: shippingAmount,
+          tax: taxAmount,
+          total: totalAmount,
+        },
+        shipping: {
+          fullName: checkoutData.fullName,
+          addressLine1: checkoutData.addressLine1,
+          addressLine2: checkoutData.addressLine2,
+          city: checkoutData.city,
+          state: checkoutData.state,
+          country: checkoutData.country,
+          postalCode: checkoutData.postalCode,
+          phoneNumber: checkoutData.phoneNumber || '',
+        },
+        estimatedDelivery: 'Sep 06, 2025',
+        emailsSent: {},
+      });
+
+      if (!order) {
+        console.error('❌ [process-order] Failed to create order in database');
+        return NextResponse.json(
+          { error: 'Failed to create order' },
+          { status: 500 }
+        );
+      }
+
+      console.log('✅ [process-order] Order created successfully:', {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        customerEmail: order.email,
+        status: order.status
+      });
     }
 
-    console.log('✅ [process-order] Order created successfully:', {
-      orderId: order.id,
-      orderNumber: order.orderNumber,
-      customerEmail: order.email
-    });
+    // Create payment record if payment data provided
+    if (paymentData && order) {
+      console.log('💳 [process-order] Creating payment record in database...');
 
-    // Send confirmation and receipt emails
-    console.log('📧 [process-order] Sending confirmation and receipt emails...');
-    const emailData = formatOrderForEmail(order);
-    const emailResults = await emailService.sendOrderLifecycleEmails(emailData);
-    console.log('📧 [process-order] Email results:', {
-      confirmationSent: emailResults.confirmation.success,
-      receiptSent: emailResults.receipt.success
-    });
+      try {
+        // Calculate amount in cents (totalAmount is already calculated above)
+        const amount = Math.round(totalAmount * 100);
 
-    // Update order with email tracking in Supabase
-    console.log('🔄 [process-order] Updating order with email tracking...');
-    const updatedOrder = await SupabaseOrderStore.update(order.id, {
-      emailsSent: {
-        confirmation: {
-          sent: emailResults.confirmation.success,
-          timestamp: Date.now(),
-          messageId: emailResults.confirmation.messageId
-        },
-        receipt: {
-          sent: emailResults.receipt.success,
-          timestamp: Date.now(),
-          messageId: emailResults.receipt.messageId
-        }
+        const payment = await SupabasePaymentStore.create({
+          orderId: order.id,
+          paymentIntentId: paymentData.paymentId || `payment_${Date.now()}`,
+          amount: amount,
+          currency: checkoutData.country === 'IN' || checkoutData.country === 'India' ? 'INR' : 'USD',
+          status: 'succeeded',
+          paymentMethod: paymentData.paymentMethod || 'unknown',
+          metadata: {
+            voucherCode: paymentData.voucherCode,
+            voucherDiscount: paymentData.voucherDiscount,
+          },
+        });
+
+        console.log('✅ [process-order] Payment record created:', {
+          paymentId: payment.id,
+          orderId: payment.orderId,
+          amount: payment.amount,
+          status: payment.status
+        });
+      } catch (error) {
+        console.error('❌ [process-order] Error creating payment record:', error);
+        // Continue even if payment record creation fails
+        // Order is already created/updated
       }
-    });
+    }
 
-    console.log('🎉 [process-order] Order processed successfully!', {
-      orderId: updatedOrder.id,
-      orderNumber: updatedOrder.orderNumber
-    });
+    // Create shipping address record for the order
+    if (order && checkoutData) {
+      console.log('📍 [process-order] Creating shipping address record in database...');
 
-    return NextResponse.json({
-      success: true,
-      order: updatedOrder,
-      emailResults: emailResults
-    });
+      try {
+        const shippingAddress = await SupabaseShippingAddressStore.create({
+          userId: user.id,
+          orderId: order.id,
+          fullName: checkoutData.fullName,
+          addressLine1: checkoutData.addressLine1,
+          addressLine2: checkoutData.addressLine2 || undefined,
+          city: checkoutData.city,
+          state: checkoutData.state,
+          postalCode: checkoutData.postalCode,
+          country: checkoutData.country,
+          phoneNumber: checkoutData.phoneNumber || undefined,
+          isDefault: false, // Don't auto-set as default
+        });
+
+        console.log('✅ [process-order] Shipping address record created:', {
+          addressId: shippingAddress.id,
+          orderId: shippingAddress.orderId,
+          userId: shippingAddress.userId,
+          city: shippingAddress.city,
+          country: shippingAddress.country
+        });
+      } catch (error) {
+        console.error('❌ [process-order] Error creating shipping address record:', error);
+        // Continue even if shipping address creation fails
+        // Order is already created/updated
+      }
+    }
+
+    // Only send emails if order is confirmed (has payment)
+    let finalOrder = order;
+    if (orderStatus === 'confirmed') {
+      console.log('📧 [process-order] Sending confirmation and receipt emails...');
+      const emailData = formatOrderForEmail(order);
+      const emailResults = await emailService.sendOrderLifecycleEmails(emailData);
+      console.log('📧 [process-order] Email results:', {
+        confirmationSent: emailResults.confirmation.success,
+        receiptSent: emailResults.receipt.success
+      });
+
+      // Update order with email tracking in Supabase
+      console.log('🔄 [process-order] Updating order with email tracking...');
+      finalOrder = await SupabaseOrderStore.update(order.id, {
+        emailsSent: {
+          confirmation: {
+            sent: emailResults.confirmation.success,
+            timestamp: Date.now(),
+            messageId: emailResults.confirmation.messageId
+          },
+          receipt: {
+            sent: emailResults.receipt.success,
+            timestamp: Date.now(),
+            messageId: emailResults.receipt.messageId
+          }
+        }
+      }) || order;
+
+      console.log('🎉 [process-order] Order processed successfully!', {
+        orderId: finalOrder.id,
+        orderNumber: finalOrder.orderNumber
+      });
+
+      return NextResponse.json({
+        success: true,
+        order: finalOrder,
+        emailResults: emailResults
+      });
+    } else {
+      console.log('⏳ [process-order] Order created as pending, emails will be sent after payment');
+
+      return NextResponse.json({
+        success: true,
+        order: finalOrder,
+        message: 'Order created successfully, awaiting payment'
+      });
+    }
 
   } catch (error) {
     console.error('❌ [process-order] Error processing order:', {

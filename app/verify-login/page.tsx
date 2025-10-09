@@ -34,14 +34,14 @@ export default function VerifyLoginPage() {
     }
   }, [resendTimer]);
 
-  const handleSendOtp = async (emailToSend: string) => {
+  const handleSendOtp = async (emailOrPhone: string) => {
     try {
       const response = await fetch('/api/send-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: emailToSend }),
+        body: JSON.stringify({ emailOrPhone }),
       });
 
       const data = await response.json();
@@ -49,8 +49,8 @@ export default function VerifyLoginPage() {
       if (response.ok) {
         showToast('Verification code sent to your email!', 'success');
         setResendTimer(60); // Start 60 second timer
-        if (data.otp && process.env.NODE_ENV === 'development') {
-          setDevOtp(data.otp);
+        if (data.devOtp && process.env.NODE_ENV === 'development') {
+          setDevOtp(data.devOtp);
         }
       } else {
         showToast(data.error || 'Failed to send verification code', 'error');
@@ -97,21 +97,20 @@ export default function VerifyLoginPage() {
         }
       }
 
-      // Fallback to loginEmail if no profile email
+      // Fallback to loginIdentifier if no profile email
       if (!emailToUse) {
-        const loginEmail = localStorage.getItem('loginEmail');
-        if (loginEmail) {
-          emailToUse = loginEmail;
+        const loginIdentifier = localStorage.getItem('loginIdentifier');
+        if (loginIdentifier) {
+          emailToUse = loginIdentifier;
         }
       }
 
       if (emailToUse) {
         setEmail(emailToUse);
-        localStorage.setItem('loginEmail', emailToUse);
-        // Send OTP automatically for prefilled email
+        // Send OTP automatically for prefilled email/phone
         handleSendOtp(emailToUse);
       } else {
-        // No email found anywhere, redirect to login
+        // No identifier found, redirect to login
         router.push('/login');
         return;
       }
@@ -123,12 +122,15 @@ export default function VerifyLoginPage() {
     setLoading(true);
 
     try {
+      // Determine if email is actually a phone number
+      const isPhone = email && !email.includes('@');
+
       const response = await fetch('/api/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify(isPhone ? { mobile: email, otp } : { email, otp }),
       });
 
       const data = await response.json();
@@ -150,9 +152,9 @@ export default function VerifyLoginPage() {
         // Show success state
         setSuccess(true);
 
-        // Redirect to product selection (same as mobile OTP flow)
+        // Redirect to profile dashboard to show user's orders
         setTimeout(() => {
-          window.location.href = '/product-selection';
+          window.location.href = '/profile-dashboard';
         }, 2000);
       } else {
         showToast(data.error || 'Invalid verification code', 'error');
@@ -176,7 +178,7 @@ export default function VerifyLoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ emailOrPhone: email }),
       });
 
       const data = await response.json();
@@ -184,8 +186,8 @@ export default function VerifyLoginPage() {
       if (response.ok) {
         showToast('Verification code resent!', 'success');
         setResendTimer(60); // Start 60 second timer
-        if (data.otp && process.env.NODE_ENV === 'development') {
-          setDevOtp(data.otp);
+        if (data.devOtp && process.env.NODE_ENV === 'development') {
+          setDevOtp(data.devOtp);
         }
       } else {
         showToast(data.error || 'Failed to resend code', 'error');
@@ -211,7 +213,7 @@ export default function VerifyLoginPage() {
             </p>
             <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600"></div>
-              <span>Redirecting to product selection...</span>
+              <span>Redirecting to your dashboard...</span>
             </div>
           </div>
         </div>

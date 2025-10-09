@@ -15,6 +15,7 @@ const MapPickerSimple = dynamic(() => import('@/components/MapPickerSimple'), {
     </div>
   )
 });
+import UserProfileDropdown from '@/components/UserProfileDropdown';
 import PersonIcon from '@mui/icons-material/Person';
 import WorkIcon from '@mui/icons-material/Work';
 import ShareIcon from '@mui/icons-material/Share';
@@ -34,6 +35,7 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Leaderboard } from '@mui/icons-material';
 
 // Icon aliases
 const Person = PersonIcon;
@@ -236,6 +238,7 @@ export default function ProfileBuilderPage() {
   const [showJobTitleDropdown, setShowJobTitleDropdown] = useState(false);
   const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
   const [showSubDomainDropdown, setShowSubDomainDropdown] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
 
   const [profileData, setProfileData] = useState<ProfileData>({
     firstName: '',
@@ -296,6 +299,38 @@ export default function ProfileBuilderPage() {
       try {
         console.log('🔄 Starting profile data fetch...');
         console.log('📋 All cookies:', document.cookie);
+
+        // First, get the logged-in user's email
+        const authResponse = await fetch('/api/auth/me');
+        let loggedInEmail = null;
+
+        if (authResponse.ok) {
+          const authData = await authResponse.json();
+          if (authData.isAuthenticated && authData.user?.email) {
+            loggedInEmail = authData.user.email;
+            console.log('✅ Logged-in user email:', loggedInEmail);
+          }
+        }
+
+        // Check localStorage for saved profiles
+        const savedProfilesStr = localStorage.getItem('userProfiles');
+        if (savedProfilesStr && loggedInEmail) {
+          try {
+            const savedProfiles = JSON.parse(savedProfilesStr);
+            const userProfile = savedProfiles.find((p: any) =>
+              p.email === loggedInEmail || p.primaryEmail === loggedInEmail
+            );
+
+            if (userProfile) {
+              console.log('✅ Found saved profile for user:', userProfile);
+              setProfileData(userProfile);
+              console.log('✅ Profile data loaded from localStorage');
+              return; // Exit early, we have the data
+            }
+          } catch (e) {
+            console.error('❌ Error parsing userProfiles:', e);
+          }
+        }
 
         // First check localStorage for various data sources
         const nfcConfigStr = localStorage.getItem('nfcConfig');
@@ -523,6 +558,29 @@ export default function ProfileBuilderPage() {
     }
   }, [profileData.mobileNumber, useSameNumberForWhatsapp]);
 
+  // Fetch user data for profile dropdown
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.isAuthenticated && data.user) {
+            setUserData({
+              email: data.user.email,
+              firstName: data.user.first_name,
+              lastName: data.user.last_name,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
   // Show toast notification
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
@@ -746,6 +804,7 @@ export default function ProfileBuilderPage() {
                 <CheckCircle className="w-4 h-4" />
                 Save Changes
               </button>
+              {userData && <UserProfileDropdown user={userData} />}
             </div>
           </div>
         </div>

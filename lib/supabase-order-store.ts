@@ -64,6 +64,7 @@ interface OrderRow {
 const rowToOrder = (row: OrderRow): Order => ({
   id: row.id,
   orderNumber: row.order_number,
+  userId: row.user_id, // Extract user_id from database
   status: row.status as OrderStatus,
   customerName: row.customer_name || '',
   email: row.email || '',
@@ -90,6 +91,7 @@ const rowToOrder = (row: OrderRow): Order => ({
 // Only include columns that actually exist in the database
 const orderToInsert = (order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) => ({
   order_number: order.orderNumber,
+  user_id: order.userId || null, // Map userId to user_id
   status: order.status,
   customer_name: order.customerName,
   email: order.email,
@@ -229,10 +231,11 @@ export const SupabaseOrderStore = {
 
   update: async (id: string, updates: Partial<Order>): Promise<Order | null> => {
     const supabase = createAdminClient()
-    
+
     // Convert updates to database format
     const dbUpdates: any = {}
     if (updates.orderNumber) dbUpdates.order_number = updates.orderNumber
+    if (updates.userId !== undefined) dbUpdates.user_id = updates.userId // Handle userId updates
     if (updates.status) dbUpdates.status = updates.status
     if (updates.customerName) dbUpdates.customer_name = updates.customerName
     if (updates.email) dbUpdates.email = updates.email

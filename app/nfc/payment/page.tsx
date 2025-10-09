@@ -43,6 +43,8 @@ const allColours: Array<{ value: string; label: string; hex: string; gradient: s
 ];
 
 interface OrderData {
+  orderId?: string;  // Order ID from checkout (if order was pre-created)
+  orderNumber?: string;  // Order number from checkout
   customerName: string;
   email: string;
   phoneNumber: string;
@@ -58,6 +60,7 @@ export default function NFCPaymentPage() {
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'voucher'>('card');
   const [processing, setProcessing] = useState(false);
   const [orderData, setOrderData] = useState<OrderData | null>(null);
+  const [hasOrderError, setHasOrderError] = useState(false);
 
   // Card details
   const [cardNumber, setCardNumber] = useState('');
@@ -80,10 +83,20 @@ export default function NFCPaymentPage() {
     const storedOrderData = localStorage.getItem('pendingOrder');
     if (storedOrderData) {
       const data = JSON.parse(storedOrderData);
-      setOrderData(data);
-      setCardHolder(data.customerName || '');
+
+      // Check if order has orderId (created during checkout)
+      if (!data.orderId) {
+        console.error('❌ No orderId found in pending order data');
+        setHasOrderError(true);
+        setOrderData(data); // Set data so page can display error properly
+      } else {
+        setOrderData(data);
+        setCardHolder(data.customerName || '');
+        setHasOrderError(false);
+      }
     } else {
       // If no order data, redirect back to checkout
+      console.error('❌ No pending order found in localStorage');
       router.push('/nfc/checkout');
     }
   }, [router]);
@@ -279,7 +292,22 @@ export default function NFCPaymentPage() {
   };
 
   const handlePayment = async () => {
-    if (!orderData) return;
+    if (!orderData) {
+      console.error('❌ No order data found');
+      return;
+    }
+
+    // Validate that order exists before processing payment
+    if (!orderData.orderId) {
+      console.error('❌ No orderId found in order data');
+      alert('No order found. Please complete checkout first.');
+      router.push('/nfc/checkout');
+      return;
+    }
+
+    console.log('💳 Starting payment process...');
+    console.log('💳 Payment method:', paymentMethod);
+    console.log('💳 Order ID:', orderData.orderId);
 
     setProcessing(true);
 
@@ -293,6 +321,7 @@ export default function NFCPaymentPage() {
             setProcessing(false);
             return;
           }
+          console.log('💳 Processing card payment...');
           paymentResult = await handleStripePayment();
           break;
 
@@ -302,6 +331,7 @@ export default function NFCPaymentPage() {
             setProcessing(false);
             return;
           }
+          console.log('💳 Processing UPI payment...');
           paymentResult = await handleUPIPayment();
           break;
 
@@ -311,6 +341,7 @@ export default function NFCPaymentPage() {
             setProcessing(false);
             return;
           }
+          console.log('💳 Processing voucher payment...');
           paymentResult = await handleVoucherPayment();
           break;
 
@@ -318,7 +349,11 @@ export default function NFCPaymentPage() {
           throw new Error('Invalid payment method');
       }
 
+      console.log('💳 Payment result:', paymentResult);
+
       if (paymentResult.success) {
+        console.log('✅ Payment successful, processing order...');
+
         // Store payment confirmation
         const orderConfirmation = {
           ...orderData,
@@ -330,22 +365,69 @@ export default function NFCPaymentPage() {
           timestamp: new Date().toISOString()
         };
 
+        console.log('💾 Storing order confirmation:', orderConfirmation);
         localStorage.setItem('orderConfirmation', JSON.stringify(orderConfirmation));
 
-        // Create order in backend
-        await fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderConfirmation)
-        });
+        // Update existing order with payment details using process-order API
+        try {
+          console.log('📝 Updating order with payment details...');
+
+          const response = await fetch('/api/process-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderId: orderData.orderId,
+              cardConfig: orderData.cardConfig,
+              checkoutData: {
+                email: orderData.email,
+                fullName: orderData.customerName,
+                phoneNumber: orderData.phoneNumber,
+                addressLine1: orderData.shipping.addressLine1,
+                addressLine2: orderData.shipping.addressLine2,
+                city: orderData.shipping.city,
+                state: orderData.shipping.stateProvince,
+                country: orderData.shipping.country,
+                postalCode: orderData.shipping.postalCode,
+              },
+              paymentData: {
+                paymentMethod,
+                paymentId: paymentResult.paymentId,
+                voucherCode: voucherCode || null,
+                voucherDiscount: voucherDiscount || 0,
+              }
+            })
+          });
+
+          console.log('📡 Response status:', response.status);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Response error:', errorText);
+            throw new Error(`Failed to process order: ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log('✅ Order processed successfully:', result);
+
+        } catch (error) {
+          console.error('❌ Error processing order:', error);
+          // Continue to success page even if there's an error
+          // The order might still be in database, and user has already paid
+        }
+
+        console.log('🔀 Redirecting to success page...');
+
+        // Small delay to ensure everything is saved
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // Redirect to success page
         router.push('/nfc/success');
+      } else {
+        throw new Error('Payment was not successful');
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('❌ Payment error:', error);
       alert('Payment failed. Please try again.');
-    } finally {
       setProcessing(false);
     }
   };
@@ -359,6 +441,37 @@ export default function NFCPaymentPage() {
   }
 
   const isIndia = orderData.shipping.country === 'IN' || orderData.shipping.country === 'India';
+
+  // Show error message if no order found
+  if (hasOrderError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h2>
+          <p className="text-gray-600 mb-6">
+            We couldn't find your order information. Please complete the checkout process first before proceeding to payment.
+          </p>
+          <button
+            onClick={() => router.push('/nfc/checkout')}
+            className="w-full py-3 px-6 rounded-lg font-semibold transition-colors"
+            style={{ backgroundColor: '#ff0000', color: '#FFFFFF' }}
+          >
+            Go to Checkout
+          </button>
+          <button
+            onClick={() => router.push('/')}
+            className="w-full mt-3 py-3 px-6 rounded-lg font-semibold transition-colors border border-gray-300"
+            style={{ backgroundColor: '#FFFFFF', color: '#374151' }}
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

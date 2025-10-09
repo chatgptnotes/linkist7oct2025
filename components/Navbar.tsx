@@ -101,18 +101,6 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link
-                href="/templates"
-                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
-              >
-                Templates
-              </Link>
-              <Link
-                href="/welcome-to-linkist"
-                className="text-black text-base font-medium hover:text-gray-600 transition-colors duration-300"
-              >
-                New Card
-              </Link>
               <UserProfileDropdown user={userData} />
             </>
           )}

@@ -202,14 +202,22 @@ export default function HomePage() {
               ))}
             </div>
 
-            {/* CTA Button */}
-            <Link
-              href="/choose-plan"
-              className="bg-[#E02424] text-white px-6 py-2 rounded-full font-medium hover:bg-[#C01E1E] transition-all hover:shadow-lg hover:shadow-[#E02424]/20"
-              style={{ backgroundColor: '#E02424', color: '#FFFFFF' }}
-            >
-              Join Now
-            </Link>
+            {/* CTA Buttons */}
+            <div className="flex items-center gap-4">
+              <Link
+                href="/login"
+                className="text-[#F5F7FA] px-6 py-2 rounded-full font-medium hover:text-[#E02424] transition-all"
+              >
+                Login
+              </Link>
+              <Link
+                href="/choose-plan"
+                className="bg-[#E02424] text-white px-6 py-2 rounded-full font-medium hover:bg-[#C01E1E] transition-all hover:shadow-lg hover:shadow-[#E02424]/20"
+                style={{ backgroundColor: '#E02424', color: '#FFFFFF' }}
+              >
+                Join Now
+              </Link>
+            </div>
           </div>
         </div>
       </nav>

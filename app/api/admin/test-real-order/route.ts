@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SupabaseOrderStore } from '@/lib/supabase-order-store';
+import { SupabaseUserStore } from '@/lib/supabase-user-store';
 import { requireAdmin } from '@/lib/auth-middleware';
 
 // Test endpoint to create real order data and remove mock data
@@ -7,10 +8,23 @@ export const POST = requireAdmin(
   async function POST(request: NextRequest) {
     try {
       console.log('🧪 Creating real test order and removing mock data...');
-      
+
+      // First, create/update user
+      const user = await SupabaseUserStore.upsertByEmail({
+        email: 'tejaswinidhage2023@gmail.com',
+        first_name: 'Tejaswini',
+        last_name: 'Dhage',
+        phone_number: '+91 9172740454',
+        email_verified: true,
+        mobile_verified: true,
+      });
+
+      console.log('✅ User created/updated:', user.id);
+
       // Create a real test order with actual data
       const realTestOrder = {
         orderNumber: `LNK-${Date.now()}`,
+        userId: user.id, // Link to user
         status: 'confirmed' as const,
         customerName: 'Tejaswini Dhage',
         email: 'tejaswinidhage2023@gmail.com',

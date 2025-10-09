@@ -279,18 +279,72 @@ export default function CheckoutPage() {
 
   const createOrder = async (orderPayload: any) => {
     try {
-      console.log('📤 Checkout: Preparing order for payment:', orderPayload);
+      console.log('📤 Checkout: Creating order in database before payment...');
+      console.log('📦 Checkout: Order payload:', orderPayload);
 
-      // Store order data for payment page
-      localStorage.setItem('pendingOrder', JSON.stringify(orderPayload));
+      // Create order in database with status 'pending'
+      const response = await fetch('/api/process-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cardConfig: orderPayload.cardConfig,
+          checkoutData: {
+            email: orderPayload.email,
+            fullName: orderPayload.customerName,
+            phoneNumber: orderPayload.phoneNumber,
+            addressLine1: orderPayload.shipping.addressLine1,
+            addressLine2: orderPayload.shipping.addressLine2,
+            city: orderPayload.shipping.city,
+            stateProvince: orderPayload.shipping.stateProvince,
+            country: orderPayload.shipping.country,
+            postalCode: orderPayload.shipping.postalCode,
+          },
+        }),
+      });
+
+      console.log('📡 Checkout: Response status:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Checkout: Response error:', errorText);
+        throw new Error(`Failed to create order: ${response.status} ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Checkout: Order created successfully:', result);
+      console.log('🆔 Checkout: Order ID:', result.order?.id);
+
+      if (!result.order || !result.order.id) {
+        throw new Error('Order was created but no ID was returned');
+      }
+
+      // Store order data for payment page (including order ID)
+      const orderWithId = {
+        ...orderPayload,
+        orderId: result.order.id,
+        orderNumber: result.order.orderNumber,
+      };
+
+      console.log('💾 Checkout: Storing order in localStorage:', orderWithId);
+      localStorage.setItem('pendingOrder', JSON.stringify(orderWithId));
+
+      // Verify it was stored correctly
+      const storedOrder = localStorage.getItem('pendingOrder');
+      console.log('✅ Checkout: Verified stored order:', storedOrder ? 'Success' : 'Failed');
+
+      // Small delay to ensure localStorage is written
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      console.log('🔀 Checkout: Redirecting to payment page...');
 
       // Redirect to payment page
       router.push('/nfc/payment');
     } catch (error) {
-      console.error('❌ Checkout: Error preparing order:', error);
-      alert(`Failed to proceed to payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
+      console.error('❌ Checkout: Error creating order:', error);
       setIsLoading(false);
+      alert(`Failed to create order: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -348,8 +402,8 @@ export default function CheckoutPage() {
       console.log('📤 Checkout: Order prepared, creating order directly');
 
       // Create order directly without PIN verification
+      // Note: createOrder handles setIsLoading(false) on error, and redirects on success
       await createOrder(orderPayload);
-      setIsLoading(false);
 
     } catch (error) {
       console.error('❌ Checkout: Order processing error:', error);

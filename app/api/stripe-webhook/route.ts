@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
 import { SupabaseOrderStore } from '@/lib/supabase-order-store';
+import { SupabaseUserStore } from '@/lib/supabase-user-store';
+import { SupabasePaymentStore } from '@/lib/supabase-payment-store';
+import { SupabaseShippingAddressStore } from '@/lib/supabase-shipping-address-store';
 import { emailService } from '@/lib/email-service';
 import { formatOrderForEmail, generateOrderNumber } from '@/lib/order-store';
 import type { OrderData } from '@/lib/email-templates';
@@ -92,18 +95,35 @@ async function handlePaymentSuccess(paymentIntent: any) {
 
   try {
     const email = paymentIntent.receipt_email || paymentIntent.metadata?.email;
-    
+
     if (!email) {
       console.warn('No email found in payment intent');
       return;
     }
 
+    // Create/update user in database
+    console.log('👤 [stripe-webhook] Creating/updating user in database...');
+    const user = await SupabaseUserStore.upsertByEmail({
+      email: email,
+      first_name: paymentIntent.metadata?.firstName || null,
+      last_name: paymentIntent.metadata?.lastName || null,
+      phone_number: paymentIntent.metadata?.phone || paymentIntent.metadata?.mobile || null,
+      email_verified: true,
+      mobile_verified: !!(paymentIntent.metadata?.phone || paymentIntent.metadata?.mobile),
+    });
+
+    console.log('✅ [stripe-webhook] User created/updated:', {
+      userId: user.id,
+      email: user.email
+    });
+
     // Generate order number
     const orderNumber = generateOrderNumber();
-    
+
     // Create order in database
     const order = await SupabaseOrderStore.create({
       orderNumber,
+      userId: user.id, // Link order to user
       status: 'confirmed',
       customerName: paymentIntent.metadata?.customerName || email.split('@')[0],
       email,
@@ -137,7 +157,67 @@ async function handlePaymentSuccess(paymentIntent: any) {
     });
     
     console.log(`✅ Order ${order.orderNumber} created in database with ID: ${order.id}`);
-    
+
+    // Create payment record in payments table
+    try {
+      console.log('💳 [stripe-webhook] Creating payment record in database...');
+
+      const payment = await SupabasePaymentStore.create({
+        orderId: order.id,
+        paymentIntentId: paymentIntent.id,
+        amount: paymentIntent.amount, // Already in cents
+        currency: paymentIntent.currency.toUpperCase(),
+        status: 'succeeded',
+        paymentMethod: paymentIntent.payment_method_types?.[0] || 'card',
+        stripeFee: paymentIntent.charges?.data?.[0]?.application_fee_amount || 0,
+        netAmount: paymentIntent.amount - (paymentIntent.charges?.data?.[0]?.application_fee_amount || 0),
+        metadata: {
+          stripeCustomerId: paymentIntent.customer,
+          receiptUrl: paymentIntent.charges?.data?.[0]?.receipt_url,
+        },
+      });
+
+      console.log('✅ [stripe-webhook] Payment record created:', {
+        paymentId: payment.id,
+        orderId: payment.orderId,
+        amount: payment.amount,
+        status: payment.status
+      });
+    } catch (paymentError) {
+      console.error('❌ [stripe-webhook] Error creating payment record:', paymentError);
+      // Continue even if payment record creation fails
+      // Order is already created
+    }
+
+    // Create shipping address record
+    try {
+      console.log('📍 [stripe-webhook] Creating shipping address record in database...');
+
+      const shippingAddress = await SupabaseShippingAddressStore.create({
+        userId: user.id,
+        orderId: order.id,
+        fullName: paymentIntent.metadata?.shippingName || paymentIntent.metadata?.customerName || 'Customer',
+        addressLine1: paymentIntent.metadata?.addressLine1 || 'Address Line 1',
+        addressLine2: paymentIntent.metadata?.addressLine2 || undefined,
+        city: paymentIntent.metadata?.city || 'City',
+        state: paymentIntent.metadata?.state || undefined,
+        postalCode: paymentIntent.metadata?.postalCode || '00000',
+        country: paymentIntent.metadata?.country || 'Country',
+        phoneNumber: paymentIntent.metadata?.phone || paymentIntent.metadata?.mobile || undefined,
+        isDefault: false,
+      });
+
+      console.log('✅ [stripe-webhook] Shipping address record created:', {
+        addressId: shippingAddress.id,
+        orderId: shippingAddress.orderId,
+        userId: shippingAddress.userId
+      });
+    } catch (addressError) {
+      console.error('❌ [stripe-webhook] Error creating shipping address record:', addressError);
+      // Continue even if shipping address creation fails
+      // Order is already created
+    }
+
     // Send automated confirmation and receipt emails
     const orderData = formatOrderForEmail(order);
     const emailResults = await emailService.sendOrderLifecycleEmails(orderData);
@@ -217,16 +297,38 @@ async function handlePaymentFailure(paymentIntent: any) {
     // Check if there's an existing pending order for this payment intent
     // (This would be created during the initial checkout process)
     const orderId = paymentIntent.metadata?.orderId;
-    
+
     if (orderId) {
       // Update existing order status to cancelled due to payment failure
       const updatedOrder = await SupabaseOrderStore.updateStatus(orderId, 'cancelled', {
         notes: `Payment failed: ${paymentIntent.last_payment_error?.message || 'Unknown payment error'}`
       });
-      
+
       if (updatedOrder) {
         console.log(`Order ${orderId} marked as cancelled due to payment failure`);
+
+        // Create failed payment record for the existing order
+        try {
+          const failedPaymentRecord = await SupabasePaymentStore.create({
+            orderId: orderId,
+            paymentIntentId: paymentIntent.id,
+            amount: paymentIntent.amount,
+            currency: paymentIntent.currency.toUpperCase(),
+            status: 'failed',
+            paymentMethod: paymentIntent.payment_method_types?.[0] || 'card',
+            failureReason: paymentIntent.last_payment_error?.message || 'Unknown payment error',
+            metadata: {
+              errorCode: paymentIntent.last_payment_error?.code,
+              errorType: paymentIntent.last_payment_error?.type,
+              declineCode: paymentIntent.last_payment_error?.decline_code,
+            },
+          });
+          console.log('✅ Failed payment record created for existing order:', failedPaymentRecord.id);
+        } catch (err) {
+          console.error('Error creating failed payment record for existing order:', err);
+        }
       }
+      return; // Exit early since we handled the existing order
     }
 
     // Create failed payment record for analysis and potential retry
@@ -267,6 +369,36 @@ async function handlePaymentFailure(paymentIntent: any) {
     // Create failed order record for analysis
     const failedOrder = await SupabaseOrderStore.create(failedPaymentData);
     console.log(`Failed payment record created: ${failedOrder.orderNumber}`);
+
+    // Create failed payment record in payments table
+    try {
+      console.log('💳 [stripe-webhook] Creating failed payment record in database...');
+
+      const failedPayment = await SupabasePaymentStore.create({
+        orderId: failedOrder.id,
+        paymentIntentId: paymentIntent.id,
+        amount: paymentIntent.amount, // Already in cents
+        currency: paymentIntent.currency.toUpperCase(),
+        status: 'failed',
+        paymentMethod: paymentIntent.payment_method_types?.[0] || 'card',
+        failureReason: paymentIntent.last_payment_error?.message || 'Unknown payment error',
+        metadata: {
+          errorCode: paymentIntent.last_payment_error?.code,
+          errorType: paymentIntent.last_payment_error?.type,
+          declineCode: paymentIntent.last_payment_error?.decline_code,
+          stripeCustomerId: paymentIntent.customer,
+        },
+      });
+
+      console.log('✅ [stripe-webhook] Failed payment record created:', {
+        paymentId: failedPayment.id,
+        orderId: failedPayment.orderId,
+        status: failedPayment.status
+      });
+    } catch (paymentError) {
+      console.error('❌ [stripe-webhook] Error creating failed payment record:', paymentError);
+      // Continue even if payment record creation fails
+    }
 
     // Send payment failure notification email (optional - be careful not to spam customers)
     try {

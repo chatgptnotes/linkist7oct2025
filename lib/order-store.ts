@@ -6,6 +6,7 @@ export type OrderStatus = 'pending' | 'confirmed' | 'production' | 'shipped' | '
 export interface Order {
   id: string;
   orderNumber: string;
+  userId?: string; // Link to users table
   status: OrderStatus;
   customerName: string;
   email: string;

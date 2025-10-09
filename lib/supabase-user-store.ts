@@ -46,9 +46,10 @@ export interface CreateUserInput {
 export const SupabaseUserStore = {
   /**
    * Create a new user or get existing user by email
+   * NOTE: Does NOT update existing users to prevent data overwrite
    */
   upsertByEmail: async (input: CreateUserInput): Promise<SupabaseUser> => {
-    console.log('👤 [SupabaseUserStore.upsertByEmail] Starting user upsert for:', input.email);
+    console.log('👤 [SupabaseUserStore.upsertByEmail] Starting user lookup for:', input.email);
 
     const supabase = createAdminClient()
 
@@ -60,34 +61,12 @@ export const SupabaseUserStore = {
       .single()
 
     if (existingUser && !fetchError) {
-      console.log('👤 [SupabaseUserStore.upsertByEmail] User already exists, updating:', existingUser.id);
+      console.log('👤 [SupabaseUserStore.upsertByEmail] User already exists, returning existing user:', existingUser.id);
+      console.log('   ℹ️  Existing user data preserved (not overwritten)');
 
-      // Update existing user with new information
-      const updates: any = {
-        updated_at: new Date().toISOString()
-      }
-
-      if (input.first_name) updates.first_name = input.first_name
-      if (input.last_name) updates.last_name = input.last_name
-      if (input.phone_number) updates.phone_number = input.phone_number
-      if (input.email_verified !== undefined) updates.email_verified = input.email_verified
-      if (input.mobile_verified !== undefined) updates.mobile_verified = input.mobile_verified
-      if (input.role) updates.role = input.role
-
-      const { data: updated, error: updateError } = await supabase
-        .from('users')
-        .update(updates)
-        .eq('id', existingUser.id)
-        .select()
-        .single()
-
-      if (updateError) {
-        console.error('❌ [SupabaseUserStore.upsertByEmail] Update error:', updateError)
-        throw new Error(`Failed to update user: ${updateError.message}`)
-      }
-
-      console.log('✅ [SupabaseUserStore.upsertByEmail] User updated successfully');
-      return updated
+      // Return existing user WITHOUT updating
+      // This prevents overwriting existing user data with possibly incomplete/incorrect data
+      return existingUser
     }
 
     // User doesn't exist, create new one
@@ -138,6 +117,27 @@ export const SupabaseUserStore = {
     if (error) {
       if (error.code === 'PGRST116') return null // No rows returned
       console.error('Error fetching user by email:', error)
+      throw new Error(`Failed to fetch user: ${error.message}`)
+    }
+
+    return data
+  },
+
+  /**
+   * Get user by phone number
+   */
+  getByPhone: async (phoneNumber: string): Promise<SupabaseUser | null> => {
+    const supabase = createAdminClient()
+
+    const { data, error} = await supabase
+      .from('users')
+      .select('*')
+      .eq('phone_number', phoneNumber)
+      .single()
+
+    if (error) {
+      if (error.code === 'PGRST116') return null // No rows returned
+      console.error('Error fetching user by phone:', error)
       throw new Error(`Failed to fetch user: ${error.message}`)
     }
 

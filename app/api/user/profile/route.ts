@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-middleware';
+import { SupabaseUserStore } from '@/lib/supabase-user-store';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,9 +21,7 @@ export async function POST(request: NextRequest) {
       ? authSession.user.email
       : email;
 
-    // For now, we'll just store the data locally and mark the user as onboarded
-    // In a production app, you would save this to your database
-    console.log('✅ Profile data received for:', userEmail, {
+    console.log('👤 Saving profile data for:', userEmail, {
       firstName,
       lastName,
       country,
@@ -30,19 +29,37 @@ export async function POST(request: NextRequest) {
       onboarded
     });
 
-    // Return success response
-    // The actual data storage is handled client-side for now
-    return NextResponse.json({
-      success: true,
-      profile: {
+    // Save user data to database using SupabaseUserStore
+    try {
+      const user = await SupabaseUserStore.upsertByEmail({
         email: userEmail,
-        firstName,
-        lastName,
-        country,
-        mobile,
-        onboarded: true
-      }
-    });
+        first_name: firstName || null,
+        last_name: lastName || null,
+        phone_number: mobile || null,
+        role: 'user'
+      });
+
+      console.log('✅ Profile saved successfully to database:', user.id);
+
+      return NextResponse.json({
+        success: true,
+        profile: {
+          id: user.id,
+          email: user.email,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          country,
+          mobile: user.phone_number,
+          onboarded: true
+        }
+      });
+    } catch (dbError) {
+      console.error('❌ Database error:', dbError);
+      return NextResponse.json(
+        { error: 'Failed to save profile data' },
+        { status: 500 }
+      );
+    }
 
   } catch (error) {
     console.error('Profile API error:', error);

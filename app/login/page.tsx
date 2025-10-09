@@ -7,19 +7,24 @@ import { useToast } from '@/components/ToastProvider';
 import Logo from '@/components/Logo';
 import EmailIcon from '@mui/icons-material/Email';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import PhoneIcon from '@mui/icons-material/Phone';
 
 // Icon aliases
 const Mail = EmailIcon;
 const ArrowLeft = ArrowBackIcon;
+const Phone = PhoneIcon;
 
 export default function LoginPage() {
   const router = useRouter();
   const { showToast } = useToast();
   const [formData, setFormData] = useState({
-    email: ''
+    emailOrPhone: ''
   });
   const [loading, setLoading] = useState(false);
   const [returnUrl, setReturnUrl] = useState('/account');
+  const [inputType, setInputType] = useState<'email' | 'phone'>('email');
+  const [countryCode, setCountryCode] = useState('+971'); // Default to UAE
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -27,7 +32,45 @@ export default function LoginPage() {
     if (returnUrlParam) {
       setReturnUrl(returnUrlParam);
     }
+
+    // Detect user's country and set appropriate country code
+    detectUserCountry();
   }, []);
+
+  const detectUserCountry = async () => {
+    try {
+      // Try to get user's location from IP
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+
+      const countryCodeMap: { [key: string]: string } = {
+        'AE': '+971', // UAE
+        'IN': '+91',  // India
+        'US': '+1',   // USA
+        'GB': '+44',  // UK
+        'SA': '+966', // Saudi Arabia
+        'QA': '+974', // Qatar
+        'OM': '+968', // Oman
+        'KW': '+965', // Kuwait
+        'BH': '+973', // Bahrain
+      };
+
+      if (data.country_code && countryCodeMap[data.country_code]) {
+        setCountryCode(countryCodeMap[data.country_code]);
+      }
+    } catch (error) {
+      console.log('Could not detect country, using default UAE (+971)');
+    }
+  };
+
+  const detectInputType = (value: string) => {
+    // Check if input contains @ symbol (email) or is numeric (phone)
+    if (value.includes('@')) {
+      setInputType('email');
+    } else if (/^\d/.test(value)) {
+      setInputType('phone');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,15 +82,15 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: formData.email }),
+        body: JSON.stringify({ emailOrPhone: formData.emailOrPhone }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        showToast('Verification code sent!', 'success');
-        // Store email and return URL for verification
-        localStorage.setItem('loginEmail', formData.email);
+        showToast('Verification code sent to your email!', 'success');
+        // Store email/phone and return URL for verification
+        localStorage.setItem('loginIdentifier', formData.emailOrPhone);
         localStorage.setItem('returnUrl', returnUrl);
         router.push('/verify-login');
       } else {
@@ -82,27 +125,71 @@ export default function LoginPage() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
+              <label htmlFor="emailOrPhone" className="block text-sm font-medium text-gray-700">
+                Email or Phone Number
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  {inputType === 'email' ? (
+                    <Mail className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <Phone className="h-5 w-5 text-gray-400" />
+                  )}
                 </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
-                  placeholder="Enter your email"
-                />
+                {inputType === 'phone' ? (
+                  <div className="flex">
+                    <select
+                      value={countryCode}
+                      onChange={(e) => setCountryCode(e.target.value)}
+                      className="appearance-none pl-10 pr-2 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm bg-gray-50"
+                      style={{ width: '100px' }}
+                    >
+                      <option value="+971">🇦🇪 +971</option>
+                      <option value="+91">🇮🇳 +91</option>
+                      <option value="+1">🇺🇸 +1</option>
+                      <option value="+44">🇬🇧 +44</option>
+                      <option value="+966">🇸🇦 +966</option>
+                      <option value="+974">🇶🇦 +974</option>
+                      <option value="+968">🇴🇲 +968</option>
+                      <option value="+965">🇰🇼 +965</option>
+                      <option value="+973">🇧🇭 +973</option>
+                    </select>
+                    <input
+                      id="emailOrPhone"
+                      name="emailOrPhone"
+                      type="tel"
+                      autoComplete="tel"
+                      required
+                      value={formData.emailOrPhone}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData({ ...formData, emailOrPhone: value });
+                        detectInputType(value);
+                      }}
+                      className="appearance-none block w-full px-3 py-2 border border-l-0 border-gray-300 rounded-r-md placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                ) : (
+                  <input
+                    id="emailOrPhone"
+                    name="emailOrPhone"
+                    type="text"
+                    autoComplete="email tel"
+                    required
+                    value={formData.emailOrPhone}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFormData({ ...formData, emailOrPhone: value });
+                      detectInputType(value);
+                    }}
+                    className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
+                    placeholder="Enter your email or phone number"
+                  />
+                )}
               </div>
               <p className="mt-2 text-sm text-gray-500">
-                We'll send you a verification code to sign in
+                We'll send a verification code to your registered {inputType === 'email' ? 'email' : 'phone'}
               </p>
             </div>
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SupabaseOrderStore } from '@/lib/supabase-order-store';
+import { SupabaseUserStore } from '@/lib/supabase-user-store';
 import { emailService } from '@/lib/email-service';
 import { formatOrderForEmail, generateOrderNumber } from '@/lib/order-store';
 import type { Order } from '@/lib/order-store';
@@ -7,7 +8,7 @@ import type { Order } from '@/lib/order-store';
 export async function POST(request: NextRequest) {
   try {
     console.log('📝 Orders API: Received order creation request');
-    
+
     const body = await request.json();
     console.log('📋 Orders API: Request body:', body);
 
@@ -19,12 +20,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Create/update user in database
+    console.log('👤 Orders API: Creating/updating user...');
+    const user = await SupabaseUserStore.upsertByEmail({
+      email: body.email,
+      first_name: body.cardConfig.firstName || body.firstName || null,
+      last_name: body.cardConfig.lastName || body.lastName || null,
+      phone_number: body.phoneNumber || body.shipping.phoneNumber || null,
+      email_verified: true,
+      mobile_verified: !!(body.phoneNumber || body.shipping.phoneNumber),
+    });
+
+    console.log('✅ Orders API: User created/updated:', user.id);
+
     // Generate order number with LNK- prefix
     const orderNumber = generateOrderNumber();
     
     // Create order object
     const orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> = {
       orderNumber,
+      userId: user.id, // Link to user
       status: 'pending',
       customerName: body.customerName,
       email: body.email,

@@ -145,7 +145,7 @@ export default function UserProfileDropdown({ user }: UserProfileDropdownProps) 
             </Link>
 
             <Link
-              href="/account#orders"
+              href="/orders"
               onClick={() => setIsOpen(false)}
               className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
             >
@@ -154,21 +154,12 @@ export default function UserProfileDropdown({ user }: UserProfileDropdownProps) 
             </Link>
 
             <Link
-              href="/account#profile"
+              href="/profiles/builder"
               onClick={() => setIsOpen(false)}
               className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
             >
               <Settings className="h-4 w-4 text-gray-500" />
               <span>Profile Settings</span>
-            </Link>
-
-            <Link
-              href="/account#billing"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              <CreditCard className="h-4 w-4 text-gray-500" />
-              <span>Billing</span>
             </Link>
 
             <div className="border-t border-gray-200 my-1"></div>
@@ -181,15 +172,6 @@ export default function UserProfileDropdown({ user }: UserProfileDropdownProps) 
               <Bell className="h-4 w-4 text-gray-500" />
               <span>Notifications</span>
               <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">3</span>
-            </Link>
-
-            <Link
-              href="/security"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              <Shield className="h-4 w-4 text-gray-500" />
-              <span>Security</span>
             </Link>
 
             <Link

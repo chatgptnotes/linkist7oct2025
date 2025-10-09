@@ -38,6 +38,18 @@ const User = PersonIcon;
 const Calendar = CalendarTodayIcon;
 const DollarSign = AttachMoneyIcon;
 
+interface Payment {
+  id: string;
+  orderId: string;
+  paymentIntentId: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'succeeded' | 'failed' | 'refunded' | 'disputed';
+  paymentMethod?: string;
+  failureReason?: string;
+  createdAt: number;
+}
+
 interface Order {
   id: string;
   orderNumber: string;
@@ -73,6 +85,7 @@ interface Order {
   emailsSent: any;
   proofImages?: string[];
   notes?: string;
+  payment?: Payment | null; // Add payment data
 }
 
 export default function OrdersPage() {
@@ -139,6 +152,55 @@ export default function OrdersPage() {
       case 'delivered': return <CheckCircle className="h-4 w-4" />;
       case 'cancelled': return <AlertCircle className="h-4 w-4" />;
       default: return <Package className="h-4 w-4" />;
+    }
+  };
+
+  const getPaymentStatusBadge = (payment: Payment | null | undefined) => {
+    if (!payment) {
+      return (
+        <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-gray-100 text-gray-800 border-gray-200">
+          <Clock className="h-3 w-3" />
+          <span>No Payment</span>
+        </span>
+      );
+    }
+
+    switch (payment.status) {
+      case 'succeeded':
+        return (
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-green-100 text-green-800 border-green-200">
+            <CheckCircle className="h-3 w-3" />
+            <span>Paid</span>
+          </span>
+        );
+      case 'pending':
+        return (
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-yellow-100 text-yellow-800 border-yellow-200">
+            <Clock className="h-3 w-3" />
+            <span>Pending</span>
+          </span>
+        );
+      case 'failed':
+        return (
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-red-100 text-red-800 border-red-200">
+            <AlertCircle className="h-3 w-3" />
+            <span>Failed</span>
+          </span>
+        );
+      case 'refunded':
+        return (
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-purple-100 text-purple-800 border-purple-200">
+            <RefreshCw className="h-3 w-3" />
+            <span>Refunded</span>
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-gray-100 text-gray-800 border-gray-200">
+            <Clock className="h-3 w-3" />
+            <span>{payment.status}</span>
+          </span>
+        );
     }
   };
 
@@ -296,6 +358,9 @@ export default function OrdersPage() {
                     Status
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Payment
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -359,6 +424,18 @@ export default function OrdersPage() {
                         {getStatusIcon(order.status)}
                         <span className="capitalize">{order.status}</span>
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-1">
+                        {getPaymentStatusBadge(order.payment)}
+                        {order.payment && (
+                          <div className="text-xs text-gray-500">
+                            {order.payment.paymentMethod && (
+                              <span className="capitalize">{order.payment.paymentMethod}</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-1">

@@ -230,13 +230,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
                     isActive
                       ? 'bg-slate-700 text-white'
-                      : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                      : 'text-white hover:bg-slate-700'
                   }`}
                   onClick={() => setSidebarOpen(false)}
                 >
                   <item.icon
                     className={`mr-3 flex-shrink-0 h-5 w-5 ${
-                      isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'
+                      isActive ? 'text-white' : 'text-white group-hover:text-white'
                     }`}
                   />
                   {item.name}
