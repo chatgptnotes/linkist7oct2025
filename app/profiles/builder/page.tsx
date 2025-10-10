@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
 const MapPickerSimple = dynamic(() => import('@/components/MapPickerSimple'), {
@@ -15,7 +15,6 @@ const MapPickerSimple = dynamic(() => import('@/components/MapPickerSimple'), {
     </div>
   )
 });
-import UserProfileDropdown from '@/components/UserProfileDropdown';
 import PersonIcon from '@mui/icons-material/Person';
 import WorkIcon from '@mui/icons-material/Work';
 import ShareIcon from '@mui/icons-material/Share';
@@ -226,8 +225,11 @@ const SUB_DOMAINS = [
 // Flatten all sub-domains for searching
 const ALL_SUB_DOMAINS = SUB_DOMAINS.flatMap(group => group.subDomains);
 
-export default function ProfileBuilderPage() {
+function ProfileBuilderContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const profileId = searchParams.get('id');
+
   const [activeSection, setActiveSection] = useState<'basic' | 'professional' | 'social' | 'media-photo' | 'media-gallery'>('basic');
   const [skillInput, setSkillInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -238,7 +240,6 @@ export default function ProfileBuilderPage() {
   const [showJobTitleDropdown, setShowJobTitleDropdown] = useState(false);
   const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
   const [showSubDomainDropdown, setShowSubDomainDropdown] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
 
   const [profileData, setProfileData] = useState<ProfileData>({
     firstName: '',
@@ -297,38 +298,116 @@ export default function ProfileBuilderPage() {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        console.log('🔄 Starting profile data fetch...');
-        console.log('📋 All cookies:', document.cookie);
+        console.log('🔄 Starting profile data fetch from DATABASE...');
+        console.log('📋 Profile ID from URL:', profileId);
 
-        // First, get the logged-in user's email
-        const authResponse = await fetch('/api/auth/me');
-        let loggedInEmail = null;
+        // Fetch profiles from database
+        const profileResponse = await fetch('/api/profiles');
 
-        if (authResponse.ok) {
-          const authData = await authResponse.json();
-          if (authData.isAuthenticated && authData.user?.email) {
-            loggedInEmail = authData.user.email;
-            console.log('✅ Logged-in user email:', loggedInEmail);
-          }
-        }
+        if (profileResponse.ok) {
+          const result = await profileResponse.json();
+          console.log('📦 Database response:', result);
 
-        // Check localStorage for saved profiles
-        const savedProfilesStr = localStorage.getItem('userProfiles');
-        if (savedProfilesStr && loggedInEmail) {
-          try {
-            const savedProfiles = JSON.parse(savedProfilesStr);
-            const userProfile = savedProfiles.find((p: any) =>
-              p.email === loggedInEmail || p.primaryEmail === loggedInEmail
-            );
+          if (result.success && result.profiles && result.profiles.length > 0) {
+            let profileToEdit = null;
 
-            if (userProfile) {
-              console.log('✅ Found saved profile for user:', userProfile);
-              setProfileData(userProfile);
-              console.log('✅ Profile data loaded from localStorage');
+            // If profileId is provided in URL, find that specific profile
+            if (profileId) {
+              profileToEdit = result.profiles.find((p: any) => p.id === profileId);
+              console.log('🔍 Looking for profile with ID:', profileId);
+            } else {
+              // Otherwise, get the first (most recent) profile
+              profileToEdit = result.profiles[0];
+              console.log('🔍 Using most recent profile');
+            }
+
+            if (profileToEdit) {
+              console.log('✅ Found profile from database:', profileToEdit);
+              console.log('🏢 Company Logo URL from DB:', profileToEdit.company_logo_url);
+
+              // Parse social_links if it's a JSON string
+              let socialLinks = {};
+              if (typeof profileToEdit.social_links === 'string') {
+                try {
+                  socialLinks = JSON.parse(profileToEdit.social_links);
+                } catch (e) {
+                  console.error('Failed to parse social_links:', e);
+                }
+              } else if (profileToEdit.social_links) {
+                socialLinks = profileToEdit.social_links;
+              }
+
+              // Map database profile structure to builder structure
+              const mappedProfile = {
+                firstName: profileToEdit.first_name || '',
+                lastName: profileToEdit.last_name || '',
+                primaryEmail: profileToEdit.email || '',
+                secondaryEmail: profileToEdit.alternate_email || '',
+                mobileNumber: profileToEdit.phone_number || '',
+                whatsappNumber: profileToEdit.whatsapp || '',
+                showEmailPublicly: profileToEdit.show_email_publicly ?? true,
+                showMobilePublicly: profileToEdit.show_mobile_publicly ?? true,
+                showWhatsappPublicly: profileToEdit.show_whatsapp_publicly ?? false,
+
+                jobTitle: profileToEdit.job_title || profileToEdit.title || '',
+                companyName: profileToEdit.company || profileToEdit.company_name || '',
+                companyWebsite: profileToEdit.company_website || '',
+                companyAddress: profileToEdit.company_address || profileToEdit.location || '',
+                companyLogo: profileToEdit.company_logo_url || null,
+                industry: profileToEdit.industry || '',
+                subDomain: profileToEdit.sub_domain || '',
+                skills: Array.isArray(profileToEdit.skills) ? profileToEdit.skills : [],
+                professionalSummary: profileToEdit.professional_summary || profileToEdit.bio || '',
+                showJobTitle: profileToEdit.show_job_title ?? true,
+                showCompanyName: profileToEdit.show_company_name ?? true,
+                showCompanyWebsite: profileToEdit.show_company_website ?? true,
+                showCompanyAddress: profileToEdit.show_company_address ?? true,
+                showIndustry: profileToEdit.show_industry ?? true,
+                showSkills: profileToEdit.show_skills ?? true,
+
+                linkedinUrl: (socialLinks as any)?.linkedin || '',
+                instagramUrl: (socialLinks as any)?.instagram || '',
+                facebookUrl: (socialLinks as any)?.facebook || '',
+                twitterUrl: (socialLinks as any)?.twitter || '',
+                behanceUrl: (socialLinks as any)?.behance || '',
+                dribbbleUrl: (socialLinks as any)?.dribbble || '',
+                githubUrl: (socialLinks as any)?.github || '',
+                youtubeUrl: (socialLinks as any)?.youtube || '',
+                showLinkedin: profileToEdit.show_linkedin ?? Boolean((socialLinks as any)?.linkedin),
+                showInstagram: profileToEdit.show_instagram ?? Boolean((socialLinks as any)?.instagram),
+                showFacebook: profileToEdit.show_facebook ?? Boolean((socialLinks as any)?.facebook),
+                showTwitter: profileToEdit.show_twitter ?? Boolean((socialLinks as any)?.twitter),
+                showBehance: profileToEdit.show_behance ?? false,
+                showDribbble: profileToEdit.show_dribbble ?? false,
+                showGithub: profileToEdit.show_github ?? false,
+                showYoutube: profileToEdit.show_youtube ?? Boolean((socialLinks as any)?.youtube),
+
+                profilePhoto: profileToEdit.profile_photo_url || profileToEdit.avatar_url || null,
+                backgroundImage: profileToEdit.background_image_url || null,
+                showProfilePhoto: profileToEdit.show_profile_photo ?? true,
+                showBackgroundImage: profileToEdit.show_background_image ?? true,
+
+                photos: Array.isArray(profileToEdit.gallery_urls) ? profileToEdit.gallery_urls.map((url: string, index: number) => ({
+                  id: `photo-${index}`,
+                  url,
+                  title: '',
+                  showPublicly: true
+                })) : [],
+                videos: Array.isArray(profileToEdit.video_urls) ? profileToEdit.video_urls.map((url: string, index: number) => ({
+                  id: `video-${index}`,
+                  url,
+                  title: '',
+                  showPublicly: true
+                })) : []
+              };
+
+              setProfileData(mappedProfile);
+              console.log('✅ Profile data loaded from database');
+              console.log('🏢 Mapped Company Logo:', mappedProfile.companyLogo);
               return; // Exit early, we have the data
             }
-          } catch (e) {
-            console.error('❌ Error parsing userProfiles:', e);
+          } else {
+            console.log('ℹ️ No profiles found in database, checking localStorage...');
           }
         }
 
@@ -549,7 +628,7 @@ export default function ProfileBuilderPage() {
     };
 
     fetchProfileData();
-  }, []);
+  }, [profileId]);
 
   // Auto-update WhatsApp number when mobile number changes (if checkbox is checked)
   useEffect(() => {
@@ -557,29 +636,6 @@ export default function ProfileBuilderPage() {
       setProfileData(prev => ({ ...prev, whatsappNumber: prev.mobileNumber }));
     }
   }, [profileData.mobileNumber, useSameNumberForWhatsapp]);
-
-  // Fetch user data for profile dropdown
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/me');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.isAuthenticated && data.user) {
-            setUserData({
-              email: data.user.email,
-              firstName: data.user.first_name,
-              lastName: data.user.last_name,
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
-      }
-    };
-
-    checkAuth();
-  }, []);
 
   // Show toast notification
   const showToast = (message: string, type: 'success' | 'error') => {
@@ -689,8 +745,25 @@ export default function ProfileBuilderPage() {
         const savedProfiles = localStorage.getItem('userProfiles');
         const profiles = savedProfiles ? JSON.parse(savedProfiles) : [];
 
+        // Use existing profileId if editing, otherwise create new
+        const profileIdToUse = profileId || result.profile.id || Date.now().toString();
+
         const newProfile = {
-          id: result.profile.id || Date.now().toString(),
+          id: profileIdToUse,
+          name: `${profileData.firstName} ${profileData.lastName}`.trim(),
+          title: profileData.jobTitle,
+          company: profileData.companyName,
+          email: profileData.primaryEmail,
+          phone: profileData.mobileNumber,
+          website: profileData.companyWebsite,
+          location: profileData.companyAddress,
+          bio: profileData.professionalSummary,
+          linkedin: profileData.linkedinUrl,
+          twitter: profileData.twitterUrl,
+          instagram: profileData.instagramUrl,
+          facebook: profileData.facebookUrl,
+          youtube: profileData.youtubeUrl,
+          image: profileData.profilePhoto,
           ...profileData,
           status: 'active' as const,
           views: 0,
@@ -700,9 +773,13 @@ export default function ProfileBuilderPage() {
           publicUrl: `linkist.ai/${profileData.firstName.toLowerCase()}${profileData.lastName.toLowerCase()}`
         };
 
-        // Check if profile already exists
-        const existingIndex = profiles.findIndex((p: any) => p.id === newProfile.id);
+        // Check if profile already exists (for editing)
+        const existingIndex = profiles.findIndex((p: any) => p.id === profileIdToUse);
         if (existingIndex >= 0) {
+          // Keep existing stats when updating
+          newProfile.views = profiles[existingIndex].views || 0;
+          newProfile.clicks = profiles[existingIndex].clicks || 0;
+          newProfile.shares = profiles[existingIndex].shares || 0;
           profiles[existingIndex] = newProfile;
         } else {
           profiles.push(newProfile);
@@ -791,20 +868,20 @@ export default function ProfileBuilderPage() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+          <div className="flex items-center justify-between gap-3">
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Profile Builder</h1>
               <p className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1 hidden sm:block">Create and manage your professional profile</p>
             </div>
-            <div className="flex items-center gap-2 sm:gap-3 justify-end">
+            <div className="flex items-center gap-3">
               <button
                 onClick={handleSaveChanges}
-                className="px-4 sm:px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-1.5 sm:gap-2 text-sm"
+                className="px-4 sm:px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-2 text-sm"
               >
                 <CheckCircle className="w-4 h-4" />
-                Save Changes
+                <span className="hidden sm:inline">Save Changes</span>
+                <span className="sm:hidden">Save</span>
               </button>
-              {userData && <UserProfileDropdown user={userData} />}
             </div>
           </div>
         </div>
@@ -2390,5 +2467,20 @@ export default function ProfileBuilderPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ProfileBuilderPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p>Loading profile builder...</p>
+        </div>
+      </div>
+    }>
+      <ProfileBuilderContent />
+    </Suspense>
   );
 }
