@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
 import PersonIcon from '@mui/icons-material/Person';
@@ -62,8 +62,11 @@ interface ProfileData {
   profileImage: string;
 }
 
-export default function ProfileBuilderPage() {
+function ProfileBuilderContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const profileId = searchParams.get('id');
+
   const [activeTab, setActiveTab] = useState<'personal' | 'social' | 'preview'>('personal');
   const [profileData, setProfileData] = useState<ProfileData>({
     firstName: '',
@@ -84,25 +87,89 @@ export default function ProfileBuilderPage() {
   });
 
   useEffect(() => {
-    // Load any existing profile data from localStorage
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      setProfileData(JSON.parse(savedProfile));
+    // If editing an existing profile (profileId exists)
+    if (profileId) {
+      const savedProfiles = localStorage.getItem('userProfiles');
+      if (savedProfiles) {
+        const profiles = JSON.parse(savedProfiles);
+        const profileToEdit = profiles.find((p: any) => p.id === profileId);
+
+        if (profileToEdit) {
+          // Map dashboard profile structure to builder structure
+          setProfileData({
+            firstName: profileToEdit.name.split(' ')[0] || '',
+            lastName: profileToEdit.name.split(' ').slice(1).join(' ') || '',
+            title: profileToEdit.title || '',
+            company: profileToEdit.company || '',
+            email: profileToEdit.email || '',
+            phone: profileToEdit.phone || '',
+            website: profileToEdit.website || '',
+            location: profileToEdit.location || '',
+            bio: profileToEdit.bio || '',
+            linkedin: profileToEdit.linkedin || '',
+            twitter: profileToEdit.twitter || '',
+            instagram: profileToEdit.instagram || '',
+            facebook: profileToEdit.facebook || '',
+            youtube: profileToEdit.youtube || '',
+            profileImage: profileToEdit.image || ''
+          });
+        }
+      }
+    } else {
+      // Load from single userProfile for new profiles
+      const savedProfile = localStorage.getItem('userProfile');
+      if (savedProfile) {
+        setProfileData(JSON.parse(savedProfile));
+      }
     }
-  }, []);
+  }, [profileId]);
 
   const handleInputChange = (field: keyof ProfileData, value: string) => {
     setProfileData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSaveProfile = () => {
-    // Save to localStorage
-    localStorage.setItem('userProfile', JSON.stringify(profileData));
+    if (profileId) {
+      // Update existing profile in userProfiles array
+      const savedProfiles = localStorage.getItem('userProfiles');
+      if (savedProfiles) {
+        const profiles = JSON.parse(savedProfiles);
+        const profileIndex = profiles.findIndex((p: any) => p.id === profileId);
+
+        if (profileIndex !== -1) {
+          // Update the profile while keeping dashboard-specific fields
+          profiles[profileIndex] = {
+            ...profiles[profileIndex],
+            name: `${profileData.firstName} ${profileData.lastName}`.trim(),
+            title: profileData.title,
+            company: profileData.company,
+            email: profileData.email,
+            phone: profileData.phone,
+            website: profileData.website,
+            location: profileData.location,
+            bio: profileData.bio,
+            linkedin: profileData.linkedin,
+            twitter: profileData.twitter,
+            instagram: profileData.instagram,
+            facebook: profileData.facebook,
+            youtube: profileData.youtube,
+            image: profileData.profileImage,
+            lastUpdated: 'Just now'
+          };
+
+          localStorage.setItem('userProfiles', JSON.stringify(profiles));
+          alert('Profile updated successfully!');
+          router.push('/profiles/dashboard');
+        }
+      }
+    } else {
+      // Save new profile to userProfile (original behavior)
+      localStorage.setItem('userProfile', JSON.stringify(profileData));
+      alert('Profile saved successfully! Your NFC card will display this information when tapped.');
+    }
 
     // TODO: Save to backend/database
     console.log('Profile saved:', profileData);
-
-    alert('Profile saved successfully! Your NFC card will display this information when tapped.');
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -616,5 +683,20 @@ export default function ProfileBuilderPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProfileBuilderPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
+          <p>Loading profile builder...</p>
+        </div>
+      </div>
+    }>
+      <ProfileBuilderContent />
+    </Suspense>
   );
 }
