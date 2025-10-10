@@ -110,34 +110,55 @@ export default function SuccessPage() {
               </div>
 
               <div className="pt-3 space-y-2">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span>${((orderData.pricing?.total || 103.95) / 1.05).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Customization</span>
-                  <span className="text-green-600">Included</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Shipping ({orderData.shipping?.country === 'United Arab Emirates' ? 'UAE' : orderData.shipping?.country || 'AE'})</span>
-                  <span className="text-green-600">Free</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>VAT (5%)</span>
-                  <span>${(((orderData.pricing?.total || 103.95) / 1.05) * 0.05).toFixed(2)}</span>
-                </div>
-                {orderData.shipping?.isFounderMember && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Founder Member Benefits (10% off)</span>
-                    <span>Included</span>
-                  </div>
-                )}
-                {orderData.voucherCode && orderData.voucherDiscount && (
-                  <div className="flex justify-between text-green-600 font-medium">
-                    <span>Voucher Discount ({orderData.voucherCode} - {orderData.voucherDiscount}%)</span>
-                    <span>-${(((orderData.pricing?.total || 0) / (1 - orderData.voucherDiscount / 100) ) * orderData.voucherDiscount / 100).toFixed(2)}</span>
-                  </div>
-                )}
+                {(() => {
+                  const finalTotal = orderData.pricing?.total || 103.95;
+                  const voucherPercent = orderData.voucherDiscount || 0;
+
+                  // Calculate backwards from final total
+                  // finalTotal = (subtotal + tax) after discount
+                  // If 20% discount: finalTotal = originalAmount * 0.8
+                  // So: originalAmount = finalTotal / (1 - discount/100)
+                  const totalBeforeDiscount = voucherPercent > 0
+                    ? finalTotal / (1 - voucherPercent / 100)
+                    : finalTotal;
+
+                  const subtotalBeforeDiscount = totalBeforeDiscount / 1.05;
+                  const taxAmount = subtotalBeforeDiscount * 0.05;
+                  const voucherDiscountAmount = totalBeforeDiscount - finalTotal;
+
+                  return (
+                    <>
+                      <div className="flex justify-between text-gray-600">
+                        <span>Subtotal</span>
+                        <span>${subtotalBeforeDiscount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-gray-600">
+                        <span>Customization</span>
+                        <span className="text-green-600">Included</span>
+                      </div>
+                      <div className="flex justify-between text-gray-600">
+                        <span>Shipping ({orderData.shipping?.country === 'United Arab Emirates' ? 'UAE' : orderData.shipping?.country || 'AE'})</span>
+                        <span className="text-green-600">Free</span>
+                      </div>
+                      <div className="flex justify-between text-gray-600">
+                        <span>VAT (5%)</span>
+                        <span>${taxAmount.toFixed(2)}</span>
+                      </div>
+                      {orderData.shipping?.isFounderMember && (
+                        <div className="flex justify-between text-green-600">
+                          <span>Founder Member Benefits (10% off)</span>
+                          <span>Included</span>
+                        </div>
+                      )}
+                      {orderData.voucherCode && orderData.voucherDiscount && (
+                        <div className="flex justify-between text-green-600 font-medium">
+                          <span>Voucher Discount ({orderData.voucherCode} - {orderData.voucherDiscount}%)</span>
+                          <span>-${voucherDiscountAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
 
               <div className="flex justify-between items-center pt-3 border-t border-gray-200">
