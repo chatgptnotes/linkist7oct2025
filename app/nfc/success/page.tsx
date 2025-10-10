@@ -51,25 +51,9 @@ export default function SuccessPage() {
         if (order) {
           setOrderData(JSON.parse(order));
         } else {
-          // Create a demo order for testing
-          console.log('No order data found, creating demo order for display');
-          const demoOrder = {
-            orderNumber: 'LFND' + Math.random().toString(36).substring(2, 8).toUpperCase(),
-            cardConfig: { fullName: 'Your Name' },
-            shipping: {
-              fullName: 'Customer Name',
-              email: 'customer@example.com',
-              phone: '+1 (555) 123-4567',
-              addressLine1: '123 Main Street',
-              city: 'Dubai',
-              country: 'United Arab Emirates',
-              postalCode: '00000',
-              isFounderMember: true
-            },
-            pricing: { total: 113.05 }
-          };
-          setOrderData(demoOrder);
-          // Don't redirect, just show the success page with demo data
+          // No order found - redirect to home
+          console.warn('No order data found - redirecting to home page');
+          router.push('/');
         }
       }
     }
@@ -146,6 +130,12 @@ export default function SuccessPage() {
                   <div className="flex justify-between text-green-600">
                     <span>Founder Member Benefits (10% off)</span>
                     <span>Included</span>
+                  </div>
+                )}
+                {orderData.voucherCode && orderData.voucherDiscount && (
+                  <div className="flex justify-between text-green-600 font-medium">
+                    <span>Voucher Discount ({orderData.voucherCode} - {orderData.voucherDiscount}%)</span>
+                    <span>-${(((orderData.pricing?.total || 0) / (1 - orderData.voucherDiscount / 100) ) * orderData.voucherDiscount / 100).toFixed(2)}</span>
                   </div>
                 )}
               </div>

@@ -5,6 +5,7 @@ import { SupabasePaymentStore } from '@/lib/supabase-payment-store';
 import { SupabaseShippingAddressStore } from '@/lib/supabase-shipping-address-store';
 import { generateOrderNumber, formatOrderForEmail } from '@/lib/order-store';
 import { emailService } from '@/lib/email-service';
+import { createClient } from '@/lib/supabase/client';
 
 export async function POST(request: NextRequest) {
   console.log('🚀 [process-order] API called');
@@ -179,6 +180,56 @@ export async function POST(request: NextRequest) {
           amount: payment.amount,
           status: payment.status
         });
+
+        // Track voucher usage if voucher was used
+        if (paymentData.voucherCode) {
+          console.log('🎟️ [process-order] Tracking voucher usage...');
+          try {
+            const supabase = createClient();
+
+            // Get voucher details
+            const { data: voucher } = await supabase
+              .from('vouchers')
+              .select('*')
+              .eq('code', paymentData.voucherCode.toUpperCase())
+              .single();
+
+            if (voucher) {
+              // Calculate discount amount
+              const discountAmount = paymentData.voucherDiscount
+                ? (totalAmount * paymentData.voucherDiscount) / 100
+                : 0;
+
+              // Create voucher usage record
+              await supabase
+                .from('voucher_usage')
+                .insert({
+                  voucher_id: voucher.id,
+                  user_id: user.id,
+                  user_email: checkoutData.email,
+                  order_id: order.id,
+                  discount_amount: discountAmount
+                });
+
+              // Increment voucher used_count
+              await supabase
+                .from('vouchers')
+                .update({
+                  used_count: voucher.used_count + 1
+                })
+                .eq('id', voucher.id);
+
+              console.log('✅ [process-order] Voucher usage tracked:', {
+                voucherCode: paymentData.voucherCode,
+                discountAmount,
+                newUsedCount: voucher.used_count + 1
+              });
+            }
+          } catch (voucherError) {
+            console.error('❌ [process-order] Error tracking voucher usage:', voucherError);
+            // Continue even if voucher tracking fails
+          }
+        }
       } catch (error) {
         console.error('❌ [process-order] Error creating payment record:', error);
         // Continue even if payment record creation fails

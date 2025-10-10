@@ -58,6 +58,8 @@ interface OrderRow {
   tracking_url?: string
   proof_images?: string[]
   notes?: string
+  voucher_code?: string
+  voucher_discount?: number
 }
 
 // Convert database row to Order interface
@@ -83,6 +85,8 @@ const rowToOrder = (row: OrderRow): Order => ({
   trackingUrl: row.tracking_url,
   proofImages: row.proof_images || [],
   notes: row.notes,
+  voucherCode: row.voucher_code,
+  voucherDiscount: row.voucher_discount,
   createdAt: new Date(row.created_at).getTime(),
   updatedAt: new Date(row.updated_at).getTime(),
 })
@@ -105,6 +109,8 @@ const orderToInsert = (order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>) => 
   tracking_url: order.trackingUrl,
   proof_images: order.proofImages || [],
   notes: order.notes,
+  voucher_code: order.voucherCode,
+  voucher_discount: order.voucherDiscount,
 })
 
 export const SupabaseOrderStore = {
@@ -249,6 +255,8 @@ export const SupabaseOrderStore = {
     if (updates.trackingUrl) dbUpdates.tracking_url = updates.trackingUrl
     if (updates.proofImages) dbUpdates.proof_images = updates.proofImages
     if (updates.notes) dbUpdates.notes = updates.notes
+    if (updates.voucherCode !== undefined) dbUpdates.voucher_code = updates.voucherCode
+    if (updates.voucherDiscount !== undefined) dbUpdates.voucher_discount = updates.voucherDiscount
 
     const { data, error } = await supabase
       .from('orders')

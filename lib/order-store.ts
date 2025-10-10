@@ -50,6 +50,8 @@ export interface Order {
   };
   proofImages?: string[];
   notes?: string;
+  voucherCode?: string;
+  voucherDiscount?: number;
 }
 
 // Global in-memory store - replace with database in production

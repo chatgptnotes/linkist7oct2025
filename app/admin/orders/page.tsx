@@ -85,7 +85,9 @@ interface Order {
   emailsSent: any;
   proofImages?: string[];
   notes?: string;
-  payment?: Payment | null; // Add payment data
+  payment?: Payment | null;
+  voucherCode?: string | null;
+  voucherDiscount?: number;
 }
 
 export default function OrdersPage() {
@@ -310,25 +312,12 @@ export default function OrdersPage() {
               </div>
 
               <div className="flex space-x-3">
-                <button 
-                  onClick={async () => {
-                    try {
-                      // Clear existing mock data
-                      await fetch('/api/admin/test-real-order', { method: 'DELETE' });
-                      // Create real test order
-                      await fetch('/api/admin/test-real-order', { method: 'POST' });
-                      // Refresh orders
-                      fetchOrders();
-                      alert('Real test data created! Mock data removed.');
-                    } catch (error) {
-                      console.error('Error:', error);
-                      alert('Failed to create test data');
-                    }
-                  }}
-                  className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                <button
+                  onClick={fetchOrders}
+                  className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                   <RefreshCw className="h-4 w-4" />
-                  <span>Add Real Test Data</span>
+                  <span>Refresh</span>
                 </button>
                 <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                   <Download className="h-4 w-4" />
@@ -359,6 +348,9 @@ export default function OrdersPage() {
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Payment
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Voucher
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total
@@ -436,6 +428,24 @@ export default function OrdersPage() {
                           </div>
                         )}
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {order.voucherCode ? (
+                        <div className="space-y-1">
+                          <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-green-100 border border-green-200">
+                            <span className="text-xs font-mono font-medium text-green-800">
+                              {order.voucherCode}
+                            </span>
+                          </div>
+                          {order.voucherDiscount && (
+                            <div className="text-xs text-gray-500">
+                              {order.voucherDiscount}% off
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-1">
@@ -603,6 +613,12 @@ export default function OrdersPage() {
                     <span className="text-gray-500">Tax:</span>
                     <span>${selectedOrder.pricing.tax.toFixed(2)}</span>
                   </div>
+                  {selectedOrder.voucherCode && selectedOrder.voucherDiscount && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Voucher ({selectedOrder.voucherCode}):</span>
+                      <span>-{selectedOrder.voucherDiscount}%</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-semibold text-base border-t pt-2">
                     <span>Total:</span>
                     <span>${selectedOrder.pricing.total.toFixed(2)}</span>

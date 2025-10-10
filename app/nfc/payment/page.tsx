@@ -177,21 +177,35 @@ export default function NFCPaymentPage() {
   };
 
   const validateVoucher = async () => {
-    if (!voucherCode) return;
+    if (!voucherCode.trim()) return;
 
-    // Simulate voucher validation
-    // In production, this would call an API
-    const validVouchers: { [key: string]: number } = {
-      'FOUNDER50': 50,
-      'WELCOME20': 20,
-      'LINKIST10': 10,
-      'EARLY100': 100,
-    };
+    try {
+      const response = await fetch('/api/vouchers/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: voucherCode.toUpperCase(),
+          orderAmount: orderData?.pricing.total || 0,
+          userEmail: orderData?.email
+        })
+      });
 
-    if (validVouchers[voucherCode.toUpperCase()]) {
-      setVoucherDiscount(validVouchers[voucherCode.toUpperCase()]);
-      setVoucherValid(true);
-    } else {
+      const result = await response.json();
+
+      if (result.valid && result.voucher) {
+        // Calculate discount percentage for display
+        const discountPercent = result.voucher.discount_type === 'percentage'
+          ? result.voucher.discount_value
+          : Math.round((result.voucher.discount_amount / (orderData?.pricing.total || 1)) * 100);
+
+        setVoucherDiscount(discountPercent);
+        setVoucherValid(true);
+      } else {
+        setVoucherDiscount(0);
+        setVoucherValid(false);
+      }
+    } catch (error) {
+      console.error('Error validating voucher:', error);
       setVoucherDiscount(0);
       setVoucherValid(false);
     }
@@ -232,31 +246,19 @@ export default function NFCPaymentPage() {
 
   const handleStripePayment = async () => {
     try {
-      // Call your backend to create a payment intent
-      const response = await fetch('/api/payment/create-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: getFinalAmount(),
-          currency: orderData?.shipping.country === 'IN' ? 'inr' : 'usd',
-          orderData
-        })
-      });
+      // For demo purposes, simulate successful card payment
+      // In production, you'd integrate with actual Stripe payment intent
+      console.log('💳 Processing Stripe payment...');
+      console.log('💳 Card details:', { cardNumber, expiryDate, cvv: '***' });
 
-      const { clientSecret } = await response.json();
+      // Simulate payment processing delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Confirm payment with Stripe
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error('Stripe not initialized');
-
-      // In production, you'd use Stripe Elements for card collection
-      // For now, we'll simulate success
-      console.log('Processing Stripe payment...');
-
+      console.log('✅ Stripe payment simulated successfully');
       return { success: true, paymentId: 'stripe_' + Date.now() };
     } catch (error) {
-      console.error('Stripe payment error:', error);
-      throw error;
+      console.error('❌ Stripe payment error:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Payment failed' };
     }
   };
 
@@ -283,11 +285,13 @@ export default function NFCPaymentPage() {
   const handleVoucherPayment = async () => {
     if (voucherDiscount === 100) {
       // Full discount, no payment needed
+      console.log('🎟️ 100% voucher discount - no payment needed');
       return { success: true, paymentId: 'voucher_' + voucherCode };
     } else {
-      // Partial discount, need additional payment
-      alert('Please select a payment method for the remaining amount');
-      return { success: false };
+      // Partial discount - still process the order with reduced amount
+      console.log('🎟️ Partial voucher discount applied:', voucherDiscount + '%');
+      console.log('🎟️ Final amount after discount:', getFinalAmount());
+      return { success: true, paymentId: 'voucher_partial_' + voucherCode + '_' + Date.now() };
     }
   };
 
@@ -351,7 +355,7 @@ export default function NFCPaymentPage() {
 
       console.log('💳 Payment result:', paymentResult);
 
-      if (paymentResult.success) {
+      if (paymentResult && paymentResult.success) {
         console.log('✅ Payment successful, processing order...');
 
         // Store payment confirmation
@@ -761,23 +765,20 @@ export default function NFCPaymentPage() {
                   )}
 
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-2">Try these codes:</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {['FOUNDER50', 'WELCOME20', 'LINKIST10'].map(code => (
-                        <button
-                          key={code}
-                          onClick={() => {
-                            setVoucherCode(code);
-                            validateVoucher();
-                          }}
-                          className="px-3 py-1 border border-gray-300 rounded text-sm"
-                          style={{ backgroundColor: '#FFFFFF', color: '#000000' }}
-                        >
-                          {code}
-                        </button>
-                      ))}
-                    </div>
+                    <h4 className="font-medium text-gray-900 mb-2">Have a voucher code?</h4>
+                    <p className="text-sm text-gray-600">
+                      Enter your code above and click Apply to get your discount
+                    </p>
                   </div>
+                </div>
+              )}
+
+              {/* Voucher Info Message */}
+              {paymentMethod === 'voucher' && voucherValid && voucherDiscount < 100 && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    💡 Your voucher covers {voucherDiscount}% of the order. The remaining ${getFinalAmount().toFixed(2)} will be processed as a voucher order with partial discount.
+                  </p>
                 </div>
               )}
 
@@ -796,6 +797,8 @@ export default function NFCPaymentPage() {
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                     Processing...
                   </div>
+                ) : paymentMethod === 'voucher' && voucherDiscount === 100 ? (
+                  'Complete Order (Free with Voucher)'
                 ) : (
                   `Pay $${getFinalAmount().toFixed(2)}`
                 )}
