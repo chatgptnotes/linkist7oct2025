@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
-import { SupabaseOrderStore } from '@/lib/supabase-order-store';
+import { SupabaseOrderStore, generateOrderNumber } from '@/lib/supabase-order-store';
 import { SupabaseUserStore } from '@/lib/supabase-user-store';
 import { SupabasePaymentStore } from '@/lib/supabase-payment-store';
 import { SupabaseShippingAddressStore } from '@/lib/supabase-shipping-address-store';
 import { emailService } from '@/lib/email-service';
-import { formatOrderForEmail, generateOrderNumber } from '@/lib/order-store';
+import { formatOrderForEmail } from '@/lib/order-store';
 import type { OrderData } from '@/lib/email-templates';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -118,7 +118,7 @@ async function handlePaymentSuccess(paymentIntent: any) {
     });
 
     // Generate order number
-    const orderNumber = generateOrderNumber();
+    const orderNumber = await generateOrderNumber();
 
     // Create order in database
     const order = await SupabaseOrderStore.create({

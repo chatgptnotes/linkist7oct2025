@@ -18,6 +18,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 
 // Icon aliases
 const LayoutDashboard = DashboardIcon;
@@ -34,6 +35,7 @@ const Menu = MenuIcon;
 const X = CloseIcon;
 const LogOut = LogoutIcon;
 const User = PersonIcon;
+const Ticket = ConfirmationNumberIcon;
 
 interface AuthUser {
   id: string;
@@ -74,6 +76,12 @@ const navigationItems = [
     name: 'Products',
     href: '/admin/products',
     icon: ShoppingCart,
+    permission: Permission.VIEW_ORDERS,
+  },
+  {
+    name: 'Vouchers',
+    href: '/admin/vouchers',
+    icon: Ticket,
     permission: Permission.VIEW_ORDERS,
   },
   {

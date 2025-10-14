@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
@@ -293,6 +293,125 @@ function ProfileBuilderContent() {
     photos: [],
     videos: []
   });
+
+  // File input ref for photo uploads
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  // Helper function to resize image if it exceeds 5MB
+  const resizeImage = async (file: File): Promise<File> => {
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+
+    // If file is already under 5MB, return it as-is
+    if (file.size <= MAX_SIZE) {
+      return file;
+    }
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+
+          // Calculate new dimensions to reduce file size
+          let width = img.width;
+          let height = img.height;
+          const ratio = file.size / MAX_SIZE;
+          const scale = Math.sqrt(1 / ratio) * 0.9; // 0.9 to ensure we're under the limit
+
+          width = Math.floor(width * scale);
+          height = Math.floor(height * scale);
+
+          canvas.width = width;
+          canvas.height = height;
+
+          // Draw resized image
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert canvas to blob with reduced quality
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Failed to create blob'));
+                return;
+              }
+
+              // Create new file from blob
+              const resizedFile = new File([blob], file.name, {
+                type: file.type,
+                lastModified: Date.now(),
+              });
+
+              console.log(`Image resized from ${(file.size / 1024 / 1024).toFixed(2)}MB to ${(resizedFile.size / 1024 / 1024).toFixed(2)}MB`);
+              resolve(resizedFile);
+            },
+            file.type,
+            0.8 // Quality (0.8 = 80%)
+          );
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+    });
+  };
+
+  // Handle photo file upload
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (JPG, PNG, etc.)');
+      return;
+    }
+
+    try {
+      // Resize image if needed
+      let processedFile = file;
+      if (file.size > MAX_SIZE) {
+        console.log(`File size (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds 5MB. Resizing...`);
+        processedFile = await resizeImage(file);
+      }
+
+      // Create a temporary URL for preview
+      const imageUrl = URL.createObjectURL(processedFile);
+
+      // Add photo to profile data
+      const newPhoto = {
+        id: Date.now().toString(),
+        url: imageUrl,
+        title: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
+        showPublicly: true
+      };
+
+      setProfileData({
+        ...profileData,
+        photos: [...profileData.photos, newPhoto]
+      });
+
+      // TODO: Upload to storage server (Supabase, S3, etc.)
+      // This is where you would upload processedFile to your storage
+
+    } catch (error) {
+      console.error('Error processing image:', error);
+      alert('Failed to process image. Please try again.');
+    }
+
+    // Reset input
+    event.target.value = '';
+  };
 
   // Fetch existing profile data on component mount
   useEffect(() => {
@@ -823,16 +942,8 @@ function ProfileBuilderContent() {
   };
 
   const addPhoto = () => {
-    const newPhoto = {
-      id: Date.now().toString(),
-      url: '/placeholder-image.jpg',
-      title: `Photo ${profileData.photos.length + 1}`,
-      showPublicly: true
-    };
-    setProfileData({
-      ...profileData,
-      photos: [...profileData.photos, newPhoto]
-    });
+    // Trigger the file input click
+    photoInputRef.current?.click();
   };
 
   const removePhoto = (id: string) => {
@@ -867,13 +978,13 @@ function ProfileBuilderContent() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex items-center justify-center sm:justify-between gap-3">
+            <div className="text-center sm:text-left">
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Profile Builder</h1>
               <p className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1 hidden sm:block">Create and manage your professional profile</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 absolute right-4 sm:relative sm:right-0">
               <button
                 onClick={handleSaveChanges}
                 className="px-4 sm:px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-2 text-sm"
@@ -888,7 +999,7 @@ function ProfileBuilderContent() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-8">
           {/* Sidebar Navigation - Desktop */}
           <div className="hidden lg:block lg:col-span-1">
@@ -2284,7 +2395,7 @@ function ProfileBuilderContent() {
                         <h3 className="text-lg font-semibold text-gray-900">Photos</h3>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm text-gray-600">3 of 5 photos used</span>
+                        <span className="text-sm text-gray-600">{profileData.photos.length} of 5 photos used</span>
                         <button
                           onClick={addPhoto}
                           className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2"
@@ -2348,7 +2459,7 @@ function ProfileBuilderContent() {
                       >
                         <Plus className="w-8 h-8 text-gray-400" />
                         <span className="text-sm text-gray-600 mt-2">Add Photo</span>
-                        <span className="text-xs text-gray-500">JPG, PNG up to 10MB</span>
+                        <span className="text-xs text-gray-500">JPG, PNG up to 5MB</span>
                       </button>
                     </div>
                   </div>
@@ -2361,7 +2472,7 @@ function ProfileBuilderContent() {
                         <h3 className="text-base sm:text-lg font-semibold text-gray-900">Videos</h3>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-xs sm:text-sm text-gray-600">1 of 3 videos used</span>
+                        <span className="text-xs sm:text-sm text-gray-600">{profileData.videos.length} of 3 videos used</span>
                         <button
                           onClick={addVideo}
                           className="px-3 sm:px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2"
@@ -2446,6 +2557,15 @@ function ProfileBuilderContent() {
           </div>
         </div>
       </div>
+
+      {/* Hidden file input for photo uploads */}
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+        onChange={handlePhotoUpload}
+        className="hidden"
+      />
 
       {/* Toast Notification */}
       {toast && (

@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { UserStore } from '@/lib/user-store';
+import { SessionStore } from '@/lib/session-store';
 
 export async function POST(request: NextRequest) {
   try {
     // Get session from cookie
     const sessionId = request.cookies.get('session')?.value;
-    
+
     if (sessionId) {
-      // Delete session from store
-      UserStore.deleteSession(sessionId);
+      // Delete session from database
+      const deleted = await SessionStore.delete(sessionId);
+      if (deleted) {
+        console.log('✅ Session deleted from database:', sessionId);
+      } else {
+        console.error('❌ Failed to delete session from database');
+      }
     }
 
     // Clear session cookie

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SupabaseOrderStore } from '@/lib/supabase-order-store';
+import { SupabaseOrderStore, generateOrderNumber } from '@/lib/supabase-order-store';
 import { SupabaseUserStore } from '@/lib/supabase-user-store';
 import { SupabasePaymentStore } from '@/lib/supabase-payment-store';
 import { SupabaseShippingAddressStore } from '@/lib/supabase-shipping-address-store';
-import { generateOrderNumber, formatOrderForEmail } from '@/lib/order-store';
+import { formatOrderForEmail } from '@/lib/order-store';
 import { emailService } from '@/lib/email-service';
 import { createClient } from '@/lib/supabase/client';
 
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
       // Create new order
       console.log(`📝 [process-order] Creating new order in database with status: ${orderStatus}...`);
       order = await SupabaseOrderStore.create({
-        orderNumber: generateOrderNumber(),
+        orderNumber: await generateOrderNumber(),
         userId: user.id, // Link order to user
         status: orderStatus,
         customerName: checkoutData.fullName,

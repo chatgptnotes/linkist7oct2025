@@ -3,6 +3,7 @@ import twilio from 'twilio';
 import { SupabaseMobileOTPStore } from '@/lib/supabase-otp-store';
 import { createClient } from '@supabase/supabase-js';
 import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
+import { SessionStore } from '@/lib/session-store';
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -53,6 +54,36 @@ export async function POST(request: NextRequest) {
               .from('users')
               .update({ mobile_verified: true, phone_number: mobile })
               .eq('email', userEmail);
+
+            // Fetch user data to create session
+            const { data: user, error: userError } = await supabase
+              .from('users')
+              .select('id, email, role')
+              .eq('email', userEmail)
+              .single();
+
+            if (user && !userError) {
+              // Create session
+              const sessionId = await SessionStore.create(user.id, user.email, user.role || 'user');
+              console.log('✅ Session created after mobile verification (Twilio):', sessionId);
+
+              // Set session cookie
+              const response = NextResponse.json({
+                success: true,
+                message: 'Mobile number verified successfully',
+                verified: true
+              });
+
+              response.cookies.set('session', sessionId, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: 60 * 60 * 24 * 7, // 7 days
+                path: '/'
+              });
+
+              return response;
+            }
           }
 
           return NextResponse.json({
@@ -139,6 +170,36 @@ export async function POST(request: NextRequest) {
         .from('users')
         .update({ mobile_verified: true, phone_number: mobile })
         .eq('email', userEmail);
+
+      // Fetch user data to create session
+      const { data: user, error: userError } = await supabase
+        .from('users')
+        .select('id, email, role')
+        .eq('email', userEmail)
+        .single();
+
+      if (user && !userError) {
+        // Create session
+        const sessionId = await SessionStore.create(user.id, user.email, user.role || 'user');
+        console.log('✅ Session created after mobile verification:', sessionId);
+
+        // Set session cookie
+        const response = NextResponse.json({
+          success: true,
+          message: 'Mobile number verified successfully',
+          verified: true
+        });
+
+        response.cookies.set('session', sessionId, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 7, // 7 days
+          path: '/'
+        });
+
+        return response;
+      }
     }
 
     return NextResponse.json({

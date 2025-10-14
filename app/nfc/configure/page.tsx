@@ -731,8 +731,8 @@ export default function ConfigureNewPage() {
                       </div>
                       </div>
 
-                      {/* NFC Symbol bottom right */}
-                      <div className="absolute bottom-9 right-4">
+                      {/* NFC Symbol - vertically centered on right side */}
+                      <div className="absolute top-1/2 -translate-y-1/2 right-4">
                         <img src="/nfc2.png" alt="NFC" className="w-9 h-9" />
                       </div>
                     </div>

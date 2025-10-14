@@ -253,8 +253,10 @@ export const OrderStore = {
   },
 };
 
-// Generate a new order number
+// Generate a new order number (deprecated - use async version from supabase-order-store)
+// Kept for backward compatibility, but will generate random numbers instead of sequential
 export const generateOrderNumber = (): string => {
+  console.warn('⚠️ Using deprecated generateOrderNumber(). Please use async version from supabase-order-store for sequential numbers.');
   const prefix = 'LFND'; // Linkist Founder order prefix
   const suffix = Math.random().toString(36).substring(2, 8).toUpperCase();
   return prefix + suffix;

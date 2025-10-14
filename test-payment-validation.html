@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Payment Validation</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #ff0000;
+    }
+    h2 {
+      color: #333;
+      border-bottom: 2px solid #ff0000;
+      padding-bottom: 10px;
+    }
+    button {
+      background: #ff0000;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #cc0000;
+    }
+    button.secondary {
+      background: #666;
+    }
+    button.secondary:hover {
+      background: #555;
+    }
+    .status {
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Payment Validation Test</h1>
+  <p>Test the payment page validation to ensure orders are required before payment.</p>
+
+  <div class="test-section">
+    <h2>Test Case 1: Valid Order with Order ID</h2>
+    <p>This should allow payment to proceed (simulates normal checkout flow).</p>
+    <button onclick="testValidOrder()">✅ Test Valid Order</button>
+    <div id="test1-status"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test Case 2: Order Without Order ID</h2>
+    <p>This should show error and redirect to checkout.</p>
+    <button onclick="testInvalidOrder()">❌ Test Invalid Order (No Order ID)</button>
+    <div id="test2-status"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test Case 3: No Order Data</h2>
+    <p>This should redirect to checkout page immediately.</p>
+    <button onclick="testNoOrder()">❌ Test No Order Data</button>
+    <div id="test3-status"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Current localStorage Data</h2>
+    <button onclick="showCurrentData()">🔍 View Current Data</button>
+    <button class="secondary" onclick="clearAllData()">🗑️ Clear All Data</button>
+    <div id="current-data"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Instructions</h2>
+    <ol>
+      <li>Click each test button to simulate different scenarios</li>
+      <li>After clicking a test, navigate to <code>localhost:3000/nfc/payment</code></li>
+      <li>Observe the behavior of the payment page</li>
+      <li>Expected behaviors:
+        <ul>
+          <li><strong>Valid Order:</strong> Payment page loads normally</li>
+          <li><strong>Invalid Order:</strong> Shows "Order Not Found" error with buttons to go to checkout</li>
+          <li><strong>No Order:</strong> Automatically redirects to checkout page</li>
+        </ul>
+      </li>
+    </ol>
+  </div>
+
+  <script>
+    function testValidOrder() {
+      const validOrder = {
+        orderId: 'test-order-id-' + Date.now(),
+        orderNumber: 'TEST-' + Date.now(),
+        customerName: 'Test Customer',
+        email: 'test@example.com',
+        phoneNumber: '+1234567890',
+        cardConfig: {
+          firstName: 'Test',
+          lastName: 'Customer',
+          quantity: 1,
+          color: 'black-pvc',
+          baseMaterial: 'pvc'
+        },
+        shipping: {
+          fullName: 'Test Customer',
+          addressLine1: '123 Test St',
+          addressLine2: '',
+          city: 'Test City',
+          state: 'CA',
+          country: 'USA',
+          postalCode: '90210',
+          phoneNumber: '+1234567890'
+        },
+        pricing: {
+          subtotal: 29.99,
+          shipping: 5.00,
+          tax: 2.01,
+          total: 37.00,
+          taxAmount: 2.01
+        }
+      };
+
+      localStorage.setItem('pendingOrder', JSON.stringify(validOrder));
+
+      document.getElementById('test1-status').innerHTML = `
+        <div class="status success">
+          ✅ Valid order data stored in localStorage!
+          <br><br>
+          <strong>Order ID:</strong> ${validOrder.orderId}
+          <br>
+          <strong>Order Number:</strong> ${validOrder.orderNumber}
+          <br><br>
+          <a href="/nfc/payment" target="_blank" style="color: #155724; text-decoration: underline;">
+            → Open Payment Page in New Tab
+          </a>
+        </div>
+      `;
+    }
+
+    function testInvalidOrder() {
+      const invalidOrder = {
+        // No orderId field!
+        customerName: 'Test Customer',
+        email: 'test@example.com',
+        phoneNumber: '+1234567890',
+        cardConfig: {
+          firstName: 'Test',
+          lastName: 'Customer',
+          quantity: 1
+        },
+        shipping: {
+          fullName: 'Test Customer',
+          addressLine1: '123 Test St',
+          city: 'Test City',
+          state: 'CA',
+          country: 'USA',
+          postalCode: '90210'
+        },
+        pricing: {
+          subtotal: 29.99,
+          total: 37.00
+        }
+      };
+
+      localStorage.setItem('pendingOrder', JSON.stringify(invalidOrder));
+
+      document.getElementById('test2-status').innerHTML = `
+        <div class="status error">
+          ❌ Invalid order data stored (missing orderId)!
+          <br><br>
+          <strong>Expected behavior:</strong> Payment page should show error message
+          <br><br>
+          <a href="/nfc/payment" target="_blank" style="color: #721c24; text-decoration: underline;">
+            → Open Payment Page in New Tab
+          </a>
+        </div>
+      `;
+    }
+
+    function testNoOrder() {
+      localStorage.removeItem('pendingOrder');
+
+      document.getElementById('test3-status').innerHTML = `
+        <div class="status error">
+          ❌ Removed all order data from localStorage!
+          <br><br>
+          <strong>Expected behavior:</strong> Payment page should redirect to checkout
+          <br><br>
+          <a href="/nfc/payment" target="_blank" style="color: #721c24; text-decoration: underline;">
+            → Open Payment Page in New Tab
+          </a>
+        </div>
+      `;
+    }
+
+    function showCurrentData() {
+      const orderData = localStorage.getItem('pendingOrder');
+      const confirmData = localStorage.getItem('orderConfirmation');
+
+      let html = '<div class="status info">';
+
+      if (orderData) {
+        html += `
+          <strong>Pending Order:</strong>
+          <pre><code>${JSON.stringify(JSON.parse(orderData), null, 2)}</code></pre>
+        `;
+      } else {
+        html += '<p>No pending order data found.</p>';
+      }
+
+      if (confirmData) {
+        html += `
+          <strong>Order Confirmation:</strong>
+          <pre><code>${JSON.stringify(JSON.parse(confirmData), null, 2)}</code></pre>
+        `;
+      }
+
+      html += '</div>';
+
+      document.getElementById('current-data').innerHTML = html;
+    }
+
+    function clearAllData() {
+      localStorage.removeItem('pendingOrder');
+      localStorage.removeItem('orderConfirmation');
+      document.getElementById('current-data').innerHTML = `
+        <div class="status success">
+          ✅ All order data cleared from localStorage!
+        </div>
+      `;
+    }
+
+    // Show current data on page load
+    showCurrentData();
+  </script>
+</body>
+</html>

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SupabaseOrderStore } from '@/lib/supabase-order-store';
+import { SupabaseOrderStore, generateOrderNumber } from '@/lib/supabase-order-store';
 import { SupabaseUserStore } from '@/lib/supabase-user-store';
 import { emailService } from '@/lib/email-service';
-import { formatOrderForEmail, generateOrderNumber } from '@/lib/order-store';
+import { formatOrderForEmail } from '@/lib/order-store';
 import type { Order } from '@/lib/order-store';
 
 export async function POST(request: NextRequest) {
@@ -33,9 +33,9 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Orders API: User created/updated:', user.id);
 
-    // Generate order number with LNK- prefix
-    const orderNumber = generateOrderNumber();
-    
+    // Generate order number with LFND-XXXXXX prefix
+    const orderNumber = await generateOrderNumber();
+
     // Create order object
     const orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> = {
       orderNumber,

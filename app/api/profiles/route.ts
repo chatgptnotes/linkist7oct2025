@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server'
+import { getCurrentUser } from '@/lib/auth-middleware'
 import { createClient } from '@supabase/supabase-js'
 
 // Initialize Supabase client
@@ -8,16 +8,27 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
-    const userEmail = cookieStore.get('userEmail')?.value || 'guest@linkist.com'
+    // Get authenticated user
+    const authSession = await getCurrentUser(request)
 
-    // Fetch profiles from Supabase
+    if (!authSession.isAuthenticated || !authSession.user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
+    const userId = authSession.user.id
+
+    console.log('🔍 Fetching profiles for user_id:', userId)
+
+    // Fetch profiles from Supabase using user_id
     const { data: profiles, error } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .select('*')
-      .eq('user_email', userEmail)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -38,20 +49,30 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
-    const userEmail = cookieStore.get('userEmail')?.value || 'guest@linkist.com'
+    // Get authenticated user
+    const authSession = await getCurrentUser(request)
 
+    if (!authSession.isAuthenticated || !authSession.user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
+    const userId = authSession.user.id
     const data = await request.json()
 
     // Generate a unique profile ID (UUID v4)
     const profileId = crypto.randomUUID()
 
+    console.log('💾 Saving profile for user_id:', userId)
+
     // Prepare data for Supabase with existing columns
     const profileData = {
       id: profileId,
-      user_email: userEmail,
+      user_id: userId,
       email: data.email,
       alternate_email: data.alternateEmail || null,
       first_name: data.firstName,
@@ -60,29 +81,25 @@ export async function POST(request: Request) {
       template: data.template || null,
       title: data.title || null,
       bio: data.bio || null,
-      phone: data.phone || null,
-      whatsapp: data.whatsapp || null,
+      phone_number: data.phone || data.mobileNumber || null,
+      whatsapp: data.whatsapp || data.whatsappNumber || null,
       location: data.location || null,
 
       // Professional Information (from Figma design)
       job_title: data.jobTitle || null,
-      current_role: data.currentRole || null,
-      company: data.company || null,
+      company_name: data.companyName || data.company || null,
       company_website: data.companyWebsite || null,
+      company_address: data.companyAddress || null,
+      company_logo_url: data.companyLogo || null,
       industry: data.industry || null,
       sub_domain: data.subDomain || null,
       professional_summary: data.professionalSummary || null,
 
-      position: data.position || null,
       skills: data.skills || [],
-      social_links: data.socialLinks || {},
-      visibility: data.visibility || 'public',
-      custom_url: data.customUrl || null,
-      theme: data.theme || 'light',
-      allow_contact: data.allowContact !== false,
-      show_analytics: data.showAnalytics || false,
-      profile_image_url: data.profile_image_url || null,
-      cover_image_url: data.cover_image_url || null,
+      social_links: data.socialLinks || data.social_links || {},
+      profile_photo_url: data.profilePhoto || null,
+      background_image_url: data.backgroundImage || null,
+      display_settings: data.displaySettings || data.display_settings || {},
       gallery_urls: data.gallery_urls || [],
       document_urls: data.document_urls || [],
       status: 'active',
@@ -92,7 +109,7 @@ export async function POST(request: Request) {
 
     // Save to Supabase
     const { data: insertedData, error } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .insert([profileData])
       .select()
 
@@ -116,16 +133,26 @@ export async function POST(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
-    const userEmail = cookieStore.get('userEmail')?.value || 'guest@linkist.com'
+    // Get authenticated user
+    const authSession = await getCurrentUser(request)
 
+    if (!authSession.isAuthenticated || !authSession.user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
+    const userId = authSession.user.id
     const data = await request.json()
 
     if (!data.id) {
       return NextResponse.json({ error: 'Profile ID is required' }, { status: 400 })
     }
+
+    console.log('✏️ Updating profile for user_id:', userId, 'profile_id:', data.id)
 
     // TODO: Update in Supabase
     const profileData = {
@@ -136,29 +163,25 @@ export async function PUT(request: Request) {
       bio: data.bio,
       email: data.email,
       alternate_email: data.alternateEmail,
-      phone: data.phone,
-      whatsapp: data.whatsapp,
+      phone_number: data.phone || data.mobileNumber,
+      whatsapp: data.whatsapp || data.whatsappNumber,
       location: data.location,
 
       // Professional Information (from Figma design)
       job_title: data.jobTitle,
-      current_role: data.currentRole,
-      company: data.company,
+      company_name: data.companyName || data.company,
       company_website: data.companyWebsite,
+      company_address: data.companyAddress,
+      company_logo_url: data.companyLogo,
       industry: data.industry,
       sub_domain: data.subDomain,
       professional_summary: data.professionalSummary,
 
-      position: data.position,
       skills: data.skills,
-      social_links: data.socialLinks,
-      visibility: data.visibility,
-      custom_url: data.customUrl,
-      theme: data.theme,
-      allow_contact: data.allowContact,
-      show_analytics: data.showAnalytics,
-      profile_image_url: data.profile_image_url,
-      cover_image_url: data.cover_image_url,
+      social_links: data.socialLinks || data.social_links,
+      profile_photo_url: data.profilePhoto,
+      background_image_url: data.backgroundImage,
+      display_settings: data.displaySettings || data.display_settings,
       gallery_urls: data.gallery_urls,
       document_urls: data.document_urls,
       updated_at: new Date().toISOString()
@@ -166,10 +189,10 @@ export async function PUT(request: Request) {
 
     // Update in Supabase
     const { data: updatedData, error } = await supabase
-      .from('user_profiles')
+      .from('profiles')
       .update(profileData)
       .eq('id', data.id)
-      .eq('user_email', userEmail)
+      .eq('user_id', userId)
       .select()
 
     if (error) {

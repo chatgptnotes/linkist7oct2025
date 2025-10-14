@@ -27,6 +27,13 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                        pathname.startsWith('/admin-login') ||
                        pathname.startsWith('/admin-access');
 
+  // Check if current route is an authentication page (login, register, verify)
+  const isAuthPage = pathname.startsWith('/login') ||
+                     pathname.startsWith('/register') ||
+                     pathname.startsWith('/verify-login') ||
+                     pathname.startsWith('/verify-mobile') ||
+                     pathname.startsWith('/verify-email');
+
   // Check if current route is an inner page (checkout flow, account, etc.)
   const isInnerPage = pathname.startsWith('/checkout') ||
                       pathname.startsWith('/confirm-payment') ||
@@ -49,11 +56,14 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     const checkAuth = async () => {
       try {
         const response = await fetch('/api/auth/me');
+        console.log('🔐 Auth response status:', response.status);
         if (response.ok) {
           const data = await response.json();
+          console.log('👤 User data from auth:', data);
           setUserData(data.user);
         } else if (response.status === 401) {
           // User not authenticated - this is expected, don't log error
+          console.log('❌ Not authenticated (401)');
           setUserData(null);
         }
       } catch (error) {
@@ -111,6 +121,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             <Link href="/">
               <Logo width={100} height={32} noLink={true} variant="light" />
             </Link>
+            {userData && !isAuthPage && <UserProfileDropdown user={userData} />}
           </div>
         </header>
         <main className="pt-16 flex-grow min-h-0">

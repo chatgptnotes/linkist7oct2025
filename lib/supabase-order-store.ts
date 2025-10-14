@@ -383,5 +383,30 @@ export const SupabaseOrderStore = {
   },
 }
 
+// Generate a sequential order number using database sequence
+export const generateOrderNumber = async (): Promise<string> => {
+  const supabase = createAdminClient()
+
+  try {
+    // Call the database function to generate the next order number
+    const { data, error } = await supabase
+      .rpc('generate_order_number')
+
+    if (error) {
+      console.error('Error generating order number:', error)
+      // Fallback to timestamp-based order number if sequence fails
+      const timestamp = Date.now().toString(36).toUpperCase()
+      return `LFND-${timestamp}`
+    }
+
+    return data as string
+  } catch (err) {
+    console.error('Exception generating order number:', err)
+    // Fallback to timestamp-based order number
+    const timestamp = Date.now().toString(36).toUpperCase()
+    return `LFND-${timestamp}`
+  }
+}
+
 // Export the same interface for easy migration
 export { SupabaseOrderStore as OrderStore }
